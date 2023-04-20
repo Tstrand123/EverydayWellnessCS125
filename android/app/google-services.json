@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "383475380165",
+    "project_id": "everydaywellness-ff9c3",
+    "storage_bucket": "everydaywellness-ff9c3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:383475380165:android:225da5af5a916b500525ac",
+        "android_client_info": {
+          "package_name": "com.example.everyday_wellness_cs125"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "383475380165-m52jhfbebfmnfunbmr8tj06cm9019f6b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzw0h90mBl7Ryl0NwPR_UfDCb0BEYm_FE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "383475380165-m52jhfbebfmnfunbmr8tj06cm9019f6b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
