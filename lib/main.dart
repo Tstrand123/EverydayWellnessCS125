@@ -1,19 +1,62 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'loginPage.dart';
 
-void main() => runApp(const MyApp());
+//Note: Heavily referenced https://www.youtube.com/watch?v=4vKiJZNPhss
+//For setting up the sign in and sign up
+
+//referenced https://www.youtube.com/watch?v=pixIpW3V-5s for errors
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+  runApp(MyApp());
+}
+
+class MyAppLogin extends StatelessWidget {
+  const MyAppLogin({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return HomePage(title: 'Title');
+          } else {
+            return LoginWidget();
+          }
+        },
+      ),
+    );
+  }
+}
+
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}):super(key:key);
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Home',
-      home: const HomePage(title: 'HomePage'),
+      home: MyAppLogin(),
     );
   }}
 
-class HomePage extends StatelessWidget{
+class HomePage extends StatefulWidget{
   const HomePage({Key? key, required this.title}) : super(key:key);
   final String title;
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     Widget foodSection = Expanded(
@@ -69,13 +112,20 @@ class HomePage extends StatelessWidget{
       //body: const Center(
       //  child: Text('Hello World'),
       //),
-      body: Column(
-          children: [
-            Expanded (child: Row(children:[foodSection])),
-            Expanded (child: Row(children: [exerciseSection])),
-            Expanded (child: Row(children: [sleepSection])),
-            //Expanded (child: ButtonBar(children: [foodSection]))
-          ]
+      body: SafeArea(
+        child: SingleChildScrollView(
+          
+          child: Column(
+              children: [
+                Row(children:[foodSection]),
+                Row(children: [exerciseSection]),
+                Row(children: [sleepSection]),
+                ElevatedButton(onPressed: () => FirebaseAuth.instance.signOut(),
+                    child: const Text('Sign out'))
+                //Expanded (child: ButtonBar(children: [foodSection]))
+              ]
+          ),
+        ),
       ),
 
     );
