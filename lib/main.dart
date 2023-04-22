@@ -3,6 +3,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'loginPage.dart';
+import 'Food.dart';
+import 'Sleep.dart';
+import 'Exercise.dart';
 
 //Note: Heavily referenced https://www.youtube.com/watch?v=4vKiJZNPhss
 //For setting up the sign in and sign up
@@ -87,19 +90,37 @@ class _HomePageState extends State<HomePage> {
               color: Colors.lightGreenAccent,
             ),
             padding: const EdgeInsets.all(50),
-            child: (
-                const Text('Exercise', textAlign: TextAlign.center,))
+            child:
+            TextButton(
+              onPressed: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context){
+                  return const ExerciseHome(title: 'ExerciseHome');
+                }
+                )
+                );
+              }, // on pressed
+              child: Text("Exercise"),
+            ),
+
         ));
     Widget sleepSection = Expanded(
         child: Container(
             decoration: BoxDecoration(
-              border: Border.all(width: 10, color: Colors.blueAccent),
+              border: Border.all(width: 10, color: Colors.lightBlue),
               borderRadius: const BorderRadius.all(Radius.circular(8)),
-              color: Colors.blueAccent,
+              color: Colors.lightBlue,
             ),
             padding: const EdgeInsets.all(50),
-            child: (
-                const Text('Sleep', textAlign: TextAlign.center,))
+            child: TextButton(
+              onPressed: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context){
+                  return const SleepHome(title: 'SleepHome');
+                }
+                )
+                );
+              }, // on pressed
+              child: Text("Sleep"),
+            ),
         ));
     return Scaffold(//MaterialApp(
       // title: 'Everyday Wellness',
@@ -133,20 +154,3 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class FoodHome extends StatelessWidget{
-  const FoodHome({Key? key, required this.title}): super(key: key);
-  final String title;
-
-  @override
-  Widget build(BuildContext context){
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        actions: <Widget>[IconButton(onPressed: (){}, icon: const Icon(Icons.account_circle_rounded),)],
-      ),
-      body: const Center(
-        child: Text('hi'),
-      ),
-    );
-  }
-}
