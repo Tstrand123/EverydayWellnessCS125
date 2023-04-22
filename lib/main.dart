@@ -28,10 +28,14 @@ class MyAppLogin extends StatelessWidget {
       body: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator(),);
+          }else if (snapshot.hasError) {
+            return Center(child: Text('Error Occured'),);
+          }else if (snapshot.hasData) {
             return HomePage(title: 'Title');
           } else {
-            return LoginWidget();
+            return AuthPage();
           }
         },
       ),
@@ -39,13 +43,15 @@ class MyAppLogin extends StatelessWidget {
   }
 }
 
+final navigatorKey = GlobalKey<NavigatorState>();
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}):super(key:key);
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'Home',
       home: MyAppLogin(),
     );
