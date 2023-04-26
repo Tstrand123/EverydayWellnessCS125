@@ -119,7 +119,8 @@ class NewSleepLogState extends State<NewSleepLog>{
 
     return Form(
         key: _formKey,
-        child: Column(
+        child: ListView(
+          padding: EdgeInsets.all(8),
           children: <Widget>[
             Row(children: [Expanded(child: BedTimeField)]),
             Row(children: [Expanded(child: DateField)]),

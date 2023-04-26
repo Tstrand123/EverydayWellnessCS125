@@ -178,7 +178,8 @@ class NewFoodLogState extends State<NewFoodLog>{
     // TODO: include validation
     return Form(
         key: _formKey,
-        child: Column(
+        child: ListView(
+          padding: EdgeInsets.all(8),
           children: <Widget>[
             Row(children: [Expanded(child: TimeField)]),
             Row(children: [Expanded(child: NameField)]),
