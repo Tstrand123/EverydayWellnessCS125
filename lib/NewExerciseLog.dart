@@ -45,26 +45,33 @@ class DropdownBox extends StatefulWidget{
 class _DropdownBoxState extends State<DropdownBox>{
   String dropdownVal = exerciseTypes.first; // default entry of text box
 
-  // TODO: center text for Dropdown Box
-  // TODO: figure out a way to align the downward arrow to the far right (think it'll look nicer anchored over there)
+
   @override
   Widget build(BuildContext context){
-    return DropdownButton<String>(
+    //return DropdownButton<String>( // changed to dropdownbuttonformfield because dropdownbutton doesn't have a validator method
+    return Container(
+      padding: EdgeInsets.all(8),
+      child: DropdownButtonFormField(
       value: dropdownVal,
       icon: const Icon(Icons.arrow_downward,),
       elevation: 16,
-      underline: Container(
-        height: 2,
-        color: Colors.blueAccent,
-      ),
       onChanged: (String? value){
         setState(() {
           dropdownVal = value!;
         });
       },
+        validator: (value){
+          if ( exerciseTypes.indexOf(dropdownVal) == 0) {
+            return 'field required';
+          }
+          else {
+            return null;
+          }
+        },
       items: exerciseTypes.map<DropdownMenuItem<String>>((String value){
         return DropdownMenuItem<String>(value: value,child: Text(value),);
       }).toList(),
+    )
     );
   }
 }
@@ -144,7 +151,6 @@ class NewExerciseLogState extends State<NewExerciseLog>{
     )
     );
 
-    // TODO: include validation
     return Form(
         key: _formKey,
         child: ListView(
