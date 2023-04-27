@@ -13,6 +13,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 //For setting up the sign in and sign up
 
 //Referenced https://dev.to/wangonya/how-you-turn-a-string-into-a-number-or-vice-versa-with-dart-392h
+//https://stackoverflow.com/questions/49577781/how-to-create-number-input-field-in-flutter
+//https://dart.dev/guides/language/numbers
+//https://dev.to/wangonya/how-you-turn-a-string-into-a-number-or-vice-versa-with-dart-392h
 
 class LoginWidget extends StatefulWidget {
   final VoidCallback onClickedSignUp;
@@ -263,8 +266,8 @@ class _SignUpWidgetState extends State<SignUpWidget> {
       final userUpload = appUser(userID: userID,
           firstName: firstNameController.text.trim(),
         lastName: lastNameController.text.trim(),
-        heightFeet: int.parse(heightFeetController.text.trim()),
-        heightInches: int.parse(heightInchesController.text.trim()),
+        heightFeet: int.parse(heightFeetController.text.trim()), //referenced https://dart.dev/guides/language/numbers,
+        heightInches: int.parse(heightInchesController.text.trim()), //https://dev.to/wangonya/how-you-turn-a-string-into-a-number-or-vice-versa-with-dart-392h
         weight: int.parse(weightController.text.trim()),
       );
 
