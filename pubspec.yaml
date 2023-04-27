@@ -41,6 +41,7 @@ dependencies:
   flutter_rating_bar: ^4.0.1
   email_validator: ^2.1.17
   cloud_firestore: ^4.5.2
+  percent_indicator: ^4.2.3
 
 dev_dependencies:
   flutter_test:
