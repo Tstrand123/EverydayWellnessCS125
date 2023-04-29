@@ -8,6 +8,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:health/health.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 //Note: Heavily referenced https://www.youtube.com/watch?v=4vKiJZNPhss
 //For setting up the sign in and sign up
@@ -80,11 +82,17 @@ class _LoginWidgetState extends State<LoginWidget> {
   }
 
   Future signIn() async {
+
+    var activityPermission = await Permission.activityRecognition.request();
+    var locationPermission = await Permission.location.request();
+
     showDialog(context: context,
         barrierDismissible: false,
         builder: (context) => Center(child: CircularProgressIndicator(),));
 
     try {
+
+
       await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailText.text.trim(),
           password: passwordText.text.trim()
@@ -256,6 +264,9 @@ class _SignUpWidgetState extends State<SignUpWidget> {
 
     showDialog(context: context,
         builder: (context) => Center(child: CircularProgressIndicator(),));
+
+    var activityPermission = await Permission.activityRecognition.request();
+    var locationPermission = await Permission.location.request();
 
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(

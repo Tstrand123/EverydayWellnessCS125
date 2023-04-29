@@ -43,6 +43,7 @@ dependencies:
   cloud_firestore: ^4.5.2
   percent_indicator: ^4.2.3
   health: ^6.0.0
+  permission_handler: ^10.2.0
 
 dev_dependencies:
   flutter_test:
