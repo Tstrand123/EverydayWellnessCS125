@@ -6,6 +6,7 @@ import 'loginPage.dart';
 import 'Food.dart';
 import 'Sleep.dart';
 import 'Exercise.dart';
+import 'testPages.dart';
 
 //Note: Heavily referenced https://www.youtube.com/watch?v=4vKiJZNPhss
 //For setting up the sign in and sign up
@@ -181,8 +182,11 @@ class _HomePageState extends State<HomePage> {
             Row(children: [sleepSection]),
             ElevatedButton(
                 onPressed: () => FirebaseAuth.instance.signOut(),
-                child: const Text('Sign out'))
+                child: const Text('Sign out')),
             //Expanded (child: ButtonBar(children: [foodSection]))
+            ElevatedButton(onPressed: () => Navigator.push(
+              context, MaterialPageRoute(builder: (context) => const TestPage()),
+            ), child: const Text('Go to test pages')),
           ]),
         ),
       ),
