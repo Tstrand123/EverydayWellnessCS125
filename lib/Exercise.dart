@@ -24,17 +24,17 @@ class ExerciseHome extends StatelessWidget{
                   // Recommendation box: displays the current recommendation to the user
                   Expanded(child: Row(children: [Expanded(child: DecoratedBox(decoration: BoxDecoration(
                       color:  Colors.white60,
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      borderRadius: const BorderRadius.all(Radius.circular(8)),
                       border: Border.all(color: Colors.black12, width: 2)
                   ),
-                    child: Center(child: Text("Recomendation")),
+                    child: Center(child: Text("Recomendation")), // TODO: replace with actual information
                   ))
                   ])),
 
                   // NewLog widget: allows the user to manually create a new Sleep Log
                   Expanded(child: Row(children: [Expanded(child:DecoratedBox(decoration: BoxDecoration(
                       color:  Colors.white60,
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      borderRadius: const BorderRadius.all(Radius.circular(8)),
                       border: Border.all(color: Colors.black12, width: 2)
                   ),
                       // TODO: create link to NewLog widget
@@ -44,7 +44,7 @@ class ExerciseHome extends StatelessWidget{
                         }
                         ));
                       },
-                          child: Text("New Log")),
+                          child: const Text("New Log")),
                       )))]
                   )),
 
@@ -53,12 +53,24 @@ class ExerciseHome extends StatelessWidget{
                   Expanded(child: ListView(
                     padding: const EdgeInsets.all(8),
                     children: <Widget>[
-                      // TODO: add additional details for each ListTile to display relevant information for each log
-                      ListTile(title: Center(child: Text('Log 1'))),
-                      ListTile(title: Center(child: Text('Log 2'))),
-                      ListTile(title: Center(child: Text('Log 3'))),
-                      ListTile(title: Center(child: Text('Log 4'))),
-                      ListTile(title: Center(child: Text('Log 5'))),
+                      for (int index = 1; index < 6; index++)
+                        ElevatedButton(
+                            style: const ButtonStyle(
+                              backgroundColor: MaterialStatePropertyAll<Color>(Colors.white),
+                              foregroundColor: MaterialStatePropertyAll<Color>(Colors.black),
+                            ),
+                            onPressed: (){
+                              // TODO: fill in
+                              //  leads to a more verbose log that lists all elements of the log as well as the options to edit/delete the entry
+                            },
+                            child: Row(children:
+                            [
+// NOTE: these cannot be const, because they will have hold values obtained from the DB
+                              Expanded(child: Text("Date/Time: $index", textAlign: TextAlign.center,)), // TODO: replace constant text with text retrieved from DB
+                              Expanded(child:Text("type: $index", textAlign: TextAlign.center,)) // TODO: replace $index with reference to data entry from DB
+                            ]
+                            )
+                        ),
                       // MoreLogs button: links to widget listing all previous logs
                       // TODO: create link to MoreLogs Widget
                       ListTile(title: TextButton( onPressed: (){},

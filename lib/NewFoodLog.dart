@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:intl/intl.dart';
 
 import 'Food.dart';
 
@@ -34,10 +35,37 @@ class NewFoodLog extends StatefulWidget{
 
 class NewFoodLogState extends State<NewFoodLog>{
   final _formKey = GlobalKey<FormState>();
+  TextEditingController dateInput = TextEditingController();
+  TextEditingController timeInput = TextEditingController();
 
   @override
   Widget build(BuildContext context){
-    Widget TimeField = TextFormField(
+
+    Widget DatepickerField = Container(
+        padding: EdgeInsets.all(8),
+        child: Center(
+            child: TextField(
+              controller: dateInput,
+              decoration: const InputDecoration(
+                  icon: Icon(Icons.calendar_month),
+                  labelText: "Enter Date"
+              ),
+              readOnly: true,
+              onTap: () async{
+                DateTime? pickedDate = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2100));
+                if(pickedDate != null){
+                  String formattedDate = DateFormat('M/d/y').format(pickedDate);
+                  setState(() {
+                    dateInput.text = formattedDate;
+                  });
+                }
+                else {}
+              },
+            )
+        )
+    );
+
+    /*Widget TimeField = TextFormField(       // removed, replaced with date/time pickers
         decoration: const InputDecoration(
           icon: const Icon(Icons.schedule),
           hintText: 'When did you eat?',
@@ -49,7 +77,31 @@ class NewFoodLogState extends State<NewFoodLog>{
         }
         return null;
       },
-      // TODO: change to a time picker?
+    );*/
+
+    Widget TimepickerField = Container(
+        padding: EdgeInsets.all(8),
+        child: Center(
+          child: TextField(
+            controller: timeInput,
+            decoration: const InputDecoration(
+              icon: Icon(Icons.schedule),
+              hintText: '',
+              labelText: 'Time',
+            ),
+            readOnly: true,
+            onTap: () async{
+              TimeOfDay? pickedTime = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+              if (pickedTime != null){
+                String formattedTime = pickedTime.hour.toString() + ' : ' + pickedTime.minute.toString();
+                setState(() {
+                  timeInput.text = formattedTime;
+                });
+              }
+              else{}
+            },
+          ),
+        )
     );
 
     Widget NameField = TextFormField(
@@ -181,7 +233,8 @@ class NewFoodLogState extends State<NewFoodLog>{
         child: ListView(
           padding: EdgeInsets.all(8),
           children: <Widget>[
-            Row(children: [Expanded(child: TimeField)]),
+            Row(children: [Expanded(child: DatepickerField)],),
+            Row(children: [Expanded(child: TimepickerField)]),
             Row(children: [Expanded(child: NameField)]),
             Row(children: [Expanded(child: CaloriesField)]),
             Row(children: [Expanded(child: FatField)]),
@@ -189,7 +242,6 @@ class NewFoodLogState extends State<NewFoodLog>{
             Row(children: [Expanded(child: CarbsField)]),
             Row(children: [Expanded(child: foodRating)],),
             Row(children: [Expanded(child: Submit)])
-            // TODO: add rating widget
           ],
         )
     );

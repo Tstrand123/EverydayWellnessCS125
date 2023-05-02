@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:intl/intl.dart';
 
 import 'Exercise.dart';
 
@@ -80,10 +81,37 @@ class _DropdownBoxState extends State<DropdownBox>{
 // paint the rest of the log
 class NewExerciseLogState extends State<NewExerciseLog>{
   final _formKey = GlobalKey<FormState>();
+  TextEditingController dateInput = TextEditingController();
+  TextEditingController timeInput = TextEditingController();
 
   @override
   Widget build(BuildContext context){
-    Widget TimeField = TextFormField(
+
+    Widget DatepickerField = Container(
+        padding: EdgeInsets.all(8),
+        child: Center(
+            child: TextField(
+              controller: dateInput,
+              decoration: const InputDecoration(
+                  icon: Icon(Icons.calendar_month),
+                  labelText: "Enter Date"
+              ),
+              readOnly: true,
+              onTap: () async{
+                DateTime? pickedDate = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2100));
+                if(pickedDate != null){
+                  String formattedDate = DateFormat('M/d/y').format(pickedDate);
+                  setState(() {
+                    dateInput.text = formattedDate;
+                  });
+                }
+                else {}
+              },
+            )
+        )
+    );
+
+   /* Widget TimeField = TextFormField(
         decoration: const InputDecoration(
           icon: const Icon(Icons.schedule),
           hintText: '',
@@ -95,6 +123,31 @@ class NewExerciseLogState extends State<NewExerciseLog>{
         }
         return null;
       },
+    );*/
+
+    Widget TimepickerField = Container(
+        padding: EdgeInsets.all(8),
+        child: Center(
+          child: TextField(
+            controller: timeInput,
+            decoration: const InputDecoration(
+              icon: Icon(Icons.schedule),
+              hintText: '',
+              labelText: 'Time',
+            ),
+            readOnly: true,
+            onTap: () async{
+              TimeOfDay? pickedTime = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+              if (pickedTime != null){
+                String formattedTime = pickedTime.hour.toString() + ' : ' + pickedTime.minute.toString();
+                setState(() {
+                  timeInput.text = formattedTime;
+                });
+              }
+              else{}
+            },
+          ),
+        )
     );
 
     Widget DurationField = TextFormField(
@@ -156,7 +209,8 @@ class NewExerciseLogState extends State<NewExerciseLog>{
         child: ListView(
           padding: EdgeInsets.all(8),
           children: <Widget>[
-            Row(children: [Expanded(child: TimeField)]),
+            Row(children: [Expanded(child: DatepickerField)],),
+            Row(children: [Expanded(child: TimepickerField)]),
             Row(children: [Expanded(child: DurationField)]),
             Row(children: [Expanded(child: DropdownBox())]),
             Row(children: [Expanded(child: exerciseRating)],),

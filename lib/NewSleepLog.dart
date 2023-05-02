@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:intl/intl.dart';
 
 import 'Sleep.dart';
 
@@ -34,10 +35,13 @@ class NewSleepLog extends StatefulWidget{
 
 class NewSleepLogState extends State<NewSleepLog>{
   final _formKey = GlobalKey<FormState>();
+  TextEditingController dateInput = TextEditingController();
+  TextEditingController sleepTimeInput = TextEditingController();
+  TextEditingController wakeTimeInput = TextEditingController();
 
   @override
   Widget build(BuildContext context){
-    Widget BedTimeField = TextFormField(
+    /*Widget BedTimeField = TextFormField( // Removed, replaced with date/time pickers
         decoration: const InputDecoration(
           icon: const Icon(Icons.schedule),
           hintText: 'When did you sleep?',
@@ -51,7 +55,6 @@ class NewSleepLogState extends State<NewSleepLog>{
       },
     );
 
-    // TODO: implement a date picker
     Widget DateField = TextFormField(
         decoration: const InputDecoration(
           icon: const Icon(Icons.calendar_month),
@@ -78,6 +81,80 @@ class NewSleepLogState extends State<NewSleepLog>{
         }
         return null;
       },
+    );*/
+
+    Widget DatepickerField = Container(
+        padding: EdgeInsets.all(8),
+        child: Center(
+            child: TextField(
+              controller: dateInput,
+              decoration: const InputDecoration(
+                  icon: Icon(Icons.calendar_month),
+                  labelText: "Enter Date"
+              ),
+              readOnly: true,
+              onTap: () async{
+                DateTime? pickedDate = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2100));
+                if(pickedDate != null){
+                  String formattedDate = DateFormat('M/d/y').format(pickedDate);
+                  setState(() {
+                    dateInput.text = formattedDate;
+                  });
+                }
+                else {}
+              },
+            )
+        )
+    );
+
+    Widget SleepPicker = Container(
+        padding: EdgeInsets.all(8),
+        child: Center(
+          child: TextField(
+            controller: sleepTimeInput,
+            decoration: const InputDecoration(
+              icon: Icon(Icons.schedule),
+              hintText: '',
+              labelText: 'Bed Time',
+            ),
+            readOnly: true,
+            onTap: () async{
+              TimeOfDay? pickedTime = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+              if (pickedTime != null){
+                String formattedTime = pickedTime.hour.toString() + ' : ' + pickedTime.minute.toString();
+                setState(() {
+                  sleepTimeInput.text = formattedTime;
+                });
+              }
+              else{}
+            },
+          ),
+        )
+    );
+
+    Widget wakeUpPicker = Container(
+        padding: EdgeInsets.all(8),
+        child: Center(
+          child: TextField(
+            controller: wakeTimeInput,
+            decoration: const InputDecoration(
+              icon: Icon(Icons.schedule),
+              hintText: '',
+              labelText: 'Wake up time',
+            ),
+            readOnly: true,
+            onTap: () async{
+              TimeOfDay? pickedTime = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+              if (pickedTime != null){
+                String formattedTime = pickedTime.hour.toString() + ' : ' + pickedTime.minute.toString();
+                setState(() {
+                  wakeTimeInput.text = formattedTime;
+                });
+              }
+              else{}
+            },
+          ),
+        )
     );
 
     Widget sleepRating = Container(padding: const EdgeInsets.symmetric(vertical: 30),
@@ -122,9 +199,9 @@ class NewSleepLogState extends State<NewSleepLog>{
         child: ListView(
           padding: EdgeInsets.all(8),
           children: <Widget>[
-            Row(children: [Expanded(child: BedTimeField)]),
-            Row(children: [Expanded(child: DateField)]),
-            Row(children: [Expanded(child: WakeTimeField)]),
+            Row(children: [Expanded(child: DatepickerField)]),
+            Row(children: [Expanded(child: SleepPicker)]),
+            Row(children: [Expanded(child: wakeUpPicker)]),
             Row(children: [Expanded(child: sleepRating)],),
             Row(children: [Expanded(child: Submit)])
 

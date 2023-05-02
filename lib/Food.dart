@@ -54,12 +54,27 @@ class FoodHome extends StatelessWidget{
                   Expanded(child: ListView(
                     padding: const EdgeInsets.all(8),
                     children: <Widget>[
-                      // TODO: add additional details for each ListTile to display relevant information for each log
-                      ListTile(title: Center(child: Text('Log 1'))),
-                      ListTile(title: Center(child: Text('Log 2'))),
-                      ListTile(title: Center(child: Text('Log 3'))),
-                      ListTile(title: Center(child: Text('Log 4'))),
-                      ListTile(title: Center(child: Text('Log 5'))),
+                      for (int index = 1; index <= 5; index++) // replaced const with loop that generates a pressable button leading to a specific log
+                        ElevatedButton(
+                            style: const ButtonStyle(
+                              backgroundColor: MaterialStatePropertyAll<Color>(Colors.white),
+                              foregroundColor: MaterialStatePropertyAll<Color>(Colors.black),
+                            ),
+                            onPressed: (){
+                              // TODO: fill in
+                              //  leads to a more verbose log that lists all elements of the log as well as the options to edit/delete the entry
+                            },
+                            child: Container( child:
+                            Row(children:
+                            [
+                              // NOTE: these cannot be const, because they will have hold values obtained from the DB
+                              Expanded(child: Text("Date/Time: $index", textAlign: TextAlign.center,)), // TODO: replace constant text with text retrieved from DB
+                              Expanded(child:Text("name: $index", textAlign: TextAlign.center,))
+                            ]
+                            )
+                            )
+                        ),
+
                       // MoreLogs button: links to widget listing all previous logs
                       // TODO: create link to MoreLogs Widget
                       ListTile(title: TextButton( onPressed: (){},
