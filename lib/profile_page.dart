@@ -34,7 +34,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [displayUsername]),
             ElevatedButton(
-                onPressed: () => FirebaseAuth.instance.signOut(),
+                onPressed: () => {
+                  FirebaseAuth.instance.signOut().then((value) => {
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => const MyAppLogin()))
+                  })
+                },
                 child: const Text('Sign out')),
           ]),
         ),
