@@ -4,9 +4,15 @@ import 'login_page.dart';
 import 'main.dart';
 
 // Creates a profile page to display information about the user.
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key, required this.title}) : super(key: key);
   final String title;
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +24,7 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       // AppBar: basic bar at top of every page.
       appBar: AppBar(
-        title: Text(title),
+        title: Text(widget.title),
       ),
 
       body: SafeArea(
