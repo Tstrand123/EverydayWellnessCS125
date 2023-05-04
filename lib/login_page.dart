@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:everyday_wellness_cs125/AppClasses.dart';
+import 'package:everyday_wellness_cs125/app_classes.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:everyday_wellness_cs125/main.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -21,9 +21,8 @@ import 'package:permission_handler/permission_handler.dart';
 
 class LoginWidget extends StatefulWidget {
   final VoidCallback onClickedSignUp;
-  const LoginWidget({Key? key, required this.onClickedSignUp}) : super(key: key);
-
-
+  const LoginWidget({Key? key, required this.onClickedSignUp})
+      : super(key: key);
 
   @override
   State<LoginWidget> createState() => _LoginWidgetState();
@@ -43,7 +42,8 @@ class _LoginWidgetState extends State<LoginWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child: SingleChildScrollView(
+    return SafeArea(
+        child: SingleChildScrollView(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -52,51 +52,54 @@ class _LoginWidgetState extends State<LoginWidget> {
             textInputAction: TextInputAction.next,
             decoration: const InputDecoration(labelText: 'Enter Email'),
           ),
-          const SizedBox(height: 15,),
+          const SizedBox(
+            height: 15,
+          ),
           TextField(
             controller: passwordText,
             textInputAction: TextInputAction.done,
             decoration: const InputDecoration(labelText: 'Enter Password'),
           ),
-          const SizedBox(height: 15,),
-          ElevatedButton(onPressed: signIn,
-              child: const Text('Sign In')),
-          const SizedBox(height: 15,),
-          RichText(text: TextSpan(
-            text: 'Dont have an account?   ',
-            style: TextStyle(color: Colors.black),
-            children: [
-              TextSpan(
-                recognizer: TapGestureRecognizer()
-                    ..onTap = widget.onClickedSignUp,
-                text: 'Sign Up',
-                style: TextStyle(color: Colors.black,
-                decoration: TextDecoration.underline),
-              ),
-            ]
-            )
+          const SizedBox(
+            height: 15,
           ),
+          ElevatedButton(onPressed: signIn, child: const Text('Sign In')),
+          const SizedBox(
+            height: 15,
+          ),
+          RichText(
+              text: TextSpan(
+                  text: 'Dont have an account?   ',
+                  style: const TextStyle(color: Colors.black),
+                  children: [
+                TextSpan(
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = widget.onClickedSignUp,
+                  text: 'Sign Up',
+                  style: const TextStyle(
+                      color: Colors.black,
+                      decoration: TextDecoration.underline),
+                ),
+              ])),
         ],
       ),
     ));
   }
 
   Future signIn() async {
-
     var activityPermission = await Permission.activityRecognition.request();
     var locationPermission = await Permission.location.request();
 
-    showDialog(context: context,
+    showDialog(
+        context: context,
         barrierDismissible: false,
-        builder: (context) => Center(child: CircularProgressIndicator(),));
+        builder: (context) => const Center(
+              child: CircularProgressIndicator(),
+            ));
 
     try {
-
-
       await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailText.text.trim(),
-          password: passwordText.text.trim()
-      );
+          email: emailText.text.trim(), password: passwordText.text.trim());
     } on FirebaseAuthException catch (e) {
       print(e);
     }
@@ -104,8 +107,6 @@ class _LoginWidgetState extends State<LoginWidget> {
     navigatorKey.currentState!.popUntil((route) => route.isFirst);
   }
 }
-
-
 
 class AuthPage extends StatefulWidget {
   const AuthPage({Key? key}) : super(key: key);
@@ -118,18 +119,20 @@ class _AuthPageState extends State<AuthPage> {
   bool isLogin = true;
 
   @override
-  Widget build(BuildContext context) => isLogin ? LoginWidget(onClickedSignUp: toggle,)
+  Widget build(BuildContext context) => isLogin
+      ? LoginWidget(
+          onClickedSignUp: toggle,
+        )
       : SignUpWidget(onClickedSignIn: toggle);
 
   void toggle() => setState(() => isLogin = !isLogin);
 }
 
-
 class SignUpWidget extends StatefulWidget {
   final Function() onClickedSignIn;
 
-  const SignUpWidget({Key? key,
-  required this.onClickedSignIn}) : super(key: key);
+  const SignUpWidget({Key? key, required this.onClickedSignIn})
+      : super(key: key);
 
   @override
   State<SignUpWidget> createState() => _SignUpWidgetState();
@@ -170,86 +173,101 @@ class _SignUpWidgetState extends State<SignUpWidget> {
               TextFormField(
                 controller: emailController,
                 textInputAction: TextInputAction.next,
-                decoration: InputDecoration(labelText: 'Email'),
-                validator: (email) => email != null
-                && !EmailValidator.validate(email)
-                ? 'Enter a valid email'
-                : null,
+                decoration: const InputDecoration(labelText: 'Email'),
+                validator: (email) =>
+                    email != null && !EmailValidator.validate(email)
+                        ? 'Enter a valid email'
+                        : null,
               ),
-              SizedBox(height: 15,),
+              const SizedBox(
+                height: 15,
+              ),
               TextFormField(
                 controller: passwordController,
                 textInputAction: TextInputAction.next,
-                decoration: InputDecoration(labelText: 'Password'),
+                decoration: const InputDecoration(labelText: 'Password'),
                 validator: (value) => value != null && value.length < 4
-                ? 'Enter at least 4 characters'
-                : null,
+                    ? 'Enter at least 4 characters'
+                    : null,
               ),
-              SizedBox(height: 25,),
+              const SizedBox(
+                height: 25,
+              ),
               TextFormField(
                 controller: firstNameController,
                 textInputAction: TextInputAction.next,
-                decoration: InputDecoration(labelText: 'First Name'),
-                validator: (value) => value != null && value.isEmpty
-                ? 'Enter a valid name'
-                : null,
-              ),
-              SizedBox(height: 25,),
-              TextFormField(
-                controller: lastNameController,
-                textInputAction: TextInputAction.next,
-                decoration: InputDecoration(labelText: 'Last Name'),
+                decoration: const InputDecoration(labelText: 'First Name'),
                 validator: (value) => value != null && value.isEmpty
                     ? 'Enter a valid name'
                     : null,
               ),
-              SizedBox(height: 25,),
+              const SizedBox(
+                height: 25,
+              ),
               TextFormField(
-                keyboardType: TextInputType.number, //https://stackoverflow.com/questions/49577781/how-to-create-number-input-field-in-flutter
+                controller: lastNameController,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(labelText: 'Last Name'),
+                validator: (value) => value != null && value.isEmpty
+                    ? 'Enter a valid name'
+                    : null,
+              ),
+              const SizedBox(
+                height: 25,
+              ),
+              TextFormField(
+                keyboardType: TextInputType
+                    .number, //https://stackoverflow.com/questions/49577781/how-to-create-number-input-field-in-flutter
                 controller: heightFeetController,
                 textInputAction: TextInputAction.next,
-                decoration: InputDecoration(labelText: 'Height in Feet'),
+                decoration: const InputDecoration(labelText: 'Height in Feet'),
                 validator: (value) => value != null && value.isEmpty
                     ? 'Enter a valid height' //TODO: Rework height and weight validation
                     : null,
               ),
-              SizedBox(height: 25,),
+              const SizedBox(
+                height: 25,
+              ),
               TextFormField(
-                keyboardType: TextInputType.number, //https://stackoverflow.com/questions/49577781/how-to-create-number-input-field-in-flutter
+                keyboardType: TextInputType
+                    .number, //https://stackoverflow.com/questions/49577781/how-to-create-number-input-field-in-flutter
                 controller: heightInchesController,
                 textInputAction: TextInputAction.next,
-                decoration: InputDecoration(labelText: 'Height in Inches'),
+                decoration:
+                    const InputDecoration(labelText: 'Height in Inches'),
                 validator: (value) => value != null && value.isEmpty
                     ? 'Enter a valid name'
                     : null,
               ),
-              SizedBox(height: 25,),
+              const SizedBox(
+                height: 25,
+              ),
               TextFormField(
-                keyboardType: TextInputType.number, //https://stackoverflow.com/questions/49577781/how-to-create-number-input-field-in-flutter
+                keyboardType: TextInputType
+                    .number, //https://stackoverflow.com/questions/49577781/how-to-create-number-input-field-in-flutter
                 controller: weightController,
                 textInputAction: TextInputAction.done,
-                decoration: InputDecoration(labelText: 'Weight in Pounds'),
+                decoration:
+                    const InputDecoration(labelText: 'Weight in Pounds'),
                 validator: (value) => value != null && value.isEmpty
                     ? 'Enter a valid name'
                     : null,
               ),
-              ElevatedButton(onPressed: signUp, child: Text('Sign Up')),
+              ElevatedButton(onPressed: signUp, child: const Text('Sign Up')),
               RichText(
                 text: TextSpan(
-                  style: TextStyle(color: Colors.black),
-                  text: 'Already have an account?   ',
-                  children: [
-                    TextSpan(
-                      recognizer: TapGestureRecognizer()
-                          ..onTap = widget.onClickedSignIn,
-                      text: 'Log In',
-                      style: TextStyle(
-                        decoration: TextDecoration.underline,
-                        color: Colors.black,
-                      )
-                    ),
-                  ]
-                ),
+                    style: const TextStyle(color: Colors.black),
+                    text: 'Already have an account?   ',
+                    children: [
+                      TextSpan(
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = widget.onClickedSignIn,
+                          text: 'Log In',
+                          style: const TextStyle(
+                            decoration: TextDecoration.underline,
+                            color: Colors.black,
+                          )),
+                    ]),
               ),
             ],
           ),
@@ -258,12 +276,15 @@ class _SignUpWidgetState extends State<SignUpWidget> {
     );
   }
 
-  Future signUp() async{
+  Future signUp() async {
     final isValid = formKey.currentState!.validate();
     if (!isValid) return;
 
-    showDialog(context: context,
-        builder: (context) => Center(child: CircularProgressIndicator(),));
+    showDialog(
+        context: context,
+        builder: (context) => const Center(
+              child: CircularProgressIndicator(),
+            ));
 
     var activityPermission = await Permission.activityRecognition.request();
     var locationPermission = await Permission.location.request();
@@ -274,23 +295,24 @@ class _SignUpWidgetState extends State<SignUpWidget> {
           password: passwordController.text.trim());
 
       final userID = FirebaseAuth.instance.currentUser!.uid;
-      final userUpload = appUser(userID: userID,
-          firstName: firstNameController.text.trim(),
+      final userUpload = AppUser(
+        userID: userID,
+        firstName: firstNameController.text.trim(),
         lastName: lastNameController.text.trim(),
-        heightFeet: int.parse(heightFeetController.text.trim()), //referenced https://dart.dev/guides/language/numbers,
-        heightInches: int.parse(heightInchesController.text.trim()), //https://dev.to/wangonya/how-you-turn-a-string-into-a-number-or-vice-versa-with-dart-392h
+        heightFeet: int.parse(heightFeetController.text
+            .trim()), //referenced https://dart.dev/guides/language/numbers,
+        heightInches: int.parse(heightInchesController.text
+            .trim()), //https://dev.to/wangonya/how-you-turn-a-string-into-a-number-or-vice-versa-with-dart-392h
         weight: int.parse(weightController.text.trim()),
       );
 
-      final docLocation = FirebaseFirestore.instance.collection('Users').doc(userID);
+      final docLocation =
+          FirebaseFirestore.instance.collection('Users').doc(userID);
       docLocation.set(userUpload.toJson());
-
     } on FirebaseAuthException catch (e) {
       print(e);
     }
 
     navigatorKey.currentState!.popUntil((route) => route.isFirst);
   }
-
 }
-
