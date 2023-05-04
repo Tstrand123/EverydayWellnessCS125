@@ -9,6 +9,7 @@ import 'sleep.dart';
 import 'exercise.dart';
 import 'test_pages.dart';
 import 'profile_page.dart';
+import 'app_classes.dart';
 
 //Note: Heavily referenced https://www.youtube.com/watch?v=4vKiJZNPhss
 //For setting up the sign in and sign up
@@ -20,6 +21,15 @@ Future main() async {
   await Firebase.initializeApp();
 
   runApp(const MyApp());
+}
+
+Future<AppUser?> readUser() async {
+  // Get data related to the user.
+  final docUser = FirebaseFirestore.instance
+      .collection('Users')
+      .doc(FirebaseAuth.instance.currentUser!.uid);
+  final snapshot = await docUser.get();
+  return AppUser.fromJson(snapshot.data()!);
 }
 
 class MyAppLogin extends StatelessWidget {
@@ -40,8 +50,7 @@ class MyAppLogin extends StatelessWidget {
               child: Text('Error Occured'),
             );
           } else if (snapshot.hasData) {
-            // TODO: Return the userID of the user that is logged in.
-            return const HomePage(title: 'Title', userID: '[insert_user_id]');
+            return const HomePage(title: 'Title');
           } else {
             return const AuthPage();
           }
@@ -67,10 +76,8 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key, required this.title, required this.userID})
-      : super(key: key);
+  const HomePage({Key? key, required this.title}) : super(key: key);
   final String title;
-  final String userID;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -80,11 +87,15 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     // Create welcome text:
-    // TODO: Display the name of the user ('Welcome back ${FirebaseFirestore.instance.collection('Users').doc(userID)}')
-    Widget welcomeText = const Text(
-      'Welcome back user!',
-      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
-    );
+    Widget welcomeText = FutureBuilder<AppUser?>(
+        future: readUser(),
+        builder: (BuildContext context, AsyncSnapshot<AppUser?> snapshot) {
+          return Flexible(
+              child: Text(
+            'Welcome back ${snapshot.data!.firstName}!',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
+          ));
+        });
 
     // Create the lifestyle score circular display:
     Widget lifestyleScore = CircularPercentIndicator(
@@ -192,7 +203,7 @@ class _HomePageState extends State<HomePage> {
           child: Column(children: [
             Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [welcomeText]),
+                children: [Flexible(child: welcomeText)]),
             Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [lifestyleScore]),
