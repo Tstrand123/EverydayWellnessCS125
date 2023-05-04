@@ -33,6 +33,8 @@ class ProfilePage extends StatelessWidget {
           ]),
         ),
       ),
+      // Test
+
       /*
       body: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
