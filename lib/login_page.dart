@@ -1,14 +1,10 @@
-import 'dart:ui';
-
 import 'package:everyday_wellness_cs125/app_classes.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:everyday_wellness_cs125/main.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:health/health.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 //Note: Heavily referenced https://www.youtube.com/watch?v=4vKiJZNPhss
@@ -87,8 +83,8 @@ class _LoginWidgetState extends State<LoginWidget> {
   }
 
   Future signIn() async {
-    var activityPermission = await Permission.activityRecognition.request();
-    var locationPermission = await Permission.location.request();
+    await Permission.activityRecognition.request();
+    await Permission.location.request();
 
     showDialog(
         context: context,
@@ -101,7 +97,8 @@ class _LoginWidgetState extends State<LoginWidget> {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailText.text.trim(), password: passwordText.text.trim());
     } on FirebaseAuthException catch (e) {
-      print(e);
+      if (e.toString().isEmpty) {}
+      //print(e);
     }
 
     navigatorKey.currentState!.popUntil((route) => route.isFirst);
@@ -286,8 +283,8 @@ class _SignUpWidgetState extends State<SignUpWidget> {
               child: CircularProgressIndicator(),
             ));
 
-    var activityPermission = await Permission.activityRecognition.request();
-    var locationPermission = await Permission.location.request();
+    await Permission.activityRecognition.request();
+    await Permission.location.request();
 
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -310,7 +307,8 @@ class _SignUpWidgetState extends State<SignUpWidget> {
           FirebaseFirestore.instance.collection('Users').doc(userID);
       docLocation.set(userUpload.toJson());
     } on FirebaseAuthException catch (e) {
-      print(e);
+      if (e.toString().isEmpty) {}
+      //print(e);
     }
 
     navigatorKey.currentState!.popUntil((route) => route.isFirst);
