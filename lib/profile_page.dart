@@ -40,7 +40,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [Flexible(child: displayUsername)]),
             ElevatedButton(
                 onPressed: () => {
-                      FirebaseAuth.instance.signOut().then((value) => {
+                      FirebaseAuth.instance.signOut().then((value) => { //Referenced https://stackoverflow.com/questions/62036432/signout-does-not-work-after-i-navigate-to-a-screen-but-it-works-when-i-do-not
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
