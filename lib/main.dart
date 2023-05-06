@@ -90,11 +90,25 @@ class _HomePageState extends State<HomePage> {
     Widget welcomeText = FutureBuilder<AppUser?>(
         future: readUser(),
         builder: (BuildContext context, AsyncSnapshot<AppUser?> snapshot) {
-          return Flexible(
-              child: Text(
-            'Welcome back ${snapshot.data!.firstName}!',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
-          ));
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+            return const Center(
+              child: Text('Error Occured'),
+            );
+          }
+          else if (snapshot.hasData) {
+            return Container(
+                child: Text(
+                  'Welcome back ${snapshot.data!.firstName}!',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
+                ));
+          }else {
+            return const Text('Nothing to Display');
+          }
+
         });
 
     // Create the lifestyle score circular display:

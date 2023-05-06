@@ -32,7 +32,7 @@ class _TestPageState extends State<TestPage> {
 
     var midnight = DateTime(now.year,now.month,now.day);
     int? steps = await health.getTotalStepsInInterval(midnight, now);
-    steps ??= -1;
+    steps ??= -1; //If steps is null, return -1
 
     return steps;
   }
