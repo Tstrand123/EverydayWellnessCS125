@@ -134,8 +134,8 @@ class _HomePageState extends State<HomePage> {
       progressColor: const Color.fromARGB(255, 36, 131, 17),
     );
 
-    // Create the food recomendation widget:
-    Widget foodSection = Expanded(
+    // Create the food recomendation widget: // replaced code with newer, better code. Left this here just in case we want to roll back
+    /*Widget foodSection = Expanded(
         child: Container(
       decoration: BoxDecoration(
         border: Border.all(width: 10, color: Colors.amber),
@@ -151,45 +151,107 @@ class _HomePageState extends State<HomePage> {
         }, // on pressed
         child: const Text("Food"),
       ),
-    ));
+    ));*/
 
-    // Create the exercise recomendation widget:
-    Widget exerciseSection = Expanded(
-        child: Container(
-      decoration: BoxDecoration(
-        border: Border.all(width: 10, color: Colors.lightGreenAccent),
-        borderRadius: const BorderRadius.all(Radius.circular(8)),
-        color: Colors.lightGreenAccent,
-      ),
-      padding: const EdgeInsets.all(50),
-      child: TextButton(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return const ExerciseHome(title: 'Exercise Home');
-          }));
-        }, // on pressed
-        child: const Text("Exercise"),
-      ),
-    ));
 
-    // Create the sleep recomendation widget:
-    Widget sleepSection = Expanded(
-        child: Container(
-      decoration: BoxDecoration(
-        border: Border.all(width: 10, color: Colors.lightBlue),
-        borderRadius: const BorderRadius.all(Radius.circular(8)),
-        color: Colors.lightBlue,
+    // paints the food button
+    StatefulWidget foodSection =  OutlinedButton(
+      style: OutlinedButton.styleFrom(backgroundColor: Colors.amber.shade100,
+          fixedSize: const Size.fromHeight(150)),
+      onPressed: (){
+        // link to the Food Home, where the user will view their food reccs, enter new logs, and view previous ones
+        Navigator.push(context, MaterialPageRoute(builder: (context){
+          return const FoodHome(title: 'FoodHome');
+        })
+        );
+      }, // on pressed
+      child: Column(
+          children: <Widget>[
+            DecoratedBox(decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(width: 2, color: Colors.grey)),
+            ),
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(10, 20, 20, 2),
+                  child: Row( children: const [
+                    Expanded(flex: 2,child: Text("Food", textAlign: TextAlign.left,)),
+                    // below is an indicator to show weather the daily goal has been met
+                    Expanded(flex: 1, child: Icon(Icons.circle, color: Colors.grey)) // TODO: implement the ability to change this color
+                  ],
+                  ),)
+            ),
+            Container ( padding: const EdgeInsets.all(40),
+              child:  const
+              Expanded(child:   Text("Recommendation", textAlign: TextAlign.center,)) // TODO: replace text with recommendation obtained from backend
+              ,)
+          ]
       ),
-      padding: const EdgeInsets.all(50),
-      child: TextButton(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return const SleepHome(title: 'Sleep Home');
-          }));
-        }, // on pressed
-        child: const Text("Sleep"),
+    );
+
+    // paints link to the Exercise home
+    StatefulWidget exerciseSection =  OutlinedButton(
+      style: OutlinedButton.styleFrom(backgroundColor: Colors.lightGreenAccent.shade100,
+          fixedSize: const Size.fromHeight(150)),
+      onPressed: (){
+        // link to the Food Home, where the user will view their food reccs, enter new logs, and view previous ones
+        Navigator.push(context, MaterialPageRoute(builder: (context){
+          return const ExerciseHome(title: 'Exercise Home');
+        })
+        );
+      }, // on pressed
+      child: Column(
+          children: <Widget>[
+            DecoratedBox(decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(width: 2, color: Colors.grey)),
+            ),
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(10, 20, 20, 2),
+                  child: Row( children: const [
+                    Expanded(flex: 2,child: Text("Exercise", textAlign: TextAlign.left,)),
+                    // below is an indicator to show weather the daily goal has been met
+                    Expanded(flex: 1, child: Icon(Icons.circle, color: Colors.grey)) // TODO: implement the ability to change this color
+                  ],
+                  ),)
+            ),
+            Container ( padding: const EdgeInsets.all(40),
+              child:  const
+              Expanded(child:   Text("Recommendation", textAlign: TextAlign.center,)) // TODO: replace text with recommendation obtained from backend
+              ,)
+          ]
       ),
-    ));
+    );
+
+    // Paints the sleep section
+    StatefulWidget sleepSection =  OutlinedButton(
+      style: OutlinedButton.styleFrom(backgroundColor: Colors.lightBlueAccent.shade100,
+          fixedSize: const Size.fromHeight(150)),
+      onPressed: (){
+        // link to the Food Home, where the user will view their food reccs, enter new logs, and view previous ones
+        Navigator.push(context, MaterialPageRoute(builder: (context){
+          return const SleepHome(title: 'Sleep Home');
+        })
+        );
+      }, // on pressed
+      child: Column(
+          children: <Widget>[
+            DecoratedBox(decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(width: 2, color: Colors.grey)),
+            ),
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(10, 20, 20, 2),
+                  child: Row( children: const [
+                    Expanded(flex: 2,child: Text("Sleep", textAlign: TextAlign.left,)),
+                    // below is an indicator to show weather the daily goal has been met
+                    Expanded(flex: 1, child: Icon(Icons.circle, color: Colors.grey)) // TODO: implement the ability to change this color
+                  ],
+                  ),)
+            ),
+            Container ( padding: const EdgeInsets.all(40),
+              child:  const
+              Expanded(child:   Text("Recommendation", textAlign: TextAlign.center,)) // TODO: replace text with recommendation obtained from backend
+              ,)
+          ]
+      ),
+    );
 
     return Scaffold(
       //MaterialApp(
@@ -213,17 +275,18 @@ class _HomePageState extends State<HomePage> {
       //  child: Text('Hello World'),
       //),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(children: [
+        //child: SingleChildScrollView(
+          //child: Column(children: [
+        child: ListView(children: [ // changed to listview so my modifications will work
             Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [Flexible(child: welcomeText)]),
             Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [lifestyleScore]),
-            Row(children: [foodSection]),
-            Row(children: [exerciseSection]),
-            Row(children: [sleepSection]),
+            Expanded(child: foodSection), // changed from row -> expanded types. Buttons are too complicated, had to reduce that complexity to make them work (too many nested columns and rows)
+            Expanded(child: exerciseSection),
+            Expanded(child: sleepSection),
             ElevatedButton(
                 onPressed: () => FirebaseAuth.instance.signOut(),
                 child: const Text('Sign out')),
@@ -236,7 +299,7 @@ class _HomePageState extends State<HomePage> {
                 child: const Text('Go to test pages')),
           ]),
         ),
-      ),
+     // ),
     );
     //);
   }
