@@ -54,6 +54,7 @@ class _LoginWidgetState extends State<LoginWidget> {
           TextField(
             controller: passwordText,
             textInputAction: TextInputAction.done,
+            obscureText: true, // Can also add a button to disable this ("show password" button)
             decoration: const InputDecoration(labelText: 'Enter Password'),
           ),
           const SizedBox(

@@ -3,10 +3,8 @@
 A new Flutter project.
 
 ## Known Bugs
-- Cannot go back home after pressing "New Log" in the Food section. Essentially, if I accidently clicked on "New Log" in the food section, I cannot cancel the new log.
-- Cannot go back home after pressing "New Log" in the exercise section. Essentially, if I accidently clicked on "New Log" in the exercise section, I cannot cancel the new log.
-- Cannot go back home after pressing "New Log" in the sleep section. Essentially, if I accidently clicked on "New Log" in the sleep section, I cannot cancel the new log.
-- The password is visible when logging in and signing up (when it probably should be ******* as an example).
+- 
+- 
 
 ## In Progress Features:
 - Profile page to display user information.
