@@ -33,3 +33,8 @@ class AppUser {
         weight: json['weight'],
       );
 }
+
+//Will be auto collected
+class SleepLog {
+
+}

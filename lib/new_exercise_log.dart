@@ -209,6 +209,13 @@ class NewExerciseLogState extends State<NewExerciseLog> {
       child: const Text('Submit'),
       onPressed: () {
         if (_formKey.currentState!.validate()) {
+          //grab all stuff from either textformfield or datetime or whatever
+          //upload to firebase
+          //use appdata class
+          //can automatically collect and update - maybe add new log auto collects?
+          //if yes - check if there is a doc in firebase that already exists
+          // if so, update
+
           ScaffoldMessenger.of(context).showSnackBar(
             // TODO: send the data to the server
             const SnackBar(content: Text('Processing Data')),
