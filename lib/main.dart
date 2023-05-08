@@ -157,7 +157,9 @@ class _HomePageState extends State<HomePage> {
     // paints the food button
     StatefulWidget foodSection =  OutlinedButton(
       style: OutlinedButton.styleFrom(backgroundColor: Colors.amber.shade100,
-          fixedSize: const Size.fromHeight(150)),
+          fixedSize: const Size.fromHeight(150),
+          foregroundColor: Colors.black
+      ),
       onPressed: (){
         // link to the Food Home, where the user will view their food reccs, enter new logs, and view previous ones
         Navigator.push(context, MaterialPageRoute(builder: (context){
@@ -190,7 +192,9 @@ class _HomePageState extends State<HomePage> {
     // paints link to the Exercise home
     StatefulWidget exerciseSection =  OutlinedButton(
       style: OutlinedButton.styleFrom(backgroundColor: Colors.lightGreenAccent.shade100,
-          fixedSize: const Size.fromHeight(150)),
+          fixedSize: const Size.fromHeight(150),
+          foregroundColor: Colors.black,
+      ),
       onPressed: (){
         // link to the Food Home, where the user will view their food reccs, enter new logs, and view previous ones
         Navigator.push(context, MaterialPageRoute(builder: (context){
@@ -223,7 +227,9 @@ class _HomePageState extends State<HomePage> {
     // Paints the sleep section
     StatefulWidget sleepSection =  OutlinedButton(
       style: OutlinedButton.styleFrom(backgroundColor: Colors.lightBlueAccent.shade100,
-          fixedSize: const Size.fromHeight(150)),
+          fixedSize: const Size.fromHeight(150),
+          foregroundColor: Colors.black
+      ),
       onPressed: (){
         // link to the Food Home, where the user will view their food reccs, enter new logs, and view previous ones
         Navigator.push(context, MaterialPageRoute(builder: (context){
@@ -280,10 +286,11 @@ class _HomePageState extends State<HomePage> {
         child: ListView(children: [ // changed to listview so my modifications will work
             Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [Flexible(child: welcomeText)]),
+                children: [Flexible(child: Container( padding:const EdgeInsets.all(10), child:welcomeText))]),
+
             Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [lifestyleScore]),
+                children: [Container(padding: const EdgeInsets.all(10), child: lifestyleScore)]),
             Expanded(child: foodSection), // changed from row -> expanded types. Buttons are too complicated, had to reduce that complexity to make them work (too many nested columns and rows)
             Expanded(child: exerciseSection),
             Expanded(child: sleepSection),
