@@ -31,8 +31,9 @@ class _TestPageState extends State<TestPage> {
     await health.requestAuthorization(types,permissions: permissions);
 
     var midnight = DateTime(now.year,now.month,now.day);
+    //This will get previous day's minutes slept
     List<HealthDataPoint> asleepMinutesList = await health.getHealthDataFromTypes(midnight.subtract(const Duration(days: 2)), now, types);
-    final asleepMinutes = asleepMinutesList.first.value.toString();
+    final asleepMinutes = asleepMinutesList.first.toString();
 
     return asleepMinutes;
   }
