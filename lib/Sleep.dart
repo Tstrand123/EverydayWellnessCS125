@@ -39,6 +39,7 @@ class SleepHome extends StatelessWidget {
     List<HealthDataPoint> asleepMinutesList = await health.getHealthDataFromTypes(midnight.subtract(const Duration(days: 2)), now, types); //gets sleep datapoint
     final asleepMinutes = asleepMinutesList.first.value.toString(); //this is the actual value of sleep minutes
     HealthDataPoint sleepData = asleepMinutesList.first;
+    //TODO: Figure out if data is null or does not exist!
 
     //referenced https://stackoverflow.com/questions/46880323/how-to-check-if-a-cloud-firestore-document-exists-when-using-realtime-updates
     //Referenced https://www.youtube.com/watch?v=ErP_xomHKTw&t=332s
@@ -55,7 +56,8 @@ class SleepHome extends StatelessWidget {
     }else {
       //doc does not exist - send to firestore
       print('Does Not Exist!');
-      final newSleepLog = SleepLog(bedTime: sleepData.dateFrom, awakeTime: sleepData.dateTo, rating: 5); //TODO: Get Rating, place here
+      final newSleepLog = SleepLog(userID: FirebaseAuth.instance.currentUser!.uid,
+          bedTime: sleepData.dateFrom, awakeTime: sleepData.dateTo, rating: 5); //TODO: Get Rating, place here
       docSleepLogs.doc(docName).set(newSleepLog.toJson());
     }
   }
