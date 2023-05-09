@@ -7,11 +7,17 @@ import 'package:health/health.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 // Widget that paints SleepHome page
-class SleepHome extends StatelessWidget {
+class SleepHome extends StatefulWidget {
   // draws page for sleep home
   const SleepHome({Key? key, required this.title}) : super(key: key);
   final String title;
 
+  @override
+  State<SleepHome> createState() => _SleepHomeState();
+}
+
+class _SleepHomeState extends State<SleepHome> {
+  //TODO: add rating on this page, grab exercise
   void uploadNewSleepLog() async{
     print('called');
     //check if log already exists - match title
@@ -36,30 +42,68 @@ class SleepHome extends StatelessWidget {
 
     var midnight = DateTime(now.year,now.month,now.day); //get midnight info
     //This will get previous day's minutes slept
-    List<HealthDataPoint> asleepMinutesList = await health.getHealthDataFromTypes(midnight.subtract(const Duration(days: 2)), now, types); //gets sleep datapoint
-    final asleepMinutes = asleepMinutesList.first.value.toString(); //this is the actual value of sleep minutes
-    HealthDataPoint sleepData = asleepMinutesList.first;
-    //TODO: Figure out if data is null or does not exist!
+    List<HealthDataPoint> asleepMinutesList = await health.getHealthDataFromTypes(midnight.subtract(const Duration(days: 1)), now, types); //gets sleep datapoint
+    //final asleepMinutes = asleepMinutesList.first.value.toString(); //this is the actual value of sleep minutes
+    //HealthDataPoint sleepData = asleepMinutesList.first;
 
-    //referenced https://stackoverflow.com/questions/46880323/how-to-check-if-a-cloud-firestore-document-exists-when-using-realtime-updates
-    //Referenced https://www.youtube.com/watch?v=ErP_xomHKTw&t=332s
-    //Referenced https://stackoverflow.com/questions/57877154/flutter-dart-how-can-check-if-a-document-exists-in-firestore
-
-    final docSleepLogs = FirebaseFirestore.instance.collection('SleepLogs'); //referenced https://stackoverflow.com/questions/57877154/flutter-dart-how-can-check-if-a-document-exists-in-firestore
-
-    String docName = "${FirebaseAuth.instance.currentUser!.uid}-${sleepData.dateTo}"; //check if this exists
-    var docExists = await docSleepLogs.doc(docName).get();
-    bool doesDocExist = docExists.exists;
-    if (doesDocExist) {
-      //doc exists - do not send, as it will be a duplicate
-      print('exists!'); //TODO: Figure out what to do when duplicate exists
+    if (asleepMinutesList.isEmpty) {
+      //No Sleep Data
+      //TODO: return snackbar at bottom
+      return;
     }else {
-      //doc does not exist - send to firestore
-      print('Does Not Exist!');
-      final newSleepLog = SleepLog(userID: FirebaseAuth.instance.currentUser!.uid,
-          bedTime: sleepData.dateFrom, awakeTime: sleepData.dateTo, rating: 5); //TODO: Get Rating, place here
-      docSleepLogs.doc(docName).set(newSleepLog.toJson());
+      //iterate, see if most recent date to matches with this day
+      //Referenced https://stackoverflow.com/questions/49514807/how-to-loop-through-a-list-of-elements
+      //Referenced https://stackoverflow.com/questions/69910445/i-want-to-check-condition-for-all-for-loop-iteration-and-after-that-statement-wi
+      HealthDataPoint loopData;
+      bool found = false;
+      int index = -1;
+
+      for (int i = 0; i < asleepMinutesList.length; i++) {
+        loopData = asleepMinutesList[i];
+        //Check if date matches - if so, process, else, exit and notify
+        if (loopData.dateTo.month == now.month && loopData.dateTo.day == now.day) {
+          //found match
+          found = true;
+          index = i;
+          break;
+        }
+      }
+
+      if (found == false) {
+        print('No data');
+        return;
+      }
+
+      HealthDataPoint sleepData = asleepMinutesList[index];
+
+      //referenced https://stackoverflow.com/questions/46880323/how-to-check-if-a-cloud-firestore-document-exists-when-using-realtime-updates
+      //Referenced https://www.youtube.com/watch?v=ErP_xomHKTw&t=332s
+      //Referenced https://stackoverflow.com/questions/57877154/flutter-dart-how-can-check-if-a-document-exists-in-firestore
+
+      final docSleepLogs = FirebaseFirestore.instance.collection('SleepLogs'); //referenced https://stackoverflow.com/questions/57877154/flutter-dart-how-can-check-if-a-document-exists-in-firestore
+
+      String docName = "${FirebaseAuth.instance.currentUser!.uid}-${sleepData.dateTo}"; //check if this exists
+      var docExists = await docSleepLogs.doc(docName).get();
+      bool doesDocExist = docExists.exists;
+      if (doesDocExist) {
+        //doc exists - do not send, as it will be a duplicate
+        print('exists!'); //TODO: Figure out what to do when duplicate exists
+        return;
+      }else {
+        //doc does not exist - send to firestore
+        print('Does Not Exist!');
+        final newSleepLog = SleepLog(userID: FirebaseAuth.instance.currentUser!.uid,
+            bedTime: sleepData.dateFrom, awakeTime: sleepData.dateTo, rating: 5); //TODO: Get Rating, place here
+        docSleepLogs.doc(docName).set(newSleepLog.toJson());
+      }
+
+      return;
     }
+
+
+    //Figure out if data is null or does not exist!
+    //TODO: Get one with date that is most recent, not necessarily first!
+    //Check if list is empty
   }
 
   @override
@@ -67,7 +111,7 @@ class SleepHome extends StatelessWidget {
     return Scaffold(
       // AppBar: basic bar at top of every page
       appBar: AppBar(
-        title: Text(title),
+        title: Text(widget.title),
         actions: <Widget>[
           IconButton(
             onPressed: () {},

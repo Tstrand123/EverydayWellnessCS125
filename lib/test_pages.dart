@@ -13,7 +13,7 @@ class TestPage extends StatefulWidget {
 
 class _TestPageState extends State<TestPage> {
 
-  Future<String> getSleepInBed() async {
+  Future<List<HealthDataPoint>> getSleepInBed() async {
     //Heavily referenced https://pub.dev/packages/health
     HealthFactory health = HealthFactory();
 
@@ -32,10 +32,10 @@ class _TestPageState extends State<TestPage> {
 
     var midnight = DateTime(now.year,now.month,now.day);
     //This will get previous day's minutes slept
-    List<HealthDataPoint> asleepMinutesList = await health.getHealthDataFromTypes(midnight.subtract(const Duration(days: 2)), now, types);
-    final asleepMinutes = asleepMinutesList.first.toString();
+    List<HealthDataPoint> asleepMinutesList = await health.getHealthDataFromTypes(midnight.subtract(const Duration(days: 3)), now, types);
+    //final asleepMinutes = asleepMinutesList.first.toString();
 
-    return asleepMinutes;
+    return asleepMinutesList;
   }
 
   Future<int> getSteps()  async{
@@ -72,10 +72,10 @@ class _TestPageState extends State<TestPage> {
             children: [
               FutureBuilder(
                 future: getSleepInBed(),
-                builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                builder: (BuildContext context, AsyncSnapshot<List<HealthDataPoint>> snapshot) {
                   if (snapshot.hasError) {
                     return Text('Found an Error: ${snapshot.error.toString()}');
-                  }else if (snapshot.hasData) {
+                  }else if (snapshot.hasData) { //Need to check most recent dates
                     final tempVal = snapshot.data.toString(); //https://flutterforyou.com/how-to-call-a-variable-inside-string-in-flutter/
                     return Text(tempVal);
                   }else{
