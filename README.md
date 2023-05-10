@@ -3,12 +3,6 @@
 A new Flutter project.
 
 ## Known Bugs
-- 
-- 
-
-## In Progress Features:
-- Profile page to display user information.
-- Welcome message on the home page to display the correct username.
 
 ## Getting Started
 

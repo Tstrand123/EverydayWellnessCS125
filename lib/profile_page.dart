@@ -29,15 +29,14 @@ class _ProfilePageState extends State<ProfilePage> {
             );
           }
           if (snapshot.hasData) {
-            return Container(
-                child: Text(
-                  'Username: ${snapshot.data!.firstName}',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
-                ));
-          }else {
+            return Text(
+              'Username: ${snapshot.data!.firstName}',
+              style:
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
+            );
+          } else {
             return const Text('Nothing to Display');
           }
-
         });
 
     return Scaffold(
@@ -54,7 +53,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [Flexible(child: displayUsername)]),
             ElevatedButton(
                 onPressed: () => {
-                      FirebaseAuth.instance.signOut().then((value) => { //Referenced https://stackoverflow.com/questions/62036432/signout-does-not-work-after-i-navigate-to-a-screen-but-it-works-when-i-do-not
+                      FirebaseAuth.instance.signOut().then((value) => {
+                            //Referenced https://stackoverflow.com/questions/62036432/signout-does-not-work-after-i-navigate-to-a-screen-but-it-works-when-i-do-not
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
