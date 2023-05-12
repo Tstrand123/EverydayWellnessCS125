@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:everyday_wellness_cs125/new_sleep_log.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'app_functions.dart';
 import 'app_classes.dart';
 import 'package:health/health.dart';
@@ -17,6 +18,9 @@ class SleepHome extends StatefulWidget {
 }
 
 class _SleepHomeState extends State<SleepHome> {
+  double sleepRating = 0;
+
+
   //TODO: add rating on this page, grab exercise
   void uploadNewSleepLog() async{
     print('called');
@@ -93,7 +97,7 @@ class _SleepHomeState extends State<SleepHome> {
         //doc does not exist - send to firestore
         print('Does Not Exist!');
         final newSleepLog = SleepLog(userID: FirebaseAuth.instance.currentUser!.uid,
-            bedTime: sleepData.dateFrom, awakeTime: sleepData.dateTo, rating: 5); //TODO: Get Rating, place here
+            bedTime: sleepData.dateFrom, awakeTime: sleepData.dateTo, rating: sleepRating); //TODO: Get Rating, place here
         docSleepLogs.doc(docName).set(newSleepLog.toJson());
       }
 
@@ -136,6 +140,28 @@ class _SleepHomeState extends State<SleepHome> {
               child: const Center(child: Text("Recomendation")),
             ))
           ])),
+
+          Center(child: RatingBar(
+            initialRating: 0,
+            minRating: 0,
+            maxRating: 0,
+            allowHalfRating: true,
+            itemSize: 30.0,
+            ratingWidget: RatingWidget(
+              full: const Icon(Icons.star, color: Colors.amber),
+              half: const Icon(Icons.star_half, color: Colors.amber),
+              empty: const Icon(
+              Icons.star,
+              color: Colors.grey,
+            ),
+          ),
+            onRatingUpdate: (rating) {
+              print(rating);
+              setState(() {
+                sleepRating = rating;
+              });
+    },
+            ),),
 
           // NewLog widget: allows the user to manually create a new Sleep Log
           Expanded(
