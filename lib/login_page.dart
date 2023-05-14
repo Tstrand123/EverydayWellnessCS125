@@ -142,6 +142,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
   final passwordController = TextEditingController();
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
+  final birthDateController = TextEditingController();
   final heightFeetController = TextEditingController();
   final heightInchesController = TextEditingController();
   final weightController = TextEditingController();
@@ -152,10 +153,10 @@ class _SignUpWidgetState extends State<SignUpWidget> {
     passwordController.dispose();
     firstNameController.dispose();
     lastNameController.dispose();
+    birthDateController.dispose();
     heightFeetController.dispose();
     heightInchesController.dispose();
     weightController.dispose();
-
     super.dispose();
   }
 
@@ -206,6 +207,17 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                 controller: lastNameController,
                 textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(labelText: 'Last Name'),
+                validator: (value) => value != null && value.isEmpty
+                    ? 'Enter a valid name'
+                    : null,
+              ),
+              const SizedBox(
+                height: 25,
+              ),
+              TextFormField(
+                controller: birthDateController,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(labelText: 'Date of Birth (YYYY-MM-DD)'),
                 validator: (value) => value != null && value.isEmpty
                     ? 'Enter a valid name'
                     : null,
@@ -297,6 +309,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
         userID: userID,
         firstName: firstNameController.text.trim(),
         lastName: lastNameController.text.trim(),
+        birthDate: birthDateController.text.trim(),
         heightFeet: int.parse(heightFeetController.text
             .trim()), //referenced https://dart.dev/guides/language/numbers,
         heightInches: int.parse(heightInchesController.text

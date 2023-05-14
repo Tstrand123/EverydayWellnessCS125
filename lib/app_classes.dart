@@ -2,6 +2,7 @@ class AppUser {
   String userID;
   String firstName;
   String lastName;
+  String birthDate;
   int heightFeet;
   int heightInches;
   int weight;
@@ -13,6 +14,7 @@ class AppUser {
     required this.heightFeet,
     required this.heightInches,
     required this.weight,
+    required this.birthDate
   });
 
   Map<String, dynamic> toJson() => {
@@ -22,6 +24,7 @@ class AppUser {
         'heightFeet': heightFeet,
         'heightInches': heightInches,
         'weight': weight,
+        'birthDate': birthDate,
       };
 
   static AppUser fromJson(Map<String, dynamic> json) => AppUser(
@@ -31,6 +34,7 @@ class AppUser {
         heightFeet: json['heightFeet'],
         heightInches: json['heightInches'],
         weight: json['weight'],
+        birthDate: json['birthDate'],
       );
 }
 

@@ -41,7 +41,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(bottom: 20),
+                  padding: EdgeInsets.only(bottom: 10),
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.push(context,
@@ -53,7 +53,27 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 20, bottom: 20),
+                  padding: EdgeInsets.only(top: 20, bottom: 10),
+                  child:Text(
+                    'DOB: ${snapshot.data!.birthDate}',
+                    style:
+                      const TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 10),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                            return const Text('test');
+                          }));
+                    },
+                    child: Text('Update'),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 20, bottom: 10),
                   child:Text(
                     'Height: ${snapshot.data!.heightFeet}\'${snapshot.data!.heightInches}"',
                     style:
@@ -61,7 +81,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(bottom: 20),
+                  padding: EdgeInsets.only(bottom: 10),
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.push(context,
@@ -73,15 +93,15 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 20, bottom: 20),
+                  padding: EdgeInsets.only(top: 20, bottom: 10),
                   child:Text(
-                    'Weight: ${snapshot.data!.weight}',
+                    'Weight: ${snapshot.data!.weight} lbs',
                     style:
                       const TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(bottom: 120),
+                  padding: EdgeInsets.only(bottom: 70),
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.push(context,
