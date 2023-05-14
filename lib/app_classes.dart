@@ -14,7 +14,7 @@ class AppUser {
     required this.heightFeet,
     required this.heightInches,
     required this.weight,
-    required this.birthDate
+    required this.birthDate,
   });
 
   Map<String, dynamic> toJson() => {

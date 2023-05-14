@@ -9,6 +9,7 @@ import 'sleep.dart';
 import 'exercise.dart';
 import 'test_pages.dart';
 import 'profile_page.dart';
+import 'quick_statspage.dart';
 import 'app_classes.dart';
 import 'sensor_data_collection.dart';
 
@@ -100,6 +101,7 @@ class _HomePageState extends State<HomePage> {
               child: Text('Error Occured'),
             );
           } else if (snapshot.hasData) {
+            
             return Text(
               'Welcome back ${snapshot.data!.firstName}!',
               style:
@@ -123,13 +125,17 @@ class _HomePageState extends State<HomePage> {
         "135",
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
       ),
-      footer: const Padding(
+      footer: Padding(
         padding: EdgeInsets.only(top: 20, bottom: 10),
-            child:Text(
-              "Lifestyle Score",
-              style:
-                TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
-        ),
+            child:Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+              const Padding(padding: EdgeInsets.only(bottom: 10), child: Text("Lifestyle Score", style:
+              TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),),),
+              ],
+              
+          ),
+        
       ),
       circularStrokeCap: CircularStrokeCap.round,
 
@@ -308,6 +314,14 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('Home'),
         actions: <Widget>[
+          IconButton(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return const StatsPage(title: 'Quick Stats');
+              }));
+            },
+            icon: const Icon(Icons.align_vertical_bottom),
+          ),
           IconButton(
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
