@@ -36,7 +36,7 @@ class ExerciseHome extends StatelessWidget {
                   border: Border.all(color: Colors.black12, width: 2)),
               child: const Center(
                   child: Text(
-                      "Recomendation")), // TODO: replace with actual information
+                      "Recommendation")), // TODO: replace with actual information
             ))
           ])),
 
