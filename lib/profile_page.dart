@@ -15,6 +15,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   @override
+
   Widget build(BuildContext context) {
     Widget displayUsername = FutureBuilder<AppUser?>(
         future: readUser(),
@@ -29,10 +30,70 @@ class _ProfilePageState extends State<ProfilePage> {
             );
           }
           if (snapshot.hasData) {
-            return Text(
-              'Username: ${snapshot.data!.firstName}',
-              style:
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
+            return Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(top: 40, bottom: 10),
+                  child: Text(
+                    'Username: ${snapshot.data!.firstName}',
+                    style:
+                      const TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 20),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                            return const Text('test');
+                          }));
+                    },
+                    child: Text('Update'),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 20, bottom: 20),
+                  child:Text(
+                    'Height: ${snapshot.data!.heightFeet}\'${snapshot.data!.heightInches}"',
+                    style:
+                      const TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 20),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                            return const Text('test');
+                          }));
+                    },
+                    child: Text('Update'),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 20, bottom: 20),
+                  child:Text(
+                    'Weight: ${snapshot.data!.weight}',
+                    style:
+                      const TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 120),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                            return const Text('test');
+                          }));
+                    },
+                    child: Text('Update'),
+                  ),
+                ),
+                
+              ],
             );
           } else {
             return const Text('Nothing to Display');
