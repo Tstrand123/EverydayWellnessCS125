@@ -35,7 +35,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Padding(
                   padding: EdgeInsets.only(top: 40, bottom: 10),
                   child: Text(
-                    'Username: ${snapshot.data!.firstName}',
+                    'Name: ${snapshot.data!.firstName} ${snapshot.data!.lastName}',
                     style:
                       const TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
                   ),
