@@ -137,7 +137,7 @@ class _SleepHomeState extends State<SleepHome> {
                   color: Colors.white60,
                   borderRadius: const BorderRadius.all(Radius.circular(8)),
                   border: Border.all(color: Colors.black12, width: 2)),
-              child: const Center(child: Text("Recomendation")),
+              child: const Center(child: Text("Recommendation")),
             ))
           ])),
 
