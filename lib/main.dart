@@ -123,9 +123,13 @@ class _HomePageState extends State<HomePage> {
         "135",
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
       ),
-      footer: const Text(
-        "Lifestyle Score",
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
+      footer: const Padding(
+        padding: EdgeInsets.only(top: 20, bottom: 10),
+            child:Text(
+              "Lifestyle Score",
+              style:
+                TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
+        ),
       ),
       circularStrokeCap: CircularStrokeCap.round,
 
@@ -161,7 +165,7 @@ class _HomePageState extends State<HomePage> {
       onPressed: () {
         // link to the Food Home, where the user will view their food reccs, enter new logs, and view previous ones
         Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return const FoodHome(title: 'FoodHome');
+          return const FoodHome(title: 'Food Home');
         }));
       }, // on pressed
       child: Column(children: <Widget>[
@@ -330,7 +334,7 @@ class _HomePageState extends State<HomePage> {
           ]),
 
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Container(padding: const EdgeInsets.all(10), child: lifestyleScore)
+            Container(padding: const EdgeInsets.all(20), child: lifestyleScore)
           ]),
           Expanded(
               child:
