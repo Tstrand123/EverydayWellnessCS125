@@ -3,15 +3,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'login_page.dart';
-import 'food.dart';
-import 'sleep.dart';
-import 'exercise.dart';
-import 'test_pages.dart';
-import 'profile_page.dart';
-import 'quick_statspage.dart';
-import 'app_classes.dart';
-import 'sensor_data_collection.dart';
+import 'Misc/login_page.dart';
+import 'Food/food.dart';
+import 'Sleep/sleep.dart';
+import 'Exercise/exercise.dart';
+import 'Misc/test_pages.dart';
+import 'Misc/profile_page.dart';
+import 'Misc/quick_stats_page.dart';
+import 'Misc/app_classes.dart';
+import 'Exercise/sensor_data_collection.dart';
 
 //Note: Heavily referenced https://www.youtube.com/watch?v=4vKiJZNPhss
 //For setting up the sign in and sign up
@@ -101,7 +101,6 @@ class _HomePageState extends State<HomePage> {
               child: Text('Error Occured'),
             );
           } else if (snapshot.hasData) {
-            
             return Text(
               'Welcome back ${snapshot.data!.firstName}!',
               style:
@@ -126,16 +125,19 @@ class _HomePageState extends State<HomePage> {
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
       ),
       footer: Padding(
-        padding: EdgeInsets.only(top: 20, bottom: 10),
-            child:Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-              const Padding(padding: EdgeInsets.only(bottom: 10), child: Text("Lifestyle Score", style:
-              TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),),),
-              ],
-              
-          ),
-        
+        padding: const EdgeInsets.only(top: 20, bottom: 10),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: const [
+            Padding(
+              padding: EdgeInsets.only(bottom: 10),
+              child: Text(
+                "Lifestyle Score",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
+              ),
+            ),
+          ],
+        ),
       ),
       circularStrokeCap: CircularStrokeCap.round,
 
