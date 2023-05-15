@@ -212,7 +212,7 @@ class _SleepHomeState extends State<SleepHome> {
                   var allSleepLogs = snapshot.data!;
 
                   return ListView(
-                    shrinkWrap: true,
+                    shrinkWrap: true, //Referenced https://stackoverflow.com/questions/50252569/vertical-viewport-was-given-unbounded-height
                     children: allSleepLogs.map(buildLog).toList(),
                   );
                 } else{
@@ -312,7 +312,7 @@ class _MoreLogsState extends State<MoreLogs> {
                     var allSleepLogs = snapshot.data!;
 
                     return ListView(
-                      shrinkWrap: true,
+                      shrinkWrap: true, //Referenced https://stackoverflow.com/questions/50252569/vertical-viewport-was-given-unbounded-height
                       children: allSleepLogs.map(buildLog).toList(),
                     );
                   } else{
