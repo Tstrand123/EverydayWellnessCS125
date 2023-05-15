@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class AppUser {
   String userID;
   String firstName;
@@ -24,7 +26,6 @@ class AppUser {
         'heightFeet': heightFeet,
         'heightInches': heightInches,
         'weight': weight,
-        'birthDate': birthDate,
       };
 
   static AppUser fromJson(Map<String, dynamic> json) => AppUser(
@@ -59,10 +60,10 @@ class SleepLog {
     'awakeTime': awakeTime,
     'rating': rating,
   };
-  
+
   static SleepLog fromJson(Map<String, dynamic> json) => SleepLog(
     userID: json['userID'],
-      bedTime: DateTime.parse(json['bedTime']),
-      awakeTime: DateTime.parse(json['awakeTime']),
-      rating: double.parse(json['rating']));
+      bedTime: json['bedTime'].toDate(),
+      awakeTime: json['awakeTime'].toDate(),
+      rating: json['rating'],);
 }

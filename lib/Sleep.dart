@@ -20,6 +20,14 @@ class SleepHome extends StatefulWidget {
 class _SleepHomeState extends State<SleepHome> {
   double sleepRating = 0;
 
+  //Grabs logs
+  //Referenced https://firebase.flutter.dev/docs/firestore/usage/#querying
+  //Referenced https://www.youtube.com/watch?v=ErP_xomHKTw&t=276s
+  Stream<List<SleepLog>> readSleepLogs() => FirebaseFirestore.instance
+      .collection('SleepLogs').where('userID',isEqualTo: '${FirebaseAuth.instance.currentUser!.uid}')
+      .snapshots()
+      .map((snapshot) =>
+          snapshot.docs.map((doc) => SleepLog.fromJson(doc.data())).toList());
 
   //TODO: add rating on this page, grab exercise
   void uploadNewSleepLog() async{
@@ -110,6 +118,11 @@ class _SleepHomeState extends State<SleepHome> {
     //Check if list is empty
   }
 
+  //builds log for list - this is what we want to display on the tile
+  Widget buildLog(SleepLog log) => ListTile(
+    leading: Text('${log.rating}'),
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -187,6 +200,28 @@ class _SleepHomeState extends State<SleepHome> {
                     )))
           ])),
 
+          //Grab logs from DB
+          SingleChildScrollView(
+            child: StreamBuilder<List<SleepLog>>(
+              stream: readSleepLogs(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  print(snapshot.error);
+                  return Text('Error');
+                } else if (snapshot.hasData) {
+                  var allSleepLogs = snapshot.data!;
+
+                  return ListView(
+                    shrinkWrap: true,
+                    children: allSleepLogs.map(buildLog).toList(),
+                  );
+                } else{
+                  return Center(child: CircularProgressIndicator(),);
+                }
+              },
+            ),
+          ),
+
           // Log List: displays summary information on the last 5 logs
           Expanded(
               child: ListView(
@@ -221,15 +256,74 @@ class _SleepHomeState extends State<SleepHome> {
               // TODO: create link to MoreLogs Widget
               ListTile(
                   title: TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const MoreLogs()));
+                },
                 child: const Text('More Logs...'),
               ))
             ],
-          ))
+            )
+          )
           //Expanded(child: )
         ],
       ) //Text('hi'),
           ),
+    );
+  }
+}
+
+
+class MoreLogs extends StatefulWidget {
+  const MoreLogs({Key? key}) : super(key: key);
+
+  @override
+  State<MoreLogs> createState() => _MoreLogsState();
+}
+
+class _MoreLogsState extends State<MoreLogs> {
+  Stream<List<SleepLog>> readSleepLogs() => FirebaseFirestore.instance
+      .collection('SleepLogs').where('userID',isEqualTo: '${FirebaseAuth.instance.currentUser!.uid}')
+      .snapshots()
+      .map((snapshot) =>
+      snapshot.docs.map((doc) => SleepLog.fromJson(doc.data())).toList());
+
+  Widget buildLog(SleepLog log) => ListTile(
+    leading: Text('${log.rating}'),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('More Logs'),
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            SingleChildScrollView(
+              child: StreamBuilder<List<SleepLog>>(
+                stream: readSleepLogs(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    print(snapshot.error);
+                    return Text('Error');
+                  } else if (snapshot.hasData) {
+                    var allSleepLogs = snapshot.data!;
+
+                    return ListView(
+                      shrinkWrap: true,
+                      children: allSleepLogs.map(buildLog).toList(),
+                    );
+                  } else{
+                    return Center(child: CircularProgressIndicator(),);
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
