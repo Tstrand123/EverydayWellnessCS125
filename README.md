@@ -17,11 +17,10 @@ The lifestyle score will be an overall health score (over an average of 7 days) 
 - None reported
 
 ## Designed by:
-Univserity of California, Irvine - CS 125
 - Tait Strandgaard
 - Hannah Woodward
 - Tyler Fermanian
 - Milan Das
-
+Univserity of California, Irvine - CS 125
 
 App designed using Flutter.
