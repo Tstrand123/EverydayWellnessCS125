@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../main.dart';
@@ -13,6 +14,18 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    firstNameController.dispose();
+    lastNameController.dispose();
+    super.dispose();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     Widget displayUsername = FutureBuilder<AppUser?>(
@@ -41,12 +54,50 @@ class _ProfilePageState extends State<ProfilePage> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return const Text('test');
-                      }));
-                    },
+                    //Referenced https://api.flutter.dev/flutter/material/AlertDialog-class.html
+                    //Referenced https://stackoverflow.com/questions/68453845/the-return-type-widget-isnt-a-widget-as-required-by-the-closures-context
+                    //Referenced https://api.flutter.dev/flutter/widgets/Column-class.html
+                    //Referenced https://www.youtube.com/watch?v=ErP_xomHKTw
+
+
+                    onPressed: () => showDialog(context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) =>
+                          AlertDialog(
+                            title: const Text('Update Name'),
+                            content: Form(
+                              key: formKey,
+                              child: Column(
+                                children: [
+                                  const Text('Enter New First Name'),
+                                  TextFormField(
+                                    controller: firstNameController,
+                                    decoration: const InputDecoration(labelText: 'First Name'),
+                                    validator: (value) => value != null && value.isEmpty
+                                        ? 'Enter a valid name'
+                                        : null,
+                                  ),
+                                  const SizedBox(height: 15,),
+                                  const Text('Enter New Last Name'),
+                                  TextFormField(
+                                    controller: lastNameController,
+                                    decoration: const InputDecoration(labelText: 'Last Name'),
+                                    validator: (value) => value != null && value.isEmpty
+                                        ? 'Enter a valid name'
+                                        : null,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            actions: <Widget>[
+                              TextButton(onPressed: () => Navigator.pop(context),
+                                  child: const Text('Cancel')),
+                              TextButton(onPressed: () => updateName(), //immediately quits
+                              child: const Text('Update'),),
+
+                            ],
+                          )
+                        ),
                     child: const Text('Update'),
                   ),
                 ),
@@ -58,18 +109,18 @@ class _ProfilePageState extends State<ProfilePage> {
                         fontWeight: FontWeight.bold, fontSize: 17.0),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return const Text('test');
-                      }));
-                    },
-                    child: const Text('Update'),
-                  ),
-                ),
+                // Padding(
+                //   padding: const EdgeInsets.only(bottom: 10),
+                //   child: ElevatedButton(
+                //     onPressed: () {
+                //       Navigator.push(context,
+                //           MaterialPageRoute(builder: (context) {
+                //         return const Text('test');
+                //       }));
+                //     },
+                //     child: const Text('Update'),
+                //   ),
+                // ),
                 Padding(
                   padding: const EdgeInsets.only(top: 20, bottom: 10),
                   child: Text(
@@ -144,5 +195,20 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
     );
+  }
+
+  void updateName() { //Make this update all fields on home page
+    final isValid = formKey.currentState!.validate();
+    if (!isValid) return;
+    
+    final docUser = FirebaseFirestore.instance.collection('Users')
+        .doc(FirebaseAuth.instance.currentUser!.uid);
+
+    docUser.update({
+      'firstName': firstNameController.text.trim(),
+      'lastName': lastNameController.text.trim(),
+    });
+
+    Navigator.pop(context);
   }
 }
