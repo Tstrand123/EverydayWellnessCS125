@@ -1,0 +1,11 @@
+Context for users
+
+User 1: vegetarian, dislike Mexican/southwest food, enjoy italian
+User 2: omnivore, prefer beef and mushrooms, dislke poultry and asparagus
+User 5: Pescatarian (only eats fish and plants) like salmon and broccoli, dislike shrimp and cauliflower
+User 6: dislikes fruit, loves spicy (spicy hot and spicy flavorful) things
+User 8: loves citrusy flavors, no particular dislikes
+User 9: loves pasta and rice meals
+
+
+Feel free to add any other users. When adding new ratings, attempt to remain consistent with the user context.
