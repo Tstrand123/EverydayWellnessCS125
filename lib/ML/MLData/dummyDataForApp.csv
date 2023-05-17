@@ -1,0 +1,52 @@
+meal_id,NAME,CALORIES,CARBS,PROTEIN,FAT,MEAL TYPE,MAIN FLAVORS,TAGS
+0,ramen noodle salad,292,22,17,16,"side, lunch","cabbage, ramen, chicken",meat
+1,Chuletas Guisadas,516,11,52,29,"dinner, lunch","pork, tomato, sazon, adobo",meat
+2,tortellini salad,186,22,7,8,side,"squash, zuccini, cheese","dairy, vegetables"
+3,beef and tomato rice bowl,612,78,17,25,"dinner, lunch","beef, tomato, chickpeas",meat
+4,peanut noodles with chicken,727,56,34,43,"dinner, lunch","peanut, ginger, chicken","peanuts, meat"
+5,southwest tofu scramble,176,8,13,11,"side, lunch, dinner","tofu, chilli","vegetarian, vegan"
+6,Sausage pepper pasta,517,57,19,24,"lunch, dinner","sausage, pasta, pepper",meat
+7,spinach tortellini skillet,648,77,28,27,"lunch, dinner","spinach, cream cheese, tomatoes",vegetarian
+8,naked fish tacos,293,6,33,16,"lunch, dinner","tilapia, coleslaw, avocado","keto, fish"
+9,Blackened tilaipia with zoodles,203,8,34,4,"lunch, dinner","tilapia, zucchini, paprika","keto, vegetables, fish"
+10,Asparagus-mushroom frittata,130,5,9,8,"side, lunch, breakfast","mushrooms, asparagus, pepper","keto, vegetarian, vegetables, egg"
+11,sage rubbed salmon,220,1,19,15,"entree, lunch","salmon, sage","keto, fish"
+12,chicken nisoie salad,289,9,24,18,"side, lunch, dinner","chicken, egg, lettuce","keto, vegetables"
+13,Vegetarian enchiladas,547,46,26,31,"lunch, dinner","spinach, beans, pepper",vegetarian
+14,lentils with mushroom gravy,441,35,16,28,"side, lunch, dinner","mushrooms, lentils, coconut milk","vegetarian, vegan"
+15,Roasted cauliflower salad,374,30,11,24,"side, lunch","cauliflower, paprika, chickpeas","vegetarian, vegetables"
+16,tomato herb rice with white bean,316,55,11,5,"side, lunch, dinner","tomato, beans, spinach","vegetarian, low fat"
+17,purple power bowls,474,64,16,20,"lunch, dinner","chickpeas, cabbage, tahini",vegetarian
+18,Lemon pepper chicken,253,3,34,10,entree,"chicken, lemon, pepper","keto, meat"
+19,No-bake granola bars,285,44,7,10,snack,"oats, dates, cinnamon",whole grain
+20,Lemon-Broccoli pasta with Parmesan,210,24,9,10,"dinner, lunch","lemon, broccoli, parmesan",vegetarian
+21,Sea Bass with citrus salsa,298,14,32,12,"dinner, lunch","sea bass, orange, grapefruit","keto, fish, fruit"
+22,"sheet pan shrimp, pineapple, peppers with rice",505,68,26,14,"dinner, lunch","shrimp, pineapple, pepper","fish, shellfish, fruit"
+23,quick chicken fajitas,413,43,29,16,"dinner, lunch","chicken, bell pepper, corn","meat, high protein, fruit"
+24,Sriracha-buffalo cauliflower bites,99,8,3,7,"snack, side","cauliflower, sriracha, hot sauce","vegetarian, spicy"
+25,cheesy spinach and artichoke stuffed spaghetti squash,223,23,10,11,"dinner, lunch","spaghetti squash, spinach, parmesan","vegetarian, vegetables, dairy"
+26,cauliflower tikka masala with chickpeas,268,26,8,16,"dinner, lunch","cauliflower, cinnamon, turmeric","vegetarian, vegetables"
+27,Rotisserie chicken tacos,320,34,34,7,"dinner, lunch","chicken, lime, corn","meat, whole grain, low fat"
+28,"frittata with asparagus, leek, and ricotta",369,14,18,27,"breakfast, lunch","leek, asparagus, egg","keto, vegetables, vegetarian, egg"
+29,Chicken and broccoli casserole,584,45,40,24,dinner,"chicken, broccoli, brown rice","vegetables, whole grain"
+30,"garlic, sausage, and kale naan pizza",498,33,30,28,"dinner, lunch","turkey, mozzarella, garlic","meat, whole grain, dairy"
+31,chicken caprese sandwich,667,41,42,38,"lunch, dinner","chicken, tomato, mozzarella","meat, whole grain"
+32,creamy shrimp and mushroom pasta,444,50,37,14,"lunch, dinner","shrimp, mushroom, cashews","nuts, fish, shellfish, whole wheat"
+33,Black Bean and mushroom enchilada casserole,430,49,13,21,dinner,"mushrooms, black beans, enchilada sauce","vegetarian, dairy, whole grain"
+34,vegan mushroom stroganoff,430,55,12,18,dinner,"mushrooms, dijon mustard, white wine","vegan, whole wheat"
+35,skillet steak with mushroom sauce,231,18,26,7,dinner,"mushrooms, steak, broccoli",meat
+36,cheesy ground beef and cauliflower casserole,351,11,26,23,dinner,"beef, jalapeno, chili","meat, vegetables, spicy"
+37,breakfast tostada,365,40,15,19,breakfast,"black beans, egg, taco seasoning","egg, vegetarian, whole grain"
+38,oatmeal with fruit and nuts,341,47,22,8,breakfast,"oat, yogurt, apple","dairy, vegetarian"
+39,southwest breakfast skillet,341,23,17,20,breakfast,"bacon, potato, bell pepper","meat, egg"
+40,breakfast salad with egg and salsa verde vinaigrette,527,37,16,34,breakfast,"avocado, kidney beans, salad green","vegetables, vegetarian, egg"
+41,salmon avacado poke bowl,442,34,30,22,"lunch, dinner","salmon, brown rice, tamari","fish, whole grain"
+42,falafel tabbouleh bowls,416,37,11,26,lunch,"falafel, tabbouleh, tzatziki",vegetarian
+43,peanut butter energy balls,174,18,4,9,snack,"peanut butter, oats, chocolate","vegetarian, peanuts"
+44,Blueberry-lemon energy balls,190,27,4,9,snack,"oats, lemon, walnuts","vegetarian, vegan"
+45,baked zucchini waffle fries,84,7,4,5,snack,"zucchini, old bay, lemon","vegetarian, egg"
+46,crispy cauliflower tacos,157,23,5,5,"lunch, dinner","cauliflower, refried beans, cabbage","vegan, vegetarian, "
+47,Vegetarian lettuce wraps,178,11,13,11,"lunch, dinner","mushrooms, lettuce, tofu","vegetarian, low carb"
+48,buffalo chicken cauliflower pizza,189,7,21,7,"lunch, dinner","hot sauce, chicken, blue cheese","spicy, keto, meat"
+49,chicken piccata,249,10,27,10,entree,"chicken, lemon, garlic","keto, meat"
+50,sweet and sour pork with sesame crust,415,13,29,28,entree,"pork, soy sauce, scallions",meat
