@@ -236,9 +236,7 @@ class ExerciseHomeState extends State<ExerciseHome>
                   }
                   lockTimer = false;
                 }
-              } catch (e) {
-                print(e);
-              }
+              } catch (e) {}
             }
           });
         },
