@@ -222,7 +222,7 @@ class _HomePageState extends State<HomePage> {
       onPressed: () {
         // link to the Food Home, where the user will view their food reccs, enter new logs, and view previous ones
         Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return const ExerciseHome(title: 'Exercise Home');
+          return const ExerciseHome();
         }));
       }, // on pressed
       child: Column(children: <Widget>[

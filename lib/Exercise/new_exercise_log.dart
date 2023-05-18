@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
@@ -15,8 +14,12 @@ class CreateNewExerciseLog extends StatelessWidget {
         title: formTitle,
         home: Scaffold(
           appBar: AppBar(
-            leading: IconButton(icon: const Icon(Icons.arrow_back),
-            onPressed: (){Navigator.pop(context);},),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
             // paints the bar that appears at the top of every page
             title: const Text('Create New Log'),
             // This button is the one to get to the profile, it exists on every appbar, on every page
@@ -223,7 +226,7 @@ class NewExerciseLogState extends State<NewExerciseLog> {
           );
           // When done, reload the food home page
           Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return const ExerciseHome(title: 'ExerciseHome');
+            return const ExerciseHome();
           }));
         }
       },

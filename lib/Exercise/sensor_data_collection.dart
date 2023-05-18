@@ -6,7 +6,7 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 
 // Referenced https://morioh.com/p/e69fead3f719
 
-// Remaining tasks:
+// TODO: Remaining tasks:
 // - Determine the thresholds for walking running, and biking.
 // - If the exercise lasts longer than 5 minutes, store it in firebase with:
 //        - Time started,
@@ -118,7 +118,6 @@ class SensorPageState extends State<SensorPage>
           CustomTimer(
               controller: controller,
               builder: (state, time) {
-                // Build the widget you want!🎉
                 return Text(
                     "${time.hours}:${time.minutes}:${time.seconds}.${time.milliseconds}",
                     style: const TextStyle(fontSize: 24.0));
