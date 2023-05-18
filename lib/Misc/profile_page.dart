@@ -16,12 +16,24 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
+
+  final feetController = TextEditingController();
+  final inchesController = TextEditingController();
+
+  final weightController = TextEditingController();
+
   final formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
     firstNameController.dispose();
     lastNameController.dispose();
+
+    feetController.dispose();
+    inchesController.dispose();
+
+    weightController.dispose();
+
     super.dispose();
   }
 
@@ -132,12 +144,43 @@ class _ProfilePageState extends State<ProfilePage> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return const Text('test');
-                      }));
-                    },
+                    onPressed: () => showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) => AlertDialog(
+                        title: const Text('Update Height'),
+                        content: Form(
+                          key: formKey,
+                          child: Column(
+                            children: [
+                              const Text('Enter New Height in Feet'),
+                              TextFormField(
+                                controller: feetController,
+                                decoration: const InputDecoration(labelText: 'Feet'),
+                                validator: (value) => value != null && value.isEmpty
+                                    ? 'Enter a valid Height'
+                                    : null,
+                              ),
+                              const SizedBox(height: 15,),
+                              const Text('Enter New Height in Inches'),
+                              TextFormField(
+                                controller: inchesController,
+                                decoration: const InputDecoration(labelText: 'Inches'),
+                                validator: (value) => value != null && value.isEmpty
+                                    ? 'Enter a valid Height'
+                                    : null,
+                              ),
+                            ],
+                          ),
+                        ),
+                        actions: <Widget>[
+                          TextButton(onPressed: () => Navigator.pop(context), //no changes made
+                              child: const Text('Cancel')),
+                          TextButton(onPressed: () => updateHeight(), //immediately quits
+                            child: const Text('Update'),),
+                        ],
+                      ),
+                    ),
                     child: const Text('Update'),
                   ),
                 ),
@@ -152,12 +195,34 @@ class _ProfilePageState extends State<ProfilePage> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 70),
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return const Text('test');
-                      }));
-                    },
+                    onPressed: () => showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) => AlertDialog(
+                        title: const Text('Update Weight'),
+                        content: Form(
+                          key: formKey,
+                          child: Column(
+                            children: [
+                              const Text('Enter a New Weight in Pounds'),
+                              TextFormField(
+                                controller: weightController,
+                                decoration: const InputDecoration(labelText: 'Weight'),
+                                validator: (value) => value != null && value.isEmpty
+                                    ? 'Enter a valid weight'
+                                    : null,
+                              ),
+                            ],
+                          ),
+                        ),
+                        actions: <Widget>[
+                          TextButton(onPressed: () => Navigator.pop(context),
+                              child: const Text('Cancel')),
+                          TextButton(onPressed: () => updateWeight(), //immediately quits
+                            child: const Text('Update'),),
+                        ],
+                      ),
+                    ),
                     child: const Text('Update'),
                   ),
                 ),
@@ -204,10 +269,46 @@ class _ProfilePageState extends State<ProfilePage> {
     final docUser = FirebaseFirestore.instance.collection('Users')
         .doc(FirebaseAuth.instance.currentUser!.uid);
 
-    docUser.update({
-      'firstName': firstNameController.text.trim(),
-      'lastName': lastNameController.text.trim(),
+    setState(() {
+      docUser.update({
+        'firstName': firstNameController.text.trim(),
+        'lastName': lastNameController.text.trim(),
+      });
     });
+
+    Navigator.pop(context);
+  }
+
+  void updateHeight() {
+    final isValid = formKey.currentState!.validate();
+    if (!isValid) return;
+
+    final docUser = FirebaseFirestore.instance.collection('Users')
+        .doc(FirebaseAuth.instance.currentUser!.uid);
+
+    setState(() {
+      docUser.update({
+        'heightFeet': int.parse(feetController.text.trim()),
+        'heightInches': int.parse(inchesController.text.trim()),
+      });
+    });
+
+    Navigator.pop(context);
+  }
+
+  void updateWeight() {
+    final isValid = formKey.currentState!.validate();
+    if (!isValid) return;
+
+    final docUser = FirebaseFirestore.instance.collection('Users')
+        .doc(FirebaseAuth.instance.currentUser!.uid);
+
+    setState(() {
+      docUser.update({
+        'weight': int.parse(weightController.text.trim()),
+      });
+    });
+
 
     Navigator.pop(context);
   }

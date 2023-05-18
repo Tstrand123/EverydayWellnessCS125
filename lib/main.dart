@@ -34,6 +34,14 @@ Future<AppUser?> readUser() async {
   return AppUser.fromJson(snapshot.data()!);
 }
 
+Future<Stream<AppUser>> readUserStream() async{
+  final docUser = FirebaseFirestore.instance
+      .collection('Users')
+      .doc(FirebaseAuth.instance.currentUser!.uid);
+  final snapshot = await docUser.get();
+  return Stream.value(AppUser.fromJson(snapshot.data()!));
+}
+
 class MyAppLogin extends StatelessWidget {
   const MyAppLogin({Key? key}) : super(key: key);
 
@@ -89,9 +97,11 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     // Create welcome text:
-    Widget welcomeText = FutureBuilder<AppUser?>(
-        future: readUser(),
-        builder: (BuildContext context, AsyncSnapshot<AppUser?> snapshot) {
+    //Heavily referenced https://stackoverflow.com/questions/50471309/how-to-listen-for-document-changes-in-cloud-firestore-using-flutter
+    //Referenced https://api.flutter.dev/flutter/widgets/StreamBuilder-class.html
+    Widget welcomeText = StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance.collection('Users').doc(FirebaseAuth.instance.currentUser!.uid).snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot?> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
@@ -102,7 +112,7 @@ class _HomePageState extends State<HomePage> {
             );
           } else if (snapshot.hasData) {
             return Text(
-              'Welcome back ${snapshot.data!.firstName}!',
+              'Welcome back ${snapshot.data!.get('firstName')}!',
               style:
                   const TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
             );
