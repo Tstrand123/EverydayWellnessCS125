@@ -6,6 +6,7 @@ User 5: Pescatarian (only eats fish and plants) like salmon and broccoli, dislik
 User 6: dislikes fruit, loves spicy (spicy hot and spicy flavorful) things
 User 8: loves citrusy flavors, no particular dislikes
 User 9: loves pasta and rice meals
+User 10: Tyler's preferences (a somewhat picky eater)
 
 
 Feel free to add any other users. When adding new ratings, attempt to remain consistent with the user context.
