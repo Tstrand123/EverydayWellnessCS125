@@ -55,15 +55,48 @@ class SleepLog {
   });
 
   Map<String, dynamic> toJson() => {
-    'userID': userID,
-    'bedTime': bedTime,
-    'awakeTime': awakeTime,
-    'rating': rating,
-  };
+        'userID': userID,
+        'bedTime': bedTime,
+        'awakeTime': awakeTime,
+        'rating': rating,
+      };
 
   static SleepLog fromJson(Map<String, dynamic> json) => SleepLog(
-    userID: json['userID'],
-      bedTime: json['bedTime'].toDate(),
-      awakeTime: json['awakeTime'].toDate(),
-      rating: json['rating'],);
+        userID: json['userID'],
+        bedTime: json['bedTime'].toDate(),
+        awakeTime: json['awakeTime'].toDate(),
+        rating: json['rating'],
+      );
+}
+
+class ExerciseLog {
+  int hours;
+  int minutes;
+  int seconds;
+  String startTime;
+  String type;
+
+  ExerciseLog({
+    required this.hours,
+    required this.minutes,
+    required this.seconds,
+    required this.startTime,
+    required this.type,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'hours': hours,
+        'minutes': minutes,
+        'seconds': seconds,
+        'startTime': startTime,
+        'type': type, // Walk, run, or bicycle.
+      };
+
+  static ExerciseLog fromJson(Map<String, dynamic> json) => ExerciseLog(
+        hours: int.parse(json['hours']),
+        minutes: int.parse(json['minutes']),
+        seconds: int.parse(json['seconds']),
+        startTime: json['startTime'],
+        type: json['type'],
+      );
 }
