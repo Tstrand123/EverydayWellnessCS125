@@ -194,29 +194,25 @@ class _HomePageState extends State<HomePage> {
             child: Container(
               padding: const EdgeInsets.fromLTRB(10, 20, 20, 2),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [
-                  Expanded(
-                      flex: 2,
-                      child: Text(
-                        "Food",
-                        textAlign: TextAlign.left,
-                      )),
+                  Text(
+                    "Food",
+                    textAlign: TextAlign.left,
+                  ),
                   // below is an indicator to show weather the daily goal has been met
-                  Expanded(
-                      flex: 1,
-                      child: Icon(Icons.circle,
-                          color: Colors
-                              .grey)) // TODO: implement the ability to change this color
+                  Icon(Icons.circle,
+                      color: Colors
+                          .grey), // TODO: implement the ability to change this color
                 ],
               ),
             )),
         Container(
           padding: const EdgeInsets.all(40),
-          child: const Expanded(
-              child: Text(
+          child: const Text(
             "Recommendation",
             textAlign: TextAlign.center,
-          )) // TODO: replace text with recommendation obtained from backend
+          ) // TODO: replace text with recommendation obtained from backend
           ,
         )
       ]),
@@ -243,29 +239,25 @@ class _HomePageState extends State<HomePage> {
             child: Container(
               padding: const EdgeInsets.fromLTRB(10, 20, 20, 2),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [
-                  Expanded(
-                      flex: 2,
-                      child: Text(
-                        "Exercise",
-                        textAlign: TextAlign.left,
-                      )),
+                  Text(
+                    "Exercise",
+                    textAlign: TextAlign.left,
+                  ),
                   // below is an indicator to show weather the daily goal has been met
-                  Expanded(
-                      flex: 1,
-                      child: Icon(Icons.circle,
-                          color: Colors
-                              .grey)) // TODO: implement the ability to change this color
+                  Icon(Icons.circle,
+                      color: Colors
+                          .grey), // TODO: implement the ability to change this color
                 ],
               ),
             )),
         Container(
           padding: const EdgeInsets.all(40),
-          child: const Expanded(
-              child: Text(
+          child: const Text(
             "Recommendation",
             textAlign: TextAlign.center,
-          )) // TODO: replace text with recommendation obtained from backend
+          ) // TODO: replace text with recommendation obtained from backend
           ,
         )
       ]),
@@ -291,29 +283,25 @@ class _HomePageState extends State<HomePage> {
             child: Container(
               padding: const EdgeInsets.fromLTRB(10, 20, 20, 2),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [
-                  Expanded(
-                      flex: 2,
-                      child: Text(
-                        "Sleep",
-                        textAlign: TextAlign.left,
-                      )),
+                  Text(
+                    "Sleep",
+                    textAlign: TextAlign.left,
+                  ),
                   // below is an indicator to show weather the daily goal has been met
-                  Expanded(
-                      flex: 1,
-                      child: Icon(Icons.circle,
-                          color: Colors
-                              .grey)) // TODO: implement the ability to change this color
+                  Icon(Icons.circle,
+                      color: Colors
+                          .grey), // TODO: implement the ability to change this color
                 ],
               ),
             )),
         Container(
           padding: const EdgeInsets.all(40),
-          child: const Expanded(
-              child: Text(
+          child: const Text(
             "Recommendation",
             textAlign: TextAlign.center,
-          )) // TODO: replace text with recommendation obtained from backend
+          ) // TODO: replace text with recommendation obtained from backend
           ,
         )
       ]),
@@ -354,19 +342,16 @@ class _HomePageState extends State<HomePage> {
         child: ListView(children: [
           // changed to listview so my modifications will work
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Flexible(
-                child: Container(
-                    padding: const EdgeInsets.all(10), child: welcomeText))
+            Container(
+                padding: const EdgeInsets.all(10), child: welcomeText)
           ]),
 
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Container(padding: const EdgeInsets.all(20), child: lifestyleScore)
           ]),
-          Expanded(
-              child:
-                  foodSection), // changed from row -> expanded types. Buttons are too complicated, had to reduce that complexity to make them work (too many nested columns and rows)
-          Expanded(child: exerciseSection),
-          Expanded(child: sleepSection),
+          foodSection, // changed from row -> expanded types. Buttons are too complicated, had to reduce that complexity to make them work (too many nested columns and rows)
+          exerciseSection,
+          sleepSection,
           ElevatedButton(
               onPressed: () => FirebaseAuth.instance.signOut(),
               child: const Text('Sign out')),
