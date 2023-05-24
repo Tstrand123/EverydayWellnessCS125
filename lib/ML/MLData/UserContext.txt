@@ -7,6 +7,12 @@ User 6: dislikes fruit, loves spicy (spicy hot and spicy flavorful) things
 User 8: loves citrusy flavors, no particular dislikes
 User 9: loves pasta and rice meals
 User 10: Tyler's preferences (a somewhat picky eater)
+User 11: Vegan, likes rice based dishes
+User 12: Omnivore, dislikes fish/seafood, mixed feelings on vegetables, likes other types of meat
+User 13: Keto, prefers vegetable dishes but will eat anything, including meat
+User 14: no preferences other than likes fruit and dislikes vegetables
+User 15: Prefers Seafood
+User 16: Low Fat Only
 
 
 Feel free to add any other users. When adding new ratings, attempt to remain consistent with the user context.
