@@ -1,30 +1,29 @@
 import 'dart:async';
-import 'package:everyday_wellness_cs125/Misc/app_classes.dart';
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:custom_timer/custom_timer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:everyday_wellness_cs125/Misc/app_classes.dart';
 import 'package:everyday_wellness_cs125/Misc/profile_page.dart';
-import 'package:everyday_wellness_cs125/Exercise/new_exercise_log.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:everyday_wellness_cs125/Exercise/manual_exercise_log.dart';
 
 // Referenced https://morioh.com/p/e69fead3f719
 
 // TODO: Remaining tasks:
-// - If the exercise lasts longer than 3 minutes, store it in firebase with:
-//        - Time started,
-//        - How long exercise lasted,
-//        - Type of exercise (walking, etc.).
-// - Have everything run in the background.
-// - Update the manual logs to go to firbase.
 // - Show all logs in the log list.
 // - Based on the data, make recommendations (based on what we dicussed).
 //        - Check to see if they reached 30 minutes of activity.
+//        - Update that based on if they went over their calorie count.
 
 // Completed:
 // - Allow the user to turn on/off automatic data collection.
 // - Determine the thresholds for walking running, and biking.
+// - If the exercise lasts longer than 3 minutes, store it in firebase with:
+//        - Time started,
+//        - How long exercise lasted,
+//        - Type of exercise (walking, etc.).
+// - Update the manual logs to go to firbase.
 
 class ExerciseHome extends StatefulWidget {
   const ExerciseHome({super.key});
@@ -41,6 +40,9 @@ class ExerciseHomeState extends State<ExerciseHome>
   // Store the values of the accelerometer.
   List<double>? _userAccelerometerValues;
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
+
+  // Get the user's id.
+  final userID = FirebaseAuth.instance.currentUser!.uid;
 
   // Create a custom timer controller:
   late CustomTimerController controller = CustomTimerController(
@@ -96,7 +98,6 @@ class ExerciseHomeState extends State<ExerciseHome>
     }
 
     // Prepare the data for firebase.
-    final userID = FirebaseAuth.instance.currentUser!.uid;
     final dataUpload = ExerciseLog(
         hours: int.parse(controller.remaining.value.hours),
         minutes: int.parse(controller.remaining.value.minutes),
@@ -118,42 +119,86 @@ class ExerciseHomeState extends State<ExerciseHome>
   @override
   // Build the exercise page.
   Widget build(BuildContext context) {
-    final userAccelerometer = _userAccelerometerValues
-        ?.map((double v) => v.toStringAsFixed(1))
-        .toList();
-
-    Widget welcomeText = StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('Users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .snapshots(),
-        builder:
-            (BuildContext context, AsyncSnapshot<DocumentSnapshot?> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasError) {
-            return const Center(
-              child: Text('Error Occured'),
-            );
-          } else if (snapshot.hasData) {
-            return Text(
-              'Welcome back ${snapshot.data!.get('firstName')}!',
-              style:
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
-            );
-          } else {
-            return const Text('Nothing to Display');
-          }
-        });
-
+    // Lets the user controll if automatic data is collected.
     Widget toggleDataCollection =
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
       const Text("Automatic Data Collection:"),
       Switch(value: toggleAutoDataCollection, onChanged: toggleSwitch),
     ]);
 
+    // Will display information about the recommendation.
+    Widget recommendationBox = Expanded(
+        child: DecoratedBox(
+      decoration: BoxDecoration(
+          color: Colors.white60,
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
+          border: Border.all(color: Colors.black12, width: 2)),
+      child: const Center(
+          // TODO: replace with actual information
+          child: Text("Recommendation")),
+    ));
+
+    // Lets the user make a new exercise log.
+    Widget newLog = Expanded(
+        child: DecoratedBox(
+            decoration: BoxDecoration(
+                color: Colors.white60,
+                borderRadius: const BorderRadius.all(Radius.circular(8)),
+                border: Border.all(color: Colors.black12, width: 2)),
+            child: Center(
+              child: TextButton(
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return const CreateNewExerciseLog();
+                    }));
+                  },
+                  child: const Text("New Log")),
+            )));
+
+    // Will display the logs for the current day.
+    Widget logList = Expanded(
+        child: ListView(
+      padding: const EdgeInsets.all(8),
+      children: <Widget>[
+        for (int index = 1; index < 6; index++)
+          ElevatedButton(
+              style: const ButtonStyle(
+                backgroundColor: MaterialStatePropertyAll<Color>(Colors.white),
+                foregroundColor: MaterialStatePropertyAll<Color>(Colors.black),
+              ),
+              onPressed: () {
+                // TODO: fill in
+                //  leads to a more verbose log that lists all elements of the log as well as the options to edit/delete the entry
+              },
+              child: Row(children: [
+                Expanded(
+                    child: Text(
+                  "Date/Time: $index",
+                  textAlign: TextAlign.center,
+                )), // TODO: replace constant text with text retrieved from DB
+                Expanded(
+                    child: Text(
+                  "type: $index",
+                  textAlign: TextAlign.center,
+                )) // TODO: replace $index with reference to data entry from DB
+              ])),
+        // MoreLogs button: links to widget listing all previous logs
+        // TODO: create link to MoreLogs Widget
+        ListTile(
+            title: TextButton(
+          onPressed: () {},
+          child: const Text('More Logs...'),
+        ))
+      ],
+    ));
+
+    // Widgets used for debugging.
+    /*
+    final userAccelerometer = _userAccelerometerValues
+        ?.map((double v) => v.toStringAsFixed(1))
+        .toList();
+    
     StatefulWidget timer = CustomTimer(
         controller: controller,
         builder: (state, time) {
@@ -162,7 +207,7 @@ class ExerciseHomeState extends State<ExerciseHome>
               style: const TextStyle(fontSize: 24.0));
         });
 
-    Widget test_buttons = ButtonBar(
+    Widget testButtons = ButtonBar(
       alignment: MainAxisAlignment.center,
       children: [
         ElevatedButton(
@@ -188,71 +233,7 @@ class ExerciseHomeState extends State<ExerciseHome>
         ],
       ),
     );
-
-    Widget recommendationBox = Expanded(
-        child: DecoratedBox(
-      decoration: BoxDecoration(
-          color: Colors.white60,
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
-          border: Border.all(color: Colors.black12, width: 2)),
-      child: const Center(
-          // TODO: replace with actual information
-          child: Text("Recommendation")),
-    ));
-
-    Widget newLog = Expanded(
-        child: DecoratedBox(
-            decoration: BoxDecoration(
-                color: Colors.white60,
-                borderRadius: const BorderRadius.all(Radius.circular(8)),
-                border: Border.all(color: Colors.black12, width: 2)),
-            child: Center(
-              child: TextButton(
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return const CreateNewExerciseLog();
-                    }));
-                  },
-                  child: const Text("New Log")),
-            )));
-
-    Widget logList = Expanded(
-        child: ListView(
-      padding: const EdgeInsets.all(8),
-      children: <Widget>[
-        for (int index = 1; index < 6; index++)
-          ElevatedButton(
-              style: const ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll<Color>(Colors.white),
-                foregroundColor: MaterialStatePropertyAll<Color>(Colors.black),
-              ),
-              onPressed: () {
-                // TODO: fill in
-                //  leads to a more verbose log that lists all elements of the log as well as the options to edit/delete the entry
-              },
-              child: Row(children: [
-// NOTE: these cannot be const, because they will have hold values obtained from the DB
-                Expanded(
-                    child: Text(
-                  "Date/Time: $index",
-                  textAlign: TextAlign.center,
-                )), // TODO: replace constant text with text retrieved from DB
-                Expanded(
-                    child: Text(
-                  "type: $index",
-                  textAlign: TextAlign.center,
-                )) // TODO: replace $index with reference to data entry from DB
-              ])),
-        // MoreLogs button: links to widget listing all previous logs
-        // TODO: create link to MoreLogs Widget
-        ListTile(
-            title: TextButton(
-          onPressed: () {},
-          child: const Text('More Logs...'),
-        ))
-      ],
-    ));
+    */
 
     return Scaffold(
       // Set up an appbar.
@@ -273,8 +254,7 @@ class ExerciseHomeState extends State<ExerciseHome>
       body: Center(
           child: Column(
         children: [
-          //welcomeText,
-          //test_buttons,
+          //testButtons,
           toggleDataCollection,
           //timer,
           //accelerometer,
@@ -286,7 +266,6 @@ class ExerciseHomeState extends State<ExerciseHome>
     );
   }
 
-  // Like the __init__ of the page.
   @override
   void initState() {
     super.initState();

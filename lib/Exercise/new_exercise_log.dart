@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:everyday_wellness_cs125/Misc/profile_page.dart';
 import 'package:intl/intl.dart';
 
 import 'exercise.dart';
@@ -21,11 +22,15 @@ class CreateNewExerciseLog extends StatelessWidget {
               },
             ),
             // paints the bar that appears at the top of every page
-            title: const Text('Create New Log'),
+            title: const Text('Create Exercise Log'),
             // This button is the one to get to the profile, it exists on every appbar, on every page
             actions: <Widget>[
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return const ProfilePage(title: 'Profile Page');
+                  }));
+                },
                 icon: const Icon(Icons.account_circle_rounded),
               )
             ],
@@ -47,8 +52,8 @@ class NewExerciseLog extends StatefulWidget {
 // Dropdown box
 const List<String> exerciseTypes = <String>[
   'Select Type',
-  'Cardio',
-  'Walk',
+  'Running',
+  'Walking',
   'Weightlifting',
   'Interval training',
   'Biking'
@@ -66,7 +71,6 @@ class _DropdownBoxState extends State<DropdownBox> {
 
   @override
   Widget build(BuildContext context) {
-    //return DropdownButton<String>( // changed to dropdownbuttonformfield because dropdownbutton doesn't have a validator method
     return Container(
         padding: const EdgeInsets.all(8),
         child: DropdownButtonFormField(
@@ -96,7 +100,6 @@ class _DropdownBoxState extends State<DropdownBox> {
         ));
   }
 }
-// end of dropdown box segment
 
 // paint the rest of the log
 class NewExerciseLogState extends State<NewExerciseLog> {
@@ -106,6 +109,7 @@ class NewExerciseLogState extends State<NewExerciseLog> {
 
   @override
   Widget build(BuildContext context) {
+    /*
     Widget datePickerField = Container(
         padding: const EdgeInsets.all(8),
         child: Center(
@@ -129,7 +133,8 @@ class NewExerciseLogState extends State<NewExerciseLog> {
           },
         )));
 
-    /* Widget TimeField = TextFormField(
+     
+    Widget TimeField = TextFormField(
         decoration: const InputDecoration(
           icon: const Icon(Icons.schedule),
           hintText: '',
@@ -151,7 +156,7 @@ class NewExerciseLogState extends State<NewExerciseLog> {
             decoration: const InputDecoration(
               icon: Icon(Icons.schedule),
               hintText: '',
-              labelText: 'Time',
+              labelText: 'What time did you start exercising?',
             ),
             readOnly: true,
             onTap: () async {
@@ -168,11 +173,31 @@ class NewExerciseLogState extends State<NewExerciseLog> {
           ),
         ));
 
+    Widget durationField = Container(
+        padding: const EdgeInsets.all(8),
+        child: TextFormField(
+          decoration: const InputDecoration(
+            icon: Icon(Icons.timer),
+            hintText: '',
+            labelText: 'How long did you exercise (in minutes)?',
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter a number';
+            }
+            var number = int.tryParse(value);
+            if (number == null) {
+              return 'Please enter a number';
+            }
+            return null;
+          },
+        ));
+    /*
     Widget durationField = TextFormField(
       decoration: const InputDecoration(
         icon: Icon(Icons.timer),
         hintText: '',
-        labelText: 'Duration (in minutes)',
+        labelText: 'How long did you exercise (in minutes)?',
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -185,7 +210,7 @@ class NewExerciseLogState extends State<NewExerciseLog> {
         return null;
       },
     );
-
+    
     Widget exerciseRating = Container(
       padding: const EdgeInsets.symmetric(vertical: 30),
       child: Center(
@@ -193,7 +218,7 @@ class NewExerciseLogState extends State<NewExerciseLog> {
         initialRating: 0,
         minRating: 0,
         maxRating: 5,
-        allowHalfRating: true,
+        allowHalfRating: false,
         itemSize: 30.0,
         ratingWidget: RatingWidget(
             full: const Icon(Icons.star, color: Colors.amber),
@@ -204,9 +229,11 @@ class NewExerciseLogState extends State<NewExerciseLog> {
             )),
         onRatingUpdate: (rating) {
           // TODO? capture change somehow or else wait for submit to do that for us?
+          print(rating);
         },
       )),
     );
+    */
 
     Widget submit = Center(
         child: ElevatedButton(
@@ -237,15 +264,11 @@ class NewExerciseLogState extends State<NewExerciseLog> {
         child: ListView(
           padding: const EdgeInsets.all(8),
           children: <Widget>[
-            Row(
-              children: [Expanded(child: datePickerField)],
-            ),
+            //Row(children: [Expanded(child: datePickerField)]),
             Row(children: [Expanded(child: timePickerField)]),
             Row(children: [Expanded(child: durationField)]),
             Row(children: const [Expanded(child: DropdownBox())]),
-            Row(
-              children: [Expanded(child: exerciseRating)],
-            ),
+            //Row(children: [Expanded(child: exerciseRating)]),
             Row(children: [Expanded(child: submit)])
           ],
         ));
