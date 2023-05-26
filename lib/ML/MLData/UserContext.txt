@@ -13,6 +13,11 @@ User 13: Keto, prefers vegetable dishes but will eat anything, including meat
 User 14: no preferences other than likes fruit and dislikes vegetables
 User 15: Prefers Seafood
 User 16: Low Fat Only
+User 17: somewhat random likes and dislikes
+User 18: Likes chicken, dislikes beef, prefers mushrooms to other fruits and vegetables
+User 19: vegetarian, likes vegetables over fruits
+User 20: Likes tacos, dislikes pizza
+User 21: Likes Pizza, dislikes tacos
 
 
 Feel free to add any other users. When adding new ratings, attempt to remain consistent with the user context.
