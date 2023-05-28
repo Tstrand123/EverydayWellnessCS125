@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+//import 'package:firebase_database/firebase_database.dart';
 
 import 'food.dart';
 
 class CreateNewFoodLog extends StatelessWidget {
   const CreateNewFoodLog({super.key});
-
+  // TODO: create a button to load preset values (meals stored in the database with which we can use to generate recommendations)
   @override
   Widget build(BuildContext context) {
     const formTitle = 'Create New Log';
@@ -34,6 +38,41 @@ class CreateNewFoodLog extends StatelessWidget {
         ));
   }
 }
+Map<int, dynamic> testMap = {0: {'name': "test1", 'calories': 300, 'fat': 20, 'carbs': 45, 'protein': 12},
+  1: {'name': "test2", 'calories': 301, 'fat': 21, 'carbs': 46, 'protein': 13},
+  2: {'name': "test3", 'calories': 302, 'fat': 22, 'carbs': 47, 'protein': 14}};
+
+class PresetState extends StatefulWidget {
+  const PresetState({super.key});
+
+  @override
+  PresetsDialog createState() {
+    return PresetsDialog();
+  }
+}
+
+class PresetsDialog extends State<PresetState>{
+  final _dialogKey = GlobalKey<FormState>();
+  @override
+  Widget build(BuildContext context){
+    return SimpleDialog(
+      children: <Widget>[
+        // get data from database, store as a map
+        //final QuerySnapshot<Map<int, dynamic>> MealMap = await FirebaseFirestore.instance.collection("meals").get();
+        // loop through entries of map
+        for (int i = 0; i < testMap.length; i++ )
+          ElevatedButton( // create a button for each map entry
+              onPressed: (){
+                // return the meal_id
+                Navigator.pop(context, i); // return the id of the meal
+              },
+              child: Row(children: [Text("${testMap[i]['name']}")])
+          )
+        // }
+        // TODO: get meal values from database and load names into list
+      ],);
+  }
+}
 
 class NewFoodLog extends StatefulWidget {
   const NewFoodLog({super.key});
@@ -46,8 +85,13 @@ class NewFoodLog extends StatefulWidget {
 
 class NewFoodLogState extends State<NewFoodLog> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController dateInput = TextEditingController();
+  TextEditingController dateInput = TextEditingController(); // controllers, for altering the values of widgets
   TextEditingController timeInput = TextEditingController();
+  TextEditingController nameCont = TextEditingController();
+  TextEditingController calControl = TextEditingController();
+  TextEditingController fatControl = TextEditingController();
+  TextEditingController proteinControl = TextEditingController();
+  TextEditingController carbControl = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +157,33 @@ class NewFoodLogState extends State<NewFoodLog> {
           ),
         ));
 
+    Widget presetButton = ElevatedButton(
+      style: const ButtonStyle(
+        alignment: Alignment.center,
+      ),
+        onPressed: () async{
+        // when pressed, display a dialog
+          int result = await showDialog(context: context,
+              builder: (BuildContext context) => const PresetState());
+
+          // get the meal id of the dialog from the future element
+          if (result >= 0 && result <= testMap.length) {
+            nameCont.text = testMap[result]['name'];
+            calControl.text = testMap[result]['calories'].toString();
+            fatControl.text = testMap[result]['fat'].toString();
+            proteinControl.text = testMap[result]['protein'].toString();
+            carbControl.text = testMap[result]['carbs'].toString();
+          }
+        // change the values of each of the below elements to the values of the meal
+
+      // ALT: automatically submit without letting the user modify anything, but ask them to rate it.
+
+        },
+        child: const Text("Select from presets"));
+
+
     Widget nameField = TextFormField(
+      controller: nameCont,
       decoration: const InputDecoration(
         icon: Icon(Icons.fastfood),
         hintText: 'What did you eat?',
@@ -125,10 +195,11 @@ class NewFoodLogState extends State<NewFoodLog> {
         }
         return null;
       },
-      // TODO: change to a time picker?
+
     );
 
     Widget caloriesField = TextFormField(
+      controller: calControl,
       decoration: const InputDecoration(
         icon: Icon(Icons.scale),
         hintText: 'How many total calories?',
@@ -147,6 +218,7 @@ class NewFoodLogState extends State<NewFoodLog> {
     );
 
     Widget fatField = TextFormField(
+      controller: fatControl,
       decoration: const InputDecoration(
         icon: Icon(Icons.scale),
         hintText: 'How many total grams of fat?',
@@ -165,6 +237,7 @@ class NewFoodLogState extends State<NewFoodLog> {
     );
 
     Widget proteinField = TextFormField(
+      controller: proteinControl,
       decoration: const InputDecoration(
         icon: Icon(Icons.scale),
         hintText: 'How many grams of protein?',
@@ -183,6 +256,7 @@ class NewFoodLogState extends State<NewFoodLog> {
     );
 
     Widget carbsField = TextFormField(
+      controller: carbControl,
       decoration: const InputDecoration(
         icon: Icon(Icons.scale),
         hintText: 'How many total grams of Carbohydrates?',
@@ -249,6 +323,7 @@ class NewFoodLogState extends State<NewFoodLog> {
               children: [Expanded(child: datePickerField)],
             ),
             Row(children: [Expanded(child: timePickerField)]),
+            Row(children: [Expanded(child: presetButton)],),
             Row(children: [Expanded(child: nameField)]),
             Row(children: [Expanded(child: caloriesField)]),
             Row(children: [Expanded(child: fatField)]),
