@@ -18,6 +18,9 @@ User 18: Likes chicken, dislikes beef, prefers mushrooms to other fruits and veg
 User 19: vegetarian, likes vegetables over fruits
 User 20: Likes tacos, dislikes pizza
 User 21: Likes Pizza, dislikes tacos
+User 22: Likes Noodles
+User 23: likes beef, dislikes chicken
+USer 24: Has only rated snacks
 
 
 Feel free to add any other users. When adding new ratings, attempt to remain consistent with the user context.
