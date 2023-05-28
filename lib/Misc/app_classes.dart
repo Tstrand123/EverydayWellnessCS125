@@ -100,3 +100,36 @@ class ExerciseLog {
         type: json['type'],
       );
 }
+
+class MealData {
+  int calories;
+  int carbs;
+  int fat;
+  String main_flavors;
+  String meal_type;
+  String name;
+  int protein;
+  String tags;
+
+  MealData({
+    required this.calories,
+    required this.carbs,
+    required this.fat,
+    required this.main_flavors,
+    required this.meal_type,
+    required this.name,
+    required this.protein,
+    required this.tags,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'calories': calories,
+    'carbs': carbs,
+    'fat': fat,
+    'main_flavors': main_flavors,
+    'meal_type': meal_type,
+    'name': name,
+    'protein': protein,
+    'tags': tags,
+  };
+}
