@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 //import 'package:firebase_database/firebase_database.dart';
 
@@ -53,24 +56,59 @@ class PresetState extends StatefulWidget {
 
 class PresetsDialog extends State<PresetState>{
   final _dialogKey = GlobalKey<FormState>();
+  final Future<QuerySnapshot<Map<String, dynamic>>> snapshot =FirebaseFirestore.instance.collection("MealData").get();
+  //final db = FirebaseFirestore.instance;
+
   @override
   Widget build(BuildContext context){
-    return SimpleDialog(
-      children: <Widget>[
         // get data from database, store as a map
-        //final QuerySnapshot<Map<int, dynamic>> MealMap = await FirebaseFirestore.instance.collection("meals").get();
+      return SimpleDialog(children: [
+        //return
+          FutureBuilder(
+          future: snapshot,
+            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snap){
+              //snap = db.collection("MealData").get();
+              List<Widget> children = [];
+              if (snap.hasData){
+                QuerySnapshot<Map<String, dynamic>> dataFromDB = snap.data!;
+                 //children = <Widget>[
+                  //for (int i = 0; i < MealMap.length; i++ ){
+                for (var docSnapshot in dataFromDB.docs) {
+                    children.add(ElevatedButton( // create a button for each map entry
+                        onPressed: (){
+                          // return the meal_id
+                          // return the map entry of the selected ite:m; don't want to pass around the entire map
+                          //Navigator.pop(context, MapEntry(i, MealMap[i]));
+                          //print(docSnapshot.data);
+                          final mapEntries = <String, String>{"meal_id": docSnapshot.id, "name": "${docSnapshot.data()['name']}",
+                            "protein": "${docSnapshot.data()['protein']}", "calories": "${docSnapshot.data()['calories']}",
+                            "fat": "${docSnapshot.data()['fat']}","carbs": "${docSnapshot.data()['carbs']}"};
+                          Map<String, String> m = Map.fromEntries(mapEntries.entries);
+                          Navigator.pop(
+                              //context, MapEntry(docSnapshot.id, docSnapshot.data()));
+                              context,m);//docSnapshot.data());
+                        },
+                        //child: Row(children: [Text("${MealMap[i]['name']}")])
+                        child: Row(children: [Expanded(child: Text("${docSnapshot.data()['name']}"))])
+                    ));}
+                //];
+              }
+              else {
+                children = [const Text("Error")];
+              }
+             // return SimpleDialog(
+                 // children: children);
+              return Container(
+                  height: 400,
+                  child: ListView(children: children,));
+            })
+    ],);
+        // BELOW HERE IS COPY OF WHAT WORKS WITH MAP<INT, DYNAMIC>
         // loop through entries of map
-        for (int i = 0; i < testMap.length; i++ )
-          ElevatedButton( // create a button for each map entry
-              onPressed: (){
-                // return the meal_id
-                Navigator.pop(context, i); // return the id of the meal
-              },
-              child: Row(children: [Text("${testMap[i]['name']}")])
-          )
+
         // }
         // TODO: get meal values from database and load names into list
-      ],);
+
   }
 }
 
@@ -156,24 +194,33 @@ class NewFoodLogState extends State<NewFoodLog> {
             },
           ),
         ));
-
+    int meal_id = -1; // stores the value of the meal; if not a preset, then this is -1
     Widget presetButton = ElevatedButton(
       style: const ButtonStyle(
         alignment: Alignment.center,
       ),
         onPressed: () async{
         // when pressed, display a dialog
-          int result = await showDialog(context: context,
+          Map<String, String> result = await showDialog(context: context,
               builder: (BuildContext context) => const PresetState());
-
-          // get the meal id of the dialog from the future element
-          if (result >= 0 && result <= testMap.length) {
-            nameCont.text = testMap[result]['name'];
-            calControl.text = testMap[result]['calories'].toString();
-            fatControl.text = testMap[result]['fat'].toString();
-            proteinControl.text = testMap[result]['protein'].toString();
-            carbControl.text = testMap[result]['carbs'].toString();
-          }
+          print(result);
+          //for (var res in result.entries) {
+            try {
+              meal_id = int.parse(result['meal_id']!);
+            }
+            on FormatException {
+              meal_id = -1;
+            }
+            // get the meal id of the dialog from the future element
+            //if (res.key >= 0 && res.key <= testMap.length) {
+            //if (meal_id >= 0){
+              nameCont.text = result['name']!;
+              calControl.text = result['calories']!;//.toString();
+              fatControl.text = result['fat']!;//.toString();
+              proteinControl.text = result['protein']!;//.toString();
+              carbControl.text = result['carbs']!;//.toString();
+            //}
+          //}
         // change the values of each of the below elements to the values of the meal
 
       // ALT: automatically submit without letting the user modify anything, but ask them to rate it.
@@ -273,7 +320,7 @@ class NewFoodLogState extends State<NewFoodLog> {
         return null;
       },
     );
-
+  double thisRate = 0.0;
     Widget foodRating = Container(
       padding: const EdgeInsets.symmetric(vertical: 30),
       child: Center(
@@ -292,6 +339,7 @@ class NewFoodLogState extends State<NewFoodLog> {
             )),
         onRatingUpdate: (rating) {
           // TODO? capture change somehow or else wait for submit to do that for us?
+          thisRate = rating;
         },
       )),
     );
@@ -303,8 +351,25 @@ class NewFoodLogState extends State<NewFoodLog> {
         if (_formKey.currentState!.validate()) {
           ScaffoldMessenger.of(context).showSnackBar(
             // TODO: send the data to the server
+
             const SnackBar(content: Text('Processing Data')),
           );
+          // upload data to firebase
+          final userId = FirebaseAuth.instance.currentUser!.uid;
+          if (meal_id != -1){
+            final RatingEntry =<String, String>{
+        // TODO: need to collect everything, including rating and also meal values
+        "meal_id": "$meal_id",
+        "rating": "$thisRate"
+        };
+        var db = FirebaseFirestore.instance;
+        db
+            .collection("user_ratings") // TODO: should be the name of the collection with user ratings
+            .doc(userId) // TODO: might change the index
+            .set(RatingEntry)
+            .onError((e, _)=>print("error writing document: $e"));
+          }
+          // TODO: regardless of if the meal was a preset, upload cal/fat/ etc values
           // When done, reload the food home page
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return const FoodHome(title: 'FoodHome');
