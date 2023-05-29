@@ -95,6 +95,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   @override
+  int score = 135; // FIX THIS TO THE ACTUAL CALCULATED VALUE
   Widget build(BuildContext context) {
     // Create welcome text:
     //Heavily referenced https://stackoverflow.com/questions/50471309/how-to-listen-for-document-changes-in-cloud-firestore-using-flutter
@@ -127,11 +128,11 @@ class _HomePageState extends State<HomePage> {
       lineWidth: 13.0,
       animation: true,
       // TODO: Calculate correct percentage.
-      percent: 0.9,
+      percent: (score / 150.0),
       reverse: true,
-      center: const Text(
+      center: Text(
         // TODO: Display the current average of the scores.
-        "135",
+        score.toString(),
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
       ),
       footer: Padding(
@@ -151,8 +152,16 @@ class _HomePageState extends State<HomePage> {
       ),
       circularStrokeCap: CircularStrokeCap.round,
 
-      // TODO: Make it so that the color changes based on the average of the scores.
-      progressColor: const Color.fromARGB(255, 36, 131, 17),
+      progressColor: (score > 125)
+      ? const Color.fromARGB(255, 36, 131, 17)
+      : (score > 100 && score <= 125)
+      ? const Color.fromARGB(255, 122, 207, 127)
+      : (score > 75 && score <= 100)
+      ? const Color.fromARGB(255, 226, 241, 9)
+      : (score > 50 && score <= 75)
+      ? const Color.fromARGB(255, 255, 145, 0)
+      : const Color.fromARGB(255, 131, 17, 17),
+
     );
 
     // Create the food recomendation widget: // replaced code with newer, better code. Left this here just in case we want to roll back
