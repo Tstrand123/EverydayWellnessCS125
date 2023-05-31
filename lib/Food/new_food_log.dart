@@ -80,6 +80,7 @@ class PresetsDialog extends State<PresetState>{
                           // return the map entry of the selected ite:m; don't want to pass around the entire map
                           //Navigator.pop(context, MapEntry(i, MealMap[i]));
                           //print(docSnapshot.data);
+                          // TODO: check if the user has already rated this meal and get the rating to display?
                           final mapEntries = <String, String>{"meal_id": docSnapshot.id, "name": "${docSnapshot.data()['name']}",
                             "protein": "${docSnapshot.data()['protein']}", "calories": "${docSnapshot.data()['calories']}",
                             "fat": "${docSnapshot.data()['fat']}","carbs": "${docSnapshot.data()['carbs']}"};
@@ -133,6 +134,7 @@ class NewFoodLogState extends State<NewFoodLog> {
 
   @override
   Widget build(BuildContext context) {
+    DateTime MealTime = DateTime.now(); // holds the time and date of a meal, used to index the subcollection of a users meal and find meals that happened "today"; defaults to now
     Widget datePickerField = Container(
         padding: const EdgeInsets.all(8),
         child: Center(
@@ -151,6 +153,8 @@ class NewFoodLogState extends State<NewFoodLog> {
               String formattedDate = DateFormat('M/d/y').format(pickedDate);
               setState(() {
                 dateInput.text = formattedDate;
+                // update the date info, time info stays the same
+                 MealTime = DateTime(pickedDate.year, pickedDate.month, pickedDate.day, MealTime.hour, MealTime.minute);
               });
             } else {}
           },
@@ -189,11 +193,15 @@ class NewFoodLogState extends State<NewFoodLog> {
                     '${pickedTime.hour.toString()} : ${pickedTime.minute.toString()}';
                 setState(() {
                   timeInput.text = formattedTime;
+                  // update the hour and minute to the selected time; date info stays the same
+                  MealTime = DateTime(MealTime.year, MealTime.month, MealTime.day, pickedTime.hour, pickedTime.minute);
                 });
               } else {}
             },
           ),
         ));
+
+
     int meal_id = -1; // stores the value of the meal; if not a preset, then this is -1
     Widget presetButton = ElevatedButton(
       style: const ButtonStyle(
@@ -325,7 +333,7 @@ class NewFoodLogState extends State<NewFoodLog> {
       padding: const EdgeInsets.symmetric(vertical: 30),
       child: Center(
           child: RatingBar(
-        initialRating: 0,
+        initialRating: thisRate,//0, // For already rated meal, can change this to be thisRate, then add code in onRatingUpdate to *update* the entry in the db, not add a new one
         minRating: 0,
         maxRating: 5,
         allowHalfRating: true,
@@ -338,7 +346,9 @@ class NewFoodLogState extends State<NewFoodLog> {
               color: Colors.grey,
             )),
         onRatingUpdate: (rating) {
-          // TODO? capture change somehow or else wait for submit to do that for us?
+          // TODO? if the user selects a preset that htey've already rated, should the rating here update what they gave it last time?
+          //    if they change the rating, would have to update the meal
+          //      alternatively, do nothing different and hope it doesn't break anything?
           thisRate = rating;
         },
       )),
@@ -356,20 +366,49 @@ class NewFoodLogState extends State<NewFoodLog> {
           );
           // upload data to firebase
           final userId = FirebaseAuth.instance.currentUser!.uid;
-          if (meal_id != -1){
-            final RatingEntry =<String, String>{
-        // TODO: need to collect everything, including rating and also meal values
-        "meal_id": "$meal_id",
-        "rating": "$thisRate"
-        };
-        var db = FirebaseFirestore.instance;
-        db
-            .collection("user_ratings") // TODO: should be the name of the collection with user ratings
-            .doc(userId) // TODO: might change the index
-            .set(RatingEntry)
-            .onError((e, _)=>print("error writing document: $e"));
+          var db = FirebaseFirestore.instance;
+          var preset = false;
+          if (meal_id != -1) { // Only allow ratings if the meal was a preset, to prevent user created meals from contaiminating the algo
+            //preset = true; // if the meal was a preset,
+            final RatingEntry = <String, String>{
+              // TODO: need to collect everything, including rating and also meal values
+              //"preset": preset.toString(), // not needed, all meals will be presets
+              "meal_id": "$meal_id",
+              "rating": "$thisRate"
+            };
+            db
+                .collection(
+                "user_ratings") // TODO: should be the name of the collection with user ratings
+                .doc(userId) // TODO: might change the index
+                .collection("meals").doc("$meal_id")
+                .set(RatingEntry) // TODO: should this just be
+                .onError((e, _) => print("error writing document: $e"));
           }
-          // TODO: regardless of if the meal was a preset, upload cal/fat/ etc values
+          // TODO: create database for meal values (records the date, calories, fat, protien, and carbs, indexed by user_id)
+          //      when determining the recommendations, take all entries from THIS user, on THIS day, and sum the values
+          //      subtract from the recommended values to find deficit/surplus
+          //      if the user is on track, then that causes a positive score to their health rating, otherwise, a negative one (primarily regarding carbs and fat)
+          /*final ValuesEntry=<String, String>{
+            //"user_id": "$userId", // userID is the document to insert this under, but I think we should include it in the record too because there will be many duplicates
+            "time": dateInput.text,
+            "Data"
+
+            };*/
+            final DataEntry = <String, String>{
+                "calories": calControl.text,
+                "fat": fatControl.text,
+                "carbs": carbControl.text,
+                "protein": proteinControl.text,
+                "name": nameCont.text
+            };
+
+          // store the data in a subcollection. user_values indexed by user_id, each userId is tied to a subcollection "meals" which is indexed by datetime
+          db.collection("nutritionData") // main collection
+          .doc(userId)  // index of main collection
+              .collection("meals") // subcollection of userId
+              .doc(MealTime.toString()) // index of subcollection
+              .set(DataEntry) // the meal data
+              .onError((e, _)=>print("Error writing document: $e"));
           // When done, reload the food home page
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return const FoodHome(title: 'FoodHome');

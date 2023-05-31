@@ -34,7 +34,7 @@ Future<AppUser?> readUser() async {
   return AppUser.fromJson(snapshot.data()!);
 }
 
-Future<Stream<AppUser>> readUserStream() async{
+Future<Stream<AppUser>> readUserStream() async {
   final docUser = FirebaseFirestore.instance
       .collection('Users')
       .doc(FirebaseAuth.instance.currentUser!.uid);
@@ -94,15 +94,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int score = 135; // TODO: FIX THIS TO THE ACTUAL CALCULATED VALUE
+
   @override
-  int score = 135; // FIX THIS TO THE ACTUAL CALCULATED VALUE
   Widget build(BuildContext context) {
     // Create welcome text:
     //Heavily referenced https://stackoverflow.com/questions/50471309/how-to-listen-for-document-changes-in-cloud-firestore-using-flutter
     //Referenced https://api.flutter.dev/flutter/widgets/StreamBuilder-class.html
     Widget welcomeText = StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance.collection('Users').doc(FirebaseAuth.instance.currentUser!.uid).snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot?> snapshot) {
+        stream: FirebaseFirestore.instance
+            .collection('Users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .snapshots(),
+        builder:
+            (BuildContext context, AsyncSnapshot<DocumentSnapshot?> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
@@ -133,7 +138,7 @@ class _HomePageState extends State<HomePage> {
       center: Text(
         // TODO: Display the current average of the scores.
         score.toString(),
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
       ),
       footer: Padding(
         padding: const EdgeInsets.only(top: 20, bottom: 10),
@@ -153,15 +158,14 @@ class _HomePageState extends State<HomePage> {
       circularStrokeCap: CircularStrokeCap.round,
 
       progressColor: (score > 125)
-      ? const Color.fromARGB(255, 36, 131, 17)
-      : (score > 100 && score <= 125)
-      ? const Color.fromARGB(255, 122, 207, 127)
-      : (score > 75 && score <= 100)
-      ? const Color.fromARGB(255, 226, 241, 9)
-      : (score > 50 && score <= 75)
-      ? const Color.fromARGB(255, 255, 145, 0)
-      : const Color.fromARGB(255, 131, 17, 17),
-
+          ? const Color.fromARGB(255, 36, 131, 17)
+          : (score > 100 && score <= 125)
+              ? const Color.fromARGB(255, 122, 207, 127)
+              : (score > 75 && score <= 100)
+                  ? const Color.fromARGB(255, 226, 241, 9)
+                  : (score > 50 && score <= 75)
+                      ? const Color.fromARGB(255, 255, 145, 0)
+                      : const Color.fromARGB(255, 131, 17, 17),
     );
 
     // Create the food recomendation widget: // replaced code with newer, better code. Left this here just in case we want to roll back
@@ -218,8 +222,8 @@ class _HomePageState extends State<HomePage> {
             )),
         Container(
           padding: const EdgeInsets.all(40),
-          child: const Text(
-            "Recommendation",
+          child: Text(
+            getRecommendation(),//"Recommendation",
             textAlign: TextAlign.center,
           ) // TODO: replace text with recommendation obtained from backend
           ,
@@ -351,8 +355,7 @@ class _HomePageState extends State<HomePage> {
         child: ListView(children: [
           // changed to listview so my modifications will work
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Container(
-                padding: const EdgeInsets.all(10), child: welcomeText)
+            Container(padding: const EdgeInsets.all(10), child: welcomeText)
           ]),
 
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [

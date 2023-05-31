@@ -133,3 +133,51 @@ class MealData { //TODO: add meal id
     'tags': tags,
   };
 }
+
+class MealRating{
+  // preset value not incorporated, currently, only rate preset meals
+ // bool preset; // indicates if it was a preset meal (non-presets should not be used by the ML)
+  String meal_id;
+  double rating;
+
+  MealRating({
+    //required this.preset,
+    required this.meal_id,
+    required this.rating
+  });
+
+  Map<String, dynamic> toJson() => {
+    //'preset': preset,
+    'meal_id': meal_id,
+    'rating': rating
+  };
+}
+
+// NOTE: ratings and nutrition data *could* be merged into a single collection, indexed by userID, keeping separate for now
+class NutritionData{
+  DateTime mealTime; // this is the index of the meals subcollection
+  String name;
+  int calories;
+  int fat;
+  int carbs;
+  int protein;
+  // TODO? add (optional) reference to rating?
+
+  NutritionData({
+    required this.mealTime,
+    required this.name,
+    required this.calories,
+    required this.fat,
+    required this.carbs,
+    required this.protein,
+});
+
+  Map<String, dynamic> toJson() =>{
+    'mealTime': mealTime,
+    'name': name,
+    'calories': calories,
+    'fat': fat,
+    'carbs': carbs,
+    'protein': protein
+  };
+}
