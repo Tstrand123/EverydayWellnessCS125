@@ -157,6 +157,7 @@ class ExerciseHomeState extends State<ExerciseHome>
             )));
 
     // Will display the logs for the current day.
+    /*
     Widget logList = Expanded(
         child: ListView(
       padding: const EdgeInsets.all(8),
@@ -191,6 +192,63 @@ class ExerciseHomeState extends State<ExerciseHome>
           child: const Text('More Logs...'),
         ))
       ],
+    ));
+    */
+
+    // Referenced: https://www.youtube.com/watch?v=qlxhqXnyUPw
+    String day =
+        '${DateTime.now().year}-${DateTime.now().day}-${DateTime.now().month}';
+    Widget updatedLogList = StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('ExerciseLogs')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .collection(day)
+            .snapshots(),
+        builder:
+            (BuildContext context, AsyncSnapshot<QuerySnapshot?> snapshot) {
+          try {
+            return Expanded(
+                child: ListView(
+                    padding: const EdgeInsets.all(8),
+                    children: snapshot.data!.docs.map((document) {
+                      return ElevatedButton(
+                          style: const ButtonStyle(
+                            backgroundColor:
+                                MaterialStatePropertyAll<Color>(Colors.white),
+                            foregroundColor:
+                                MaterialStatePropertyAll<Color>(Colors.black),
+                          ),
+                          onPressed: () {
+                            // TODO: fill in
+                          },
+                          child: Row(children: [
+                            Expanded(
+                                child: Text(
+                              "${document.get('startTime')}",
+                              textAlign: TextAlign.center,
+                            )),
+                            Expanded(
+                                child: Text(
+                              "type: ${document.get('type')}",
+                              textAlign: TextAlign.center,
+                            ))
+                          ]));
+                    }).toList()));
+          } catch (e) {
+            print("No logs");
+            return const Expanded(
+              child: Text(
+                "No logs for today.",
+                textAlign: TextAlign.center,
+              ),
+            );
+          }
+        });
+
+    Widget moreLogs = ListTile(
+        title: TextButton(
+      onPressed: () {},
+      child: const Text('More Logs...'),
     ));
 
     // Widgets used for debugging.
@@ -260,7 +318,8 @@ class ExerciseHomeState extends State<ExerciseHome>
           //accelerometer,
           recommendationBox,
           newLog,
-          logList,
+          updatedLogList,
+          // moreLogs,
         ],
       )),
     );
