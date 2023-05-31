@@ -207,7 +207,8 @@ class ExerciseHomeState extends State<ExerciseHome>
         builder:
             (BuildContext context, AsyncSnapshot<QuerySnapshot?> snapshot) {
           try {
-            return Expanded(
+            return Container(
+                height: 400,
                 child: ListView(
                     padding: const EdgeInsets.all(8),
                     children: snapshot.data!.docs.map((document) {
@@ -235,8 +236,9 @@ class ExerciseHomeState extends State<ExerciseHome>
                           ]));
                     }).toList()));
           } catch (e) {
-            print("No logs");
-            return const Expanded(
+            print("no logs");
+            return Container(
+              height: 400,
               child: Text(
                 "No logs for today.",
                 textAlign: TextAlign.center,
