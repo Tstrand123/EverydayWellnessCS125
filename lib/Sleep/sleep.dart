@@ -78,7 +78,7 @@ class _SleepHomeState extends State<SleepHome> {
       HealthDataPoint loopData;
       bool found = false;
       int index = -1;
-
+      
       for (int i = 0; i < asleepMinutesList.length; i++) {
         loopData = asleepMinutesList[i];
         //Check if date matches - if so, process, else, exit and notify
@@ -191,30 +191,64 @@ class _SleepHomeState extends State<SleepHome> {
               },
             ),
           ),
-
-          // NewLog widget: allows the user to manually create a new Sleep Log
-          Expanded(
-              child: Row(children: [
-            Expanded(
-                child: DecoratedBox(
-                    decoration: BoxDecoration(
+          
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 8.0), // Adjust the vertical padding as needed
+            child: Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
                         color: Colors.white60,
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(8)),
-                        border: Border.all(color: Colors.black12, width: 2)),
-                    // TODO: create link to NewLog widget
-                    child: Center(
-                      child: TextButton(
+                        borderRadius: const BorderRadius.all(Radius.circular(8)),
+                        border: Border.all(color: Colors.black12, width: 2),
+                      ),
+                      child: Center(
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => updateSleepGoals()),
+                            );
+                          },
+                          child: const Text("New Sleep Goal"),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // NewLog widget: allows the user to manually create a new Sleep Log
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 8.0), // Adjust the vertical padding as needed
+            child: Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.white60,
+                        borderRadius: const BorderRadius.all(Radius.circular(8)),
+                        border: Border.all(color: Colors.black12, width: 2),
+                      ),
+                      child: Center(
+                        child: TextButton(
                           onPressed: uploadNewSleepLog,
-                          // onPressed: () { //Collects data from device and uploads it - calls method
-                          //   Navigator.push(context,
-                          //       MaterialPageRoute(builder: (context) {
-                          //     return const CreateNewSleepLog();
-                          //   }));
-                          // },
-                          child: const Text("New Log")),
-                    )))
-          ])),
+                          child: const Text("New Log"),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
 
           //Grab logs from DB
           SingleChildScrollView(
@@ -240,12 +274,38 @@ class _SleepHomeState extends State<SleepHome> {
               },
             ),
           ),
+          
 
           // Log List: displays summary information on the last 5 logs
           Expanded(
               child: ListView(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(4),
             children: <Widget>[
+              ElevatedButton(
+                    style: const ButtonStyle(
+                      backgroundColor:
+                          MaterialStatePropertyAll<Color>(Colors.white),
+                      foregroundColor:
+                          MaterialStatePropertyAll<Color>(Colors.black),
+                    ),
+                    onPressed: () {
+                      // TODO: fill in
+                      //  leads to a more verbose log that lists all elements of the log as well as the options to edit/delete the entry
+                    },
+                    child: Row(children: [
+// NOTE: these cannot be const, because they will have hold values obtained from the DB
+                      Expanded(
+                          child: Text(
+                        "Bedtime Goal:",
+                        textAlign: TextAlign.center,
+                      )), // TODO: replace constant text with text retrieved from DB
+                      Expanded(
+                          child: Text(
+                        "Duration Goal:",
+                        textAlign: TextAlign.center,
+                      )) // TODO: replace $index with reference to data entry from DB
+                    ])),
+
               for (int index = 1; index < 6; index++)
                 ElevatedButton(
                     style: const ButtonStyle(
@@ -267,7 +327,7 @@ class _SleepHomeState extends State<SleepHome> {
                       )), // TODO: replace constant text with text retrieved from DB
                       Expanded(
                           child: Text(
-                        "duration: $index",
+                        "Duration: $index",
                         textAlign: TextAlign.center,
                       )) // TODO: replace $index with reference to data entry from DB
                     ])),
@@ -343,6 +403,48 @@ class _MoreLogsState extends State<MoreLogs> {
                   }
                 },
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class updateSleepGoals extends StatelessWidget {
+  final TextEditingController _textFieldController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Sleep Goals'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextFormField(
+              controller: _textFieldController,
+              decoration: InputDecoration(
+                labelText: 'Enter your desired bedtime',
+              ),
+            ),
+            TextFormField(
+              controller: _textFieldController,
+              decoration: InputDecoration(
+                labelText: 'Enter your desired sleep duration',
+              ),
+            ),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () {
+                String enteredText = _textFieldController.text;
+                // Process the entered text or perform any other actions
+                // you want when the button is pressed
+                print('Entered text: $enteredText');
+              },
+              child: Text('Submit'),
             ),
           ],
         ),
