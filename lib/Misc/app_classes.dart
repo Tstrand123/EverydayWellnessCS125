@@ -101,7 +101,7 @@ class ExerciseLog {
       );
 }
 
-class MealData {
+class MealData { //TODO: add meal id
   int calories;
   int carbs;
   int fat;
