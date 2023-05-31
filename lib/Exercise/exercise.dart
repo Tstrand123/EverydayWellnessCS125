@@ -206,7 +206,7 @@ class ExerciseHomeState extends State<ExerciseHome>
             .snapshots(),
         builder:
             (BuildContext context, AsyncSnapshot<QuerySnapshot?> snapshot) {
-          try {
+          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
             return Container(
                 height: 400,
                 child: ListView(
@@ -235,8 +235,7 @@ class ExerciseHomeState extends State<ExerciseHome>
                             ))
                           ]));
                     }).toList()));
-          } catch (e) {
-            print("no logs");
+          } else {
             return Container(
               height: 400,
               child: Text(
