@@ -8,6 +8,7 @@ class AppUser {
   int heightFeet;
   int heightInches;
   int weight;
+  List<MealRating> ratings;
 
   AppUser({
     required this.userID,
@@ -17,6 +18,7 @@ class AppUser {
     required this.heightInches,
     required this.weight,
     required this.birthDate,
+    required this.ratings,
   });
 
   Map<String, dynamic> toJson() => {
@@ -26,17 +28,28 @@ class AppUser {
         'heightFeet': heightFeet,
         'heightInches': heightInches,
         'weight': weight,
+    'birthDate': birthDate,
+    'ratings': [],
       };
 
-  static AppUser fromJson(Map<String, dynamic> json) => AppUser(
-        userID: json['userID'],
-        firstName: json['firstName'],
-        lastName: json['lastName'],
-        heightFeet: json['heightFeet'],
-        heightInches: json['heightInches'],
-        weight: json['weight'],
-        birthDate: json['birthDate'],
-      );
+  static AppUser fromJson(Map<String, dynamic> json) {
+    var tempLoop = json['ratings'] ?? [];
+    List<MealRating> newList = [];
+    for (var subjson in tempLoop) {
+      newList.add(subjson);
+    }
+
+    return AppUser(
+      userID: json['userID'],
+      firstName: json['firstName'],
+      lastName: json['lastName'],
+      heightFeet: json['heightFeet'],
+      heightInches: json['heightInches'],
+      weight: json['weight'],
+      birthDate: json['birthDate'],
+      ratings: newList, //TODO: This may not work to get all the ratings - do a separate loop
+    );
+  }
 }
 
 //Will be auto collected
@@ -132,6 +145,16 @@ class MealData { //TODO: add meal id
     'protein': protein,
     'tags': tags,
   };
+  
+  static MealData fromJson(Map<String,dynamic> json) => MealData(
+      calories: int.parse(json['calories']),
+      carbs: int.parse(json['carbs']),
+      fat: int.parse(json['fat']),
+      main_flavors: json['main_flavors'],
+      meal_type: json['meal_type'],
+      name: json['name'],
+      protein: int.parse(json['protein']),
+      tags: json['tags']);
 }
 
 class MealRating{
@@ -151,6 +174,10 @@ class MealRating{
     'meal_id': meal_id,
     'rating': rating
   };
+  
+  static MealRating fromJson(Map<String,dynamic> json) => MealRating(
+      meal_id: json['meal_id'],
+      rating: double.parse(json['rating']));
 }
 
 // NOTE: ratings and nutrition data *could* be merged into a single collection, indexed by userID, keeping separate for now

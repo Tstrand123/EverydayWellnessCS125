@@ -116,7 +116,7 @@ class _TestPageState extends State<TestPage> {
             children: [
               Center(
                 child: ElevatedButton(
-                    onPressed: uploadData,
+                    onPressed: uploadMealRatings,
                     child: const Text('Upload data')),
               )
             ],
@@ -150,5 +150,79 @@ class _TestPageState extends State<TestPage> {
      navigatorKey.currentState!.popUntil((route) => route.isFirst);
    }
 
+  }
+
+  void uploadUsers() async {
+    final userData = await rootBundle.loadString('lib/ML/MLData/userCSV.csv');
+    List<List<dynamic>> data2 = CsvToListConverter().convert(userData);
+
+    for (int i = 1; i < data2.length; i++){
+      final tempUser = AppUser(
+          userID: data2[i][0].toString(),
+          firstName: data2[i][1].toString(),
+          lastName: data2[i][2].toString(),
+          heightFeet: int.parse(data2[i][3].toString()),
+          heightInches: int.parse(data2[i][4].toString()),
+          weight: int.parse(data2[i][5].toString()),
+          birthDate: '2000-01-01',
+          ratings: []);
+
+      final userUpload = FirebaseFirestore.instance.collection('Users').doc('${data2[i][0]}');
+      userUpload.set(tempUser.toJson());
+
+    }
+  }
+
+  void uploadMealRatings() async {
+    showDialog(
+        context: context,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ));
+
+    //referenced https://stackoverflow.com/questions/52130316/how-to-get-data-from-firebase-in-flutter
+    final userData = await rootBundle.loadString('lib/ML/MLData/mealRatings.csv');
+    List<List<dynamic>> data2 = CsvToListConverter().convert(userData);
+    for (int i = 1; i < data2.length; i++){
+      final mealRate = MealRating(meal_id: data2[i][1].toString(),
+          rating: double.parse(data2[i][2].toString()));
+
+      final ratingUpload = FirebaseFirestore.instance.collection('Users').doc(data2[i][0].toString());
+      DocumentSnapshot userInfo = await ratingUpload.get();
+      //print(userInfo.data());
+      Map<String,dynamic> userData = userInfo.data() as Map<String,dynamic>;
+      //print(userData['ratings']);
+      var newList = userData['ratings'];
+      newList.add(mealRate.toJson());
+      print(userData['ratings']);
+      ratingUpload.update({
+        'ratings': newList,
+      });
+
+      // if(userData['ratings'] != null) {
+      //   //contains rating
+      //   List<dynamic> listOratings = userData['ratings'];
+      //   listOratings.add(mealRate);
+      //   ratingUpload.update({
+      //     'ratings': listOratings,
+      //   });
+      //
+      //
+      //   //print(listOratings);
+      //
+      // }else{
+      //   //no ratings yet
+      //   List<dynamic> listOratings = [];
+      //   listOratings.add(mealRate);
+      //   ratingUpload.update({
+      //     'ratings': listOratings,
+      //   });
+      // }
+      //add to rating array and reset
+
+    }
+
+
+    navigatorKey.currentState!.popUntil((route) => route.isFirst);
   }
 }

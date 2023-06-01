@@ -317,6 +317,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
         heightInches: int.parse(heightInchesController.text
             .trim()), //https://dev.to/wangonya/how-you-turn-a-string-into-a-number-or-vice-versa-with-dart-392h
         weight: int.parse(weightController.text.trim()),
+        ratings: [],
       );
 
       final docLocation =

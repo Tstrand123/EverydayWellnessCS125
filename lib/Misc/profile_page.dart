@@ -48,8 +48,8 @@ class _ProfilePageState extends State<ProfilePage> {
               child: CircularProgressIndicator(),
             );
           } else if (snapshot.hasError) {
-            return const Center(
-              child: Text('Error Occured'),
+            return Center(
+              child: Text('${snapshot.error.toString()}'),
             );
           }
           if (snapshot.hasData) {

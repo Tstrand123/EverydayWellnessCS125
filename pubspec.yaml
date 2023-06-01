@@ -79,6 +79,8 @@ flutter:
 
   assets:
     - 'lib/ML/MLData/dummyDataForApp.csv'
+    - 'lib/ML/MLData/userCSV.csv'
+    - 'lib/ML/MLData/mealRatings.csv'
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
