@@ -19,6 +19,8 @@ class SleepHome extends StatefulWidget {
 
 class _SleepHomeState extends State<SleepHome> {
   double sleepRating = 0;
+  String bedtimeGoalText = '';
+  String durationGoalText = '';
 
   //Grabs logs
   //Referenced https://firebase.flutter.dev/docs/firestore/usage/#querying
@@ -78,7 +80,7 @@ class _SleepHomeState extends State<SleepHome> {
       HealthDataPoint loopData;
       bool found = false;
       int index = -1;
-
+      
       for (int i = 0; i < asleepMinutesList.length; i++) {
         loopData = asleepMinutesList[i];
         //Check if date matches - if so, process, else, exit and notify
@@ -191,30 +193,64 @@ class _SleepHomeState extends State<SleepHome> {
               },
             ),
           ),
-
-          // NewLog widget: allows the user to manually create a new Sleep Log
-          Expanded(
-              child: Row(children: [
-            Expanded(
-                child: DecoratedBox(
-                    decoration: BoxDecoration(
+          
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 8.0), // Adjust the vertical padding as needed
+            child: Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
                         color: Colors.white60,
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(8)),
-                        border: Border.all(color: Colors.black12, width: 2)),
-                    // TODO: create link to NewLog widget
-                    child: Center(
-                      child: TextButton(
+                        borderRadius: const BorderRadius.all(Radius.circular(8)),
+                        border: Border.all(color: Colors.black12, width: 2),
+                      ),
+                      child: Center(
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => UpdateSleepGoals()),
+                            );
+                          },
+                          child: const Text("New Sleep Goal"),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // NewLog widget: allows the user to manually create a new Sleep Log
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 8.0), // Adjust the vertical padding as needed
+            child: Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.white60,
+                        borderRadius: const BorderRadius.all(Radius.circular(8)),
+                        border: Border.all(color: Colors.black12, width: 2),
+                      ),
+                      child: Center(
+                        child: TextButton(
                           onPressed: uploadNewSleepLog,
-                          // onPressed: () { //Collects data from device and uploads it - calls method
-                          //   Navigator.push(context,
-                          //       MaterialPageRoute(builder: (context) {
-                          //     return const CreateNewSleepLog();
-                          //   }));
-                          // },
-                          child: const Text("New Log")),
-                    )))
-          ])),
+                          child: const Text("New Log"),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
 
           //Grab logs from DB
           SingleChildScrollView(
@@ -240,12 +276,72 @@ class _SleepHomeState extends State<SleepHome> {
               },
             ),
           ),
+          
 
           // Log List: displays summary information on the last 5 logs
           Expanded(
-              child: ListView(
-            padding: const EdgeInsets.all(8),
+            child: ListView(
+            padding: const EdgeInsets.all(4),
             children: <Widget>[
+              ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                  foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                ),
+                onPressed: () {
+                  // Get the current user's UID
+                  User? user = FirebaseAuth.instance.currentUser;
+                  if (user == null) {
+                    // User is not signed in
+                    return;
+                  }
+                  String uid = user.uid;
+
+                  // Create a reference to the user's document in the 'sleep_goals' collection
+                  DocumentReference sleepGoalsDocRef =
+                      FirebaseFirestore.instance.collection('sleep_goals').doc(uid);
+
+                  // Retrieve the document snapshot from Firestore
+                  sleepGoalsDocRef.get().then((DocumentSnapshot snapshot) {
+                    if (snapshot.exists) {
+                      // Document exists, retrieve the values of 'bedtime' and 'duration'
+                      String bedtime = snapshot.get('bedtime') ?? 'Not Set';
+                      String duration = snapshot.get('duration') ?? 'Not Set';
+
+                      // Update the child Text widgets with the retrieved values
+                      setState(() {
+                        bedtimeGoalText = bedtime;
+                        durationGoalText = duration;
+                      });
+                    } else {
+                      // Document does not exist, set default values
+                      setState(() {
+                        bedtimeGoalText = 'Not Set';
+                        durationGoalText = 'Not Set';
+                      });
+                    }
+                  }).catchError((error) {
+                    Text('Error: $error');
+                  });
+                },
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Bedtime Goal: $bedtimeGoalText',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        'Duration Goal: $durationGoalText',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
               for (int index = 1; index < 6; index++)
                 ElevatedButton(
                     style: const ButtonStyle(
@@ -267,7 +363,7 @@ class _SleepHomeState extends State<SleepHome> {
                       )), // TODO: replace constant text with text retrieved from DB
                       Expanded(
                           child: Text(
-                        "duration: $index",
+                        "Duration: $index",
                         textAlign: TextAlign.center,
                       )) // TODO: replace $index with reference to data entry from DB
                     ])),
@@ -343,6 +439,66 @@ class _MoreLogsState extends State<MoreLogs> {
                   }
                 },
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class UpdateSleepGoals extends StatelessWidget {
+  final TextEditingController _bedtimeController = TextEditingController();
+  final TextEditingController _durationController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Sleep Goals'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextFormField(
+              controller: _bedtimeController,
+              decoration: const InputDecoration(
+                labelText: 'Enter your desired bedtime',
+              ),
+            ),
+            TextFormField(
+              controller: _durationController,
+              decoration: const InputDecoration(
+                labelText: 'Enter your desired sleep duration',
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () {
+                String bedtimeText = _bedtimeController.text;
+                String durationText = _durationController.text;
+
+                User? user = FirebaseAuth.instance.currentUser;
+                if (user == null) {
+                  return;
+                }
+                String uid = user.uid;
+
+                DocumentReference sleepGoalsCollection = FirebaseFirestore.instance.collection('sleep_goals').doc(uid);
+                Map<String, dynamic> sleepData = {
+                  'bedtime': bedtimeText,
+                  'duration': durationText,
+                };
+                
+                sleepGoalsCollection.set(sleepData).then((value) {
+                  const Text('Data saved successfully');
+                  Navigator.pop(context);
+                }).catchError((error) {
+                  Text('Error: $error');
+                });
+              },
+              child: const Text('Submit'),
             ),
           ],
         ),
