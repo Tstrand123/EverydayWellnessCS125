@@ -193,7 +193,7 @@ class _SleepHomeState extends State<SleepHome> {
           ),
           
           Container(
-            padding: EdgeInsets.symmetric(vertical: 8.0), // Adjust the vertical padding as needed
+            padding: const EdgeInsets.symmetric(vertical: 8.0), // Adjust the vertical padding as needed
             child: Row(
               children: [
                 Expanded(
@@ -210,7 +210,7 @@ class _SleepHomeState extends State<SleepHome> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => updateSleepGoals()),
+                              MaterialPageRoute(builder: (context) => UpdateSleepGoals()),
                             );
                           },
                           child: const Text("New Sleep Goal"),
@@ -224,7 +224,7 @@ class _SleepHomeState extends State<SleepHome> {
           ),
           // NewLog widget: allows the user to manually create a new Sleep Log
           Container(
-            padding: EdgeInsets.symmetric(vertical: 8.0), // Adjust the vertical padding as needed
+            padding: const EdgeInsets.symmetric(vertical: 8.0), // Adjust the vertical padding as needed
             child: Row(
               children: [
                 Expanded(
@@ -411,40 +411,58 @@ class _MoreLogsState extends State<MoreLogs> {
   }
 }
 
-class updateSleepGoals extends StatelessWidget {
-  final TextEditingController _textFieldController = TextEditingController();
+class UpdateSleepGoals extends StatelessWidget {
+  final TextEditingController _bedtimeController = TextEditingController();
+  final TextEditingController _durationController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sleep Goals'),
+        title: const Text('Sleep Goals'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             TextFormField(
-              controller: _textFieldController,
-              decoration: InputDecoration(
+              controller: _bedtimeController,
+              decoration: const InputDecoration(
                 labelText: 'Enter your desired bedtime',
               ),
             ),
             TextFormField(
-              controller: _textFieldController,
-              decoration: InputDecoration(
+              controller: _durationController,
+              decoration: const InputDecoration(
                 labelText: 'Enter your desired sleep duration',
               ),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
-                String enteredText = _textFieldController.text;
-                // Process the entered text or perform any other actions
-                // you want when the button is pressed
-                print('Entered text: $enteredText');
+                String bedtimeText = _bedtimeController.text;
+                String durationText = _durationController.text;
+
+                User? user = FirebaseAuth.instance.currentUser;
+                if (user == null) {
+                  return;
+                }
+                String uid = user.uid;
+
+                DocumentReference sleepGoalsCollection = FirebaseFirestore.instance.collection('sleep_goals').doc(uid);
+                Map<String, dynamic> sleepData = {
+                  'bedtime': bedtimeText,
+                  'duration': durationText,
+                };
+                
+                sleepGoalsCollection.set(sleepData).then((value) {
+                  const Text('Data saved successfully');
+                  Navigator.pop(context);
+                }).catchError((error) {
+                  Text('Error: $error');
+                });
               },
-              child: Text('Submit'),
+              child: const Text('Submit'),
             ),
           ],
         ),
