@@ -19,6 +19,8 @@ class SleepHome extends StatefulWidget {
 
 class _SleepHomeState extends State<SleepHome> {
   double sleepRating = 0;
+  String bedtimeGoalText = '';
+  String durationGoalText = '';
 
   //Grabs logs
   //Referenced https://firebase.flutter.dev/docs/firestore/usage/#querying
@@ -278,33 +280,67 @@ class _SleepHomeState extends State<SleepHome> {
 
           // Log List: displays summary information on the last 5 logs
           Expanded(
-              child: ListView(
+            child: ListView(
             padding: const EdgeInsets.all(4),
             children: <Widget>[
               ElevatedButton(
-                    style: const ButtonStyle(
-                      backgroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.white),
-                      foregroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.black),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                  foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                ),
+                onPressed: () {
+                  // Get the current user's UID
+                  User? user = FirebaseAuth.instance.currentUser;
+                  if (user == null) {
+                    // User is not signed in
+                    return;
+                  }
+                  String uid = user.uid;
+
+                  // Create a reference to the user's document in the 'sleep_goals' collection
+                  DocumentReference sleepGoalsDocRef =
+                      FirebaseFirestore.instance.collection('sleep_goals').doc(uid);
+
+                  // Retrieve the document snapshot from Firestore
+                  sleepGoalsDocRef.get().then((DocumentSnapshot snapshot) {
+                    if (snapshot.exists) {
+                      // Document exists, retrieve the values of 'bedtime' and 'duration'
+                      String bedtime = snapshot.get('bedtime') ?? 'Not Set';
+                      String duration = snapshot.get('duration') ?? 'Not Set';
+
+                      // Update the child Text widgets with the retrieved values
+                      setState(() {
+                        bedtimeGoalText = bedtime;
+                        durationGoalText = duration;
+                      });
+                    } else {
+                      // Document does not exist, set default values
+                      setState(() {
+                        bedtimeGoalText = 'Not Set';
+                        durationGoalText = 'Not Set';
+                      });
+                    }
+                  }).catchError((error) {
+                    Text('Error: $error');
+                  });
+                },
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Bedtime Goal: $bedtimeGoalText',
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                    onPressed: () {
-                      // TODO: fill in
-                      //  leads to a more verbose log that lists all elements of the log as well as the options to edit/delete the entry
-                    },
-                    child: Row(children: [
-// NOTE: these cannot be const, because they will have hold values obtained from the DB
-                      Expanded(
-                          child: Text(
-                        "Bedtime Goal:",
+                    Expanded(
+                      child: Text(
+                        'Duration Goal: $durationGoalText',
                         textAlign: TextAlign.center,
-                      )), // TODO: replace constant text with text retrieved from DB
-                      Expanded(
-                          child: Text(
-                        "Duration Goal:",
-                        textAlign: TextAlign.center,
-                      )) // TODO: replace $index with reference to data entry from DB
-                    ])),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
               for (int index = 1; index < 6; index++)
                 ElevatedButton(
