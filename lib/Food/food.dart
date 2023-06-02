@@ -93,7 +93,6 @@ String getNutritionRec(user_id){
 Future<String> getMealRec(String user_id) async {
   // call ML using user_id as the param
   // NOTE: this is my attempt to replicate what is happening in GenerateRecommendation(user_id) function
-  final interpreter =  await tfl.Interpreter.fromAsset('lib/assets/model.tflite');
   // TODO: figure out how the arrays and dataframes are going to work, since tensorflow graphs don't seem to play nicely with those
   // load and process input(s)
   // get all users and ratings
@@ -101,12 +100,19 @@ Future<String> getMealRec(String user_id) async {
   final Set<double> meals_tried = {};
   final List<double> meal_ids = [];
   double encodedUserId = 0;
-  FirebaseFirestore.instance.collection("Users").get().asStream().forEach(
+  print(await FirebaseFirestore.instance.collection("User_ratings").get());
+  await FirebaseFirestore.instance.collection("User_ratings").get().then(//.asStream().forEach(
       (event) {
+        print("event: ${event.docs}");
+        print("$event");
         for (var e in event.docs) {
           double i = 0; // reassignes the user_id to a more easily enumerated value (some userIDs are strings and others are ints)
-          for (var rate in e.data()['ratings']) {
-            ratings.add([i, double.tryParse(rate['meal_id'])!, rate['rating']]);
+          //for (var rate in e.data()['ratings']) {
+          print ("the document: $e");
+          for (var rate in e.data()['ratings'].data()){
+            //ratings.add([i, double.tryParse(rate['meal_id'])!, rate['rating']]);
+            print(rate);
+            ratings.add([i, double.tryParse(rate)!, rate.data()[rate]]);
             meal_ids.add(double.tryParse(rate['meal_id'])!);
             if (e.data()['user_id'] == user_id){
               meals_tried.add(double.tryParse(rate['meal_id'])!); // make set of all meals this user has tried
@@ -118,6 +124,10 @@ Future<String> getMealRec(String user_id) async {
       }
   );
 
+  if(meals_tried.isEmpty){
+    return "Consider trying one of our dietitian approved meals!";
+  }
+
   // find opposite of that list (all meal_ids not in above list)
   List<double> not_tried = [];
   for (var meal in meal_ids){
@@ -125,13 +135,15 @@ Future<String> getMealRec(String user_id) async {
       not_tried.add(meal);
     }
   }
+  final interpreter =  await tfl.Interpreter.fromAsset('lib/assets/model.tflite');
+
   // form horizontal stack (where its [user_id, meal_id_not_tried], [user_id, meal_id_not_tried], etc)
   List<List<double>> horizontalStack = [];
   for (var meal in not_tried){
     horizontalStack.add([encodedUserId, meal]);
   }
   // use horizontal stack as input; output is just flat output (1-D list)
-  List<double> output = []; // just a 1D list
+  List<double> output = [1]; // just a 1D list
   interpreter.run(horizontalStack, output);
 
   //    would be ratings and meals, as well as the user_id
