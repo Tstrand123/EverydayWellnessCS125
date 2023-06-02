@@ -25,22 +25,6 @@ import 'package:everyday_wellness_cs125/Exercise/manual_exercise_log.dart';
 //        - Type of exercise (walking, etc.).
 // - Update the manual logs to go to firbase.
 
-// Global variable of months.
-List<String> months = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December'
-];
-
 class ExerciseHome extends StatefulWidget {
   const ExerciseHome({super.key});
 
@@ -78,8 +62,6 @@ class ExerciseHomeState extends State<ExerciseHome>
   double averageY = 0;
   double averageZ = 0;
   int totalCounts = 0;
-
-  late StreamBuilder _inheritedWidget;
 
   // Allow the user to turn on and off automatic data collection.
   void toggleSwitch(bool value) {
@@ -134,23 +116,6 @@ class ExerciseHomeState extends State<ExerciseHome>
     docLocation.set(dataUpload.toJson());
   }
 
-  // Convert from military time to standard time.
-  String convertTime(String time) {
-    final splitTime = time.split(':');
-    if (int.parse(splitTime[0]) < 12) {
-      return "$time am";
-    } else {
-      return "${int.parse(splitTime[0]) - 12}:${splitTime[1]} pm";
-    }
-  }
-
-  String convertExercise(int hour, int minutes) {
-    if (hour == 0) {
-      return "$minutes min";
-    }
-    return "$hour h, $minutes min";
-  }
-
   @override
   // Build the exercise page.
   Widget build(BuildContext context) {
@@ -191,30 +156,59 @@ class ExerciseHomeState extends State<ExerciseHome>
                   child: const Text("New Log")),
             )));
 
-    // Display the current day.
-    Widget currentDay = Container(
-      padding: const EdgeInsets.fromLTRB(0, 15, 0, 4),
-      child: Text(
-        'Logs for ${months[DateTime.now().month - 1]} ${DateTime.now().day}, ${DateTime.now().year}:',
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
-        textAlign: TextAlign.center,
-      ),
-    );
-
     // Will display the logs for the current day.
+    /*
+    Widget logList = Expanded(
+        child: ListView(
+      padding: const EdgeInsets.all(8),
+      children: <Widget>[
+        for (int index = 1; index < 6; index++)
+          ElevatedButton(
+              style: const ButtonStyle(
+                backgroundColor: MaterialStatePropertyAll<Color>(Colors.white),
+                foregroundColor: MaterialStatePropertyAll<Color>(Colors.black),
+              ),
+              onPressed: () {
+                // TODO: fill in
+                //  leads to a more verbose log that lists all elements of the log as well as the options to edit/delete the entry
+              },
+              child: Row(children: [
+                Expanded(
+                    child: Text(
+                  "Date/Time: $index",
+                  textAlign: TextAlign.center,
+                )), // TODO: replace constant text with text retrieved from DB
+                Expanded(
+                    child: Text(
+                  "type: $index",
+                  textAlign: TextAlign.center,
+                )) // TODO: replace $index with reference to data entry from DB
+              ])),
+        // MoreLogs button: links to widget listing all previous logs
+        // TODO: create link to MoreLogs Widget
+        ListTile(
+            title: TextButton(
+          onPressed: () {},
+          child: const Text('More Logs...'),
+        ))
+      ],
+    ));
+    */
+
     // Referenced: https://www.youtube.com/watch?v=qlxhqXnyUPw
-    Widget logList = StreamBuilder(
+    String day =
+        '${DateTime.now().year}-${DateTime.now().day}-${DateTime.now().month}';
+    Widget updatedLogList = StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('ExerciseLogs')
             .doc(FirebaseAuth.instance.currentUser!.uid)
-            .collection(
-                '${DateTime.now().year}-${DateTime.now().day}-${DateTime.now().month}')
+            .collection(day)
             .snapshots(),
         builder:
             (BuildContext context, AsyncSnapshot<QuerySnapshot?> snapshot) {
           if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-            return SizedBox(
-                height: 300,
+            return Container(
+                height: 400,
                 child: ListView(
                     padding: const EdgeInsets.all(8),
                     children: snapshot.data!.docs.map((document) {
@@ -225,37 +219,38 @@ class ExerciseHomeState extends State<ExerciseHome>
                             foregroundColor:
                                 MaterialStatePropertyAll<Color>(Colors.black),
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            // TODO: fill in
+                          },
                           child: Row(children: [
                             Expanded(
                                 child: Text(
-                              convertTime("${document.get('startTime')}"),
+                              "${document.get('startTime')}",
                               textAlign: TextAlign.center,
                             )),
                             Expanded(
                                 child: Text(
-                              convertExercise(document.get('hours'),
-                                  document.get('minutes')),
-                              textAlign: TextAlign.center,
-                            )),
-                            Expanded(
-                                child: Text(
-                              "Type: ${document.get('type')}",
+                              "type: ${document.get('type')}",
                               textAlign: TextAlign.center,
                             ))
                           ]));
                     }).toList()));
           } else {
             return Container(
-              height: 300,
-              padding: const EdgeInsets.fromLTRB(0, 20, 0, 4),
-              child: const Text(
-                "No exercise logged yet.",
+              height: 400,
+              child: Text(
+                "No logs for today.",
                 textAlign: TextAlign.center,
               ),
             );
           }
         });
+
+    Widget moreLogs = ListTile(
+        title: TextButton(
+      onPressed: () {},
+      child: const Text('More Logs...'),
+    ));
 
     // Widgets used for debugging.
     /*
@@ -324,8 +319,8 @@ class ExerciseHomeState extends State<ExerciseHome>
           //accelerometer,
           recommendationBox,
           newLog,
-          currentDay,
-          logList,
+          updatedLogList,
+          // moreLogs,
         ],
       )),
     );
@@ -405,11 +400,5 @@ class ExerciseHomeState extends State<ExerciseHome>
       subscription.cancel();
     }
     controller.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    //_inheritedWidget = context.dependOnInheritedWidgetOfExactType<>()!;
   }
 }

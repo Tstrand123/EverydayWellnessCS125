@@ -93,7 +93,7 @@ String getNutritionRec(user_id){
 Future<String> getMealRec(String user_id) async {
   // call ML using user_id as the param
   // NOTE: this is my attempt to replicate what is happening in GenerateRecommendation(user_id) function
-  final interpreter =  await tfl.Interpreter.fromAsset('model.tflite');
+  final interpreter =  await tfl.Interpreter.fromAsset('lib/assets/model.tflite');
   // TODO: figure out how the arrays and dataframes are going to work, since tensorflow graphs don't seem to play nicely with those
   // load and process input(s)
   // get all users and ratings
