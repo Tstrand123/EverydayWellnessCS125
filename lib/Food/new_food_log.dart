@@ -376,13 +376,14 @@ class NewFoodLogState extends State<NewFoodLog> {
               "meal_id": "$meal_id",
               "rating": "$thisRate"
             };
-            db
+            /*db
                 .collection(
                 "user_ratings") // TODO: should be the name of the collection with user ratings
                 .doc(userId) // TODO: might change the index
                 .collection("meals").doc("$meal_id")
                 .set(RatingEntry) // TODO: should this just be
-                .onError((e, _) => print("error writing document: $e"));
+                .onError((e, _) => print("error writing document: $e"));*/
+            db.collection("User_ratings").doc(userId).collection('ratings').doc("$meal_id").set(RatingEntry);
           }
           // TODO: create database for meal values (records the date, calories, fat, protien, and carbs, indexed by user_id)
           //      when determining the recommendations, take all entries from THIS user, on THIS day, and sum the values
