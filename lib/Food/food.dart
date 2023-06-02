@@ -1,8 +1,13 @@
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:everyday_wellness_cs125/Food/new_food_log.dart';
+import 'package:tflite_flutter/tflite_flutter.dart' as tfl;
+
+// TODO: save keras model as tflite, add to 'assets' folder
+// load 'asset' and call methods to generate recommendation
 
 Map<String, double> summationOfRecords(String user_id, DateTime today, int NumberOfDays){
   // takes the user_id, the date today, and the number of days to calculate based on (1 day summary, 5 day summary, etc determines how many days backwards to look)
@@ -85,10 +90,54 @@ String getNutritionRec(user_id){
   return "Error generating nutrition Recommendation";
 }
 
-String getMealRec(String user_id){
+Future<String> getMealRec(String user_id) async {
   // call ML using user_id as the param
-  // TODO: how do you pass a specific user id to the ml?
-  //    To answer above question, we first need to figure out where and in what format the ML is going to be stored
+  // NOTE: this is my attempt to replicate what is happening in GenerateRecommendation(user_id) function
+  final interpreter =  await tfl.Interpreter.fromAsset('model.tflite');
+  // TODO: figure out how the arrays and dataframes are going to work, since tensorflow graphs don't seem to play nicely with those
+  // load and process input(s)
+  // get all users and ratings
+  final List<List<double>> ratings = [];
+  final Set<double> meals_tried = {};
+  final List<double> meal_ids = [];
+  double encodedUserId = 0;
+  FirebaseFirestore.instance.collection("Users").get().asStream().forEach(
+      (event) {
+        for (var e in event.docs) {
+          double i = 0; // reassignes the user_id to a more easily enumerated value (some userIDs are strings and others are ints)
+          for (var rate in e.data()['ratings']) {
+            ratings.add([i, double.tryParse(rate['meal_id'])!, rate['rating']]);
+            meal_ids.add(double.tryParse(rate['meal_id'])!);
+            if (e.data()['user_id'] == user_id){
+              meals_tried.add(double.tryParse(rate['meal_id'])!); // make set of all meals this user has tried
+              encodedUserId = i;
+            }
+          }
+          i += 1; // add 1
+        }
+      }
+  );
+
+  // find opposite of that list (all meal_ids not in above list)
+  List<double> not_tried = [];
+  for (var meal in meal_ids){
+    if (!meals_tried.contains(meal)){
+      not_tried.add(meal);
+    }
+  }
+  // form horizontal stack (where its [user_id, meal_id_not_tried], [user_id, meal_id_not_tried], etc)
+  List<List<double>> horizontalStack = [];
+  for (var meal in not_tried){
+    horizontalStack.add([encodedUserId, meal]);
+  }
+  // use horizontal stack as input; output is just flat output (1-D list)
+  List<double> output = []; // just a 1D list
+  interpreter.run(horizontalStack, output);
+
+  //    would be ratings and meals, as well as the user_id
+  //  run interpreter, get result (recommendation)
+  // close interpreter
+  interpreter.close();
 
   return "Error getting Meal recommendation";
 }
@@ -115,7 +164,9 @@ String getRecommendation(){
   //  if meal
   else {
     //    run ML and generate a recommendation
-    return getMealRec(user_id);
+    String result = "";
+    getMealRec(user_id).then((re){result = re;}); // getMealRec returns a Future String so have to extract it somehow, may not work
+    return result;
   }
   // return the recommendation
 
