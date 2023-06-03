@@ -102,25 +102,35 @@ Future<String> getMealRec(String user_id) async {
   final List<double> meal_ids = [];
   double encodedUserId = 0;
   //print(await FirebaseFirestore.instance.collection("User_ratings").get());
-  await FirebaseFirestore.instance.collection("User_ratings").get().then(//.asStream().forEach(
+  await FirebaseFirestore.instance.collection("User_ratings").doc(user_id).collection('ratings').get().then(//.asStream().forEach(
       (event) {
-
-        print("event: ${event.docs}");
-        print("$event");
+        //print("event: ${event.docs}");
+        //print("$event");
         for (var e in event.docs) {
           double i = 0; // reassignes the user_id to a more easily enumerated value (some userIDs are strings and others are ints)
           //for (var rate in e.data()['ratings']) {
           print ("the document: $e");
-          for (var rate in e.data()['ratings'].data()){
+          //for (var rate in e.collection('ratings'))//['ratings'].docs()){
             //ratings.add([i, double.tryParse(rate['meal_id'])!, rate['rating']]);
-            print(rate);
-            ratings.add([i, double.tryParse(rate)!, rate.data()[rate]]);
-            meal_ids.add(double.tryParse(rate['meal_id'])!);
-            if (e.data()['user_id'] == user_id){
-              meals_tried.add(double.tryParse(rate['meal_id'])!); // make set of all meals this user has tried
-              encodedUserId = i;
-            }
+            //print(rate);
+          try {
+            ratings.add([
+              i,
+              double.parse(e['meal_id']),
+              double.parse(e['rating'])
+            ]);
+            meals_tried.add(double.parse(e['meal_id']));
           }
+          on FormatException {
+            return "Error";
+          }
+            //ratings.add([i, double.tryParse(rate)!, rate.data()[rate]]);
+            //meal_ids.add(double.tryParse(rate['meal_id'])!);
+            //if (e.data()['user_id'] == user_id){
+            //  meals_tried.add(double.tryParse(rate['meal_id'])!); // make set of all meals this user has tried
+            //  encodedUserId = i;
+            //}
+         // }
           i += 1; // add 1
         }
       }
@@ -132,9 +142,10 @@ Future<String> getMealRec(String user_id) async {
 
   // find opposite of that list (all meal_ids not in above list)
   List<double> not_tried = [];
-  for (var meal in meal_ids){
-    if (!meals_tried.contains(meal)){
-      not_tried.add(meal);
+  for (double i = 0 ; i < 50; i+=1){ // If you are wondering why all of this is in doubles, its because rating is a double and they all have to be the same type because list
+  //for (var meal in meal_ids){
+    if (!meals_tried.contains(i)){
+      not_tried.add(i);
     }
   }
   final interpreter =  await tfl.Interpreter.fromAsset('lib/assets/model.tflite');
