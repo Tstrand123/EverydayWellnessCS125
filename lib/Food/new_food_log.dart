@@ -383,6 +383,7 @@ class NewFoodLogState extends State<NewFoodLog> {
                 .collection("meals").doc("$meal_id")
                 .set(RatingEntry) // TODO: should this just be
                 .onError((e, _) => print("error writing document: $e"));*/
+            //TODO: upload user ID as a field to user_ratings documents
             db.collection("User_ratings").doc(userId).collection('ratings').doc("$meal_id").set(RatingEntry);
           }
           // TODO: create database for meal values (records the date, calories, fat, protien, and carbs, indexed by user_id)
