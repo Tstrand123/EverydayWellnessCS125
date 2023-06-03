@@ -61,7 +61,7 @@ class ExerciseHomeState extends State<ExerciseHome>
   final userID = FirebaseAuth.instance.currentUser!.uid;
 
   // Create a custom timer controller:
-  late CustomTimerController controller = CustomTimerController(
+  late CustomTimerController timer_controller = CustomTimerController(
       vsync: this,
       begin: const Duration(),
       end: const Duration(hours: 24),
@@ -117,9 +117,9 @@ class ExerciseHomeState extends State<ExerciseHome>
 
     // Prepare the data for firebase.
     final dataUpload = ExerciseLog(
-        hours: int.parse(controller.remaining.value.hours),
-        minutes: int.parse(controller.remaining.value.minutes),
-        seconds: int.parse(controller.remaining.value.seconds),
+        hours: int.parse(timer_controller.remaining.value.hours),
+        minutes: int.parse(timer_controller.remaining.value.minutes),
+        seconds: int.parse(timer_controller.remaining.value.seconds),
         startTime: '${exerciseStart.hour}:${exerciseStart.minute}',
         type: exerciseType);
 
@@ -353,11 +353,11 @@ class ExerciseHomeState extends State<ExerciseHome>
                     gotExcersieStart = true;
 
                     // Start the timer.
-                    controller.start();
+                    timer_controller.start();
                   }
 
                   // Calculate average movement (every few seconds).
-                  if (int.parse(controller.remaining.value.seconds) % 3 == 0) {
+                  if (int.parse(timer_controller.remaining.value.seconds) % 3 == 0) {
                     averageX += event.x.abs().round();
                     averageY += event.y.abs().round();
                     averageZ += event.z.abs().round();
@@ -371,9 +371,9 @@ class ExerciseHomeState extends State<ExerciseHome>
                     lockTimer = true;
 
                     // If the user "moved" for longer than 3 minutes, then store to firebase.
-                    if (int.parse(controller.remaining.value.minutes) > 3) {
+                    if (int.parse(timer_controller.remaining.value.minutes) > 3) {
                       // Store information in firebase.
-                      controller.pause();
+                      timer_controller.pause();
                       saveToFirebase();
 
                       // Reset everything.
@@ -389,7 +389,7 @@ class ExerciseHomeState extends State<ExerciseHome>
               } catch (e) {/* Just move on. */}
               // Reset timer if automatic data collection is off.
             } else {
-              controller.reset();
+              timer_controller.reset();
             }
           });
         },
@@ -400,11 +400,16 @@ class ExerciseHomeState extends State<ExerciseHome>
   // Destructor of the page.
   @override
   void dispose() {
-    super.dispose();
+
     for (final subscription in _streamSubscriptions) {
       subscription.cancel();
     }
-    controller.dispose();
+    print('here');
+    if (gotExcersieStart){
+      timer_controller.dispose();
+    }
+
+    super.dispose();
   }
 
   @override

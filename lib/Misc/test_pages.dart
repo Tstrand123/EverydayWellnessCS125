@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:everyday_wellness_cs125/Misc/app_classes.dart';
 import 'package:flutter/material.dart';
@@ -116,7 +118,7 @@ class _TestPageState extends State<TestPage> {
             children: [
               Center(
                 child: ElevatedButton(
-                    onPressed: uploadMealRatings,
+                    onPressed: testFunc,
                     child: const Text('Upload data')),
               )
             ],
@@ -224,5 +226,16 @@ class _TestPageState extends State<TestPage> {
 
 
     navigatorKey.currentState!.popUntil((route) => route.isFirst);
+  }
+
+  void testFunc() async {
+    final test = FirebaseFirestore.instance.collection('User_ratings').doc('x5c7hhgakDO5n1nMkycMHFgQXLN2').collection('ratings');
+    QuerySnapshot dataFrom = await test.get();
+    Map<String,dynamic> userData = dataFrom.docs.first.data() as Map<String,dynamic>;
+    print(userData);
+
+    // final test = await FirebaseFirestore.instance.collection('User_ratings').get();
+    // List<QueryDocumentSnapshot> test2 = test.docs;
+    // print(test2);
   }
 }
