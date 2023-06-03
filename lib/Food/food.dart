@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:everyday_wellness_cs125/Food/new_food_log.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tfl;
 
-// TODO: save keras model as tflite, add to 'assets' folder
-// load 'asset' and call methods to generate recommendation
+// TODO: implement ability for user to specify their nutritional needs:
+//    Their calorie target for the day (defualts to 2000)
+//    Their specific diets: low carb, high protein, etc
+//    For ease, can just make some macros that have set percentages that get set to their profile then loaded below
 
 Map<String, double> summationOfRecords(String user_id, DateTime today, int NumberOfDays){
   // takes the user_id, the date today, and the number of days to calculate based on (1 day summary, 5 day summary, etc determines how many days backwards to look)
@@ -18,27 +20,25 @@ Map<String, double> summationOfRecords(String user_id, DateTime today, int Numbe
     "totalCalories": 2000.0 // sending this as a float because it simplified the map
   };
 
-  // query database
+  // TODO: query database to get all nutritional logs within the last 24 hours of NOW (indexes of items stored as DateTime)
 
-  // sum all values
+  // TODO: sum all values (calories, fat, protein, etc)
 
-  // calculate percentage of different macronutrients
-  //    fatPercent = (totalFat * 9)/totalCals (calories from fat / total calories)
-  // add to the map
+  // TODO: calculate percentage of different macronutrients
+  //    fatPercent = (totalFat * 9)/totalCals (calories from fat / total calories) // for example on how calculations are done (I guess?)
+  // TODO: add/modify the map
 
-  return totals; // return
+  return totals; // return map
 }
 
 String getNutritionRec(user_id){
+  // TODO: get these values from the user's goals/preferences
   const CalCount = 2000; // using average recommended values (static for now)
-  const fatPercent = .2; // recommended: 20-35% fat, down to 30-40% if weight loss is desired
-  const carbPercent = .50; // recommended: 45-65% carbs (down to 10-30% if weight loss desired
-  const proteinPercent = .3; // recomemended: 10-35% protein (up to 40-50% if weight loss)
-  const fatUpper = .35; // represents the upper limit of recommended fat intake, varies based on user pref
+  const fatUpper = .35; // recommended: 20-35% fat, down to 30-40% if weight loss is desired
   const fatLower = .2;
-  const carbUpper = .65;
+  const carbUpper = .65;// recommended: 45-65% carbs (down to 10-30% if weight loss desired
   const carbLower = .45;
-  const proteinUpper = .35;
+  const proteinUpper = .35;// recomemended: 10-35% protein (up to 40-50% if weight loss)
   const proteinLower = .1;
 
   // get today's date
@@ -47,17 +47,16 @@ String getNutritionRec(user_id){
 
   // sum all records for today
   Map<String, double> totals = summationOfRecords(user_id, today, 1);
-  //    find deficieny/surplus with expected calories -- this shouldn't be calculatable until the end of the day
-  //    calculate percentage of daily intake (so far) is carbs/protein/fat
-  //
+  // TODO: (if there's time):
   // get weekly summation
   //    for the weekly summation, only want to pay attention to the outliers (such as if their carb intake is well over the average for a week)
+
   var fat = totals['fatPercent'];
   var carbs = totals['carbsPercent'];
   var protein = totals['proteinPercent'];
   var calories = totals['totalCalories'];
 
-  List recommendations = [];
+  List recommendations = []; // list of strings that can potentially be recommended
   // find deficiency/surplus
   //  if fat > 40%
   if (fat! > fatUpper){
@@ -83,7 +82,10 @@ String getNutritionRec(user_id){
     return "Right on track!";
     // QUESTION: if the user is on track nutrition wise, should we instead provide a food suggestion?
   }
-  // TODO: how to determine if the exercise goal has been reached
+  // TODO:
+    // if the user is over their caloric goal AND has not exercised, recommend that they do that
+    // TODO: how to determine if the exercise goal has been reached?
+
 
   var index = Random().nextInt(recommendations.length - 1); // generate a random index from 0 to the max index
   return recommendations[index];  // return the string corresponding to that index
@@ -93,32 +95,42 @@ String getNutritionRec(user_id){
 Future<String> getMealRec(String user_id) async {
   // call ML using user_id as the param
   // NOTE: this is my attempt to replicate what is happening in GenerateRecommendation(user_id) function
-  // TODO: figure out how the arrays and dataframes are going to work, since tensorflow graphs don't seem to play nicely with those
   // load and process input(s)
   // get all users and ratings
   final List<List<double>> ratings = [];
   final Set<double> meals_tried = {};
   final List<double> meal_ids = [];
   double encodedUserId = 0;
-  print(await FirebaseFirestore.instance.collection("User_ratings").get());
-  await FirebaseFirestore.instance.collection("User_ratings").get().then(//.asStream().forEach(
+  //print(await FirebaseFirestore.instance.collection("User_ratings").get());
+  await FirebaseFirestore.instance.collection("User_ratings").doc(user_id).collection('ratings').get().then(//.asStream().forEach(
       (event) {
-        print("event: ${event.docs}");
-        print("$event");
+        //print("event: ${event.docs}");
+        //print("$event");
         for (var e in event.docs) {
           double i = 0; // reassignes the user_id to a more easily enumerated value (some userIDs are strings and others are ints)
           //for (var rate in e.data()['ratings']) {
           print ("the document: $e");
-          for (var rate in e.data()['ratings'].data()){
+          //for (var rate in e.collection('ratings'))//['ratings'].docs()){
             //ratings.add([i, double.tryParse(rate['meal_id'])!, rate['rating']]);
-            print(rate);
-            ratings.add([i, double.tryParse(rate)!, rate.data()[rate]]);
-            meal_ids.add(double.tryParse(rate['meal_id'])!);
-            if (e.data()['user_id'] == user_id){
-              meals_tried.add(double.tryParse(rate['meal_id'])!); // make set of all meals this user has tried
-              encodedUserId = i;
-            }
+            //print(rate);
+          try {
+            ratings.add([
+              i,
+              double.parse(e['meal_id']),
+              double.parse(e['rating'])
+            ]);
+            meals_tried.add(double.parse(e['meal_id']));
           }
+          on FormatException {
+            return "Error";
+          }
+            //ratings.add([i, double.tryParse(rate)!, rate.data()[rate]]);
+            //meal_ids.add(double.tryParse(rate['meal_id'])!);
+            //if (e.data()['user_id'] == user_id){
+            //  meals_tried.add(double.tryParse(rate['meal_id'])!); // make set of all meals this user has tried
+            //  encodedUserId = i;
+            //}
+         // }
           i += 1; // add 1
         }
       }
@@ -130,9 +142,10 @@ Future<String> getMealRec(String user_id) async {
 
   // find opposite of that list (all meal_ids not in above list)
   List<double> not_tried = [];
-  for (var meal in meal_ids){
-    if (!meals_tried.contains(meal)){
-      not_tried.add(meal);
+  for (double i = 0 ; i < 50; i+=1){ // If you are wondering why all of this is in doubles, its because rating is a double and they all have to be the same type because list
+  //for (var meal in meal_ids){
+    if (!meals_tried.contains(i)){
+      not_tried.add(i);
     }
   }
   final interpreter =  await tfl.Interpreter.fromAsset('lib/assets/model.tflite');
