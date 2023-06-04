@@ -41,6 +41,47 @@ List<String> months = [
   'December'
 ];
 
+// Calculate recommendation for exercise.
+Widget getExerciseRec() {
+  return StreamBuilder(
+      stream: FirebaseFirestore.instance
+          .collection('ExerciseLogs')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection(
+              '${DateTime.now().year}-${DateTime.now().day}-${DateTime.now().month}')
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot?> snapshot) {
+        if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+          num neededMinutes = 30;
+          for (var log in snapshot.data!.docs) {
+            if (log['hours'] != 0) {
+              neededMinutes = 0;
+              break;
+            }
+            // Otherwise remove minutes they exercised from neededMinutes.
+            else {
+              neededMinutes -= log['minutes'];
+              if (neededMinutes <= -1) {
+                neededMinutes = 0;
+              }
+            }
+            // If they finished exercise goal, then stop loop.
+            if (neededMinutes == 0) {
+              break;
+            }
+          }
+          if (neededMinutes > 0) {
+            return Text("Remaining: $neededMinutes min");
+          } else {
+            return const Text("All finished exercising!");
+          }
+        } else {
+          return const Text("Error getting information.");
+        }
+      });
+}
+
+// Create an Exercise home page.
 class ExerciseHome extends StatefulWidget {
   const ExerciseHome({super.key});
 
@@ -61,7 +102,7 @@ class ExerciseHomeState extends State<ExerciseHome>
   final userID = FirebaseAuth.instance.currentUser!.uid;
 
   // Create a custom timer controller:
-  late CustomTimerController timer_controller = CustomTimerController(
+  late CustomTimerController timerController = CustomTimerController(
       vsync: this,
       begin: const Duration(),
       end: const Duration(hours: 24),
@@ -79,7 +120,9 @@ class ExerciseHomeState extends State<ExerciseHome>
   double averageZ = 0;
   int totalCounts = 0;
 
-  late StreamBuilder _inheritedWidget;
+  // Time needed to exercise
+  num neededMinutes = 30;
+  bool calculatedMin = false;
 
   // Allow the user to turn on and off automatic data collection.
   void toggleSwitch(bool value) {
@@ -117,9 +160,9 @@ class ExerciseHomeState extends State<ExerciseHome>
 
     // Prepare the data for firebase.
     final dataUpload = ExerciseLog(
-        hours: int.parse(timer_controller.remaining.value.hours),
-        minutes: int.parse(timer_controller.remaining.value.minutes),
-        seconds: int.parse(timer_controller.remaining.value.seconds),
+        hours: int.parse(timerController.remaining.value.hours),
+        minutes: int.parse(timerController.remaining.value.minutes),
+        seconds: int.parse(timerController.remaining.value.seconds),
         startTime: '${exerciseStart.hour}:${exerciseStart.minute}',
         type: exerciseType);
 
@@ -138,8 +181,14 @@ class ExerciseHomeState extends State<ExerciseHome>
   String convertTime(String time) {
     final splitTime = time.split(':');
     if (int.parse(splitTime[0]) < 12) {
-      return "$time am";
+      if (int.parse(splitTime[1]) < 9) {
+        return "${splitTime[0]}:0${splitTime[1]} am";
+      }
+      return "${splitTime[0]}:${splitTime[1]} am";
     } else {
+      if (int.parse(splitTime[1]) < 9) {
+        return "${int.parse(splitTime[0]) - 12}:0${splitTime[1]} pm";
+      }
       return "${int.parse(splitTime[0]) - 12}:${splitTime[1]} pm";
     }
   }
@@ -163,15 +212,16 @@ class ExerciseHomeState extends State<ExerciseHome>
 
     // Will display information about the recommendation.
     Widget recommendationBox = Expanded(
-        child: DecoratedBox(
-      decoration: BoxDecoration(
-          color: Colors.white60,
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
-          border: Border.all(color: Colors.black12, width: 2)),
-      child: const Center(
-          // TODO: replace with actual information
-          child: Text("Recommendation")),
-    ));
+      child: DecoratedBox(
+          decoration: BoxDecoration(
+              color: Colors.white60,
+              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              border: Border.all(color: Colors.black12, width: 2)),
+          child: Center(
+            // TODO: replace with actual information
+            child: getExerciseRec(),
+          )),
+    );
 
     // Lets the user make a new exercise log.
     Widget newLog = Expanded(
@@ -219,11 +269,15 @@ class ExerciseHomeState extends State<ExerciseHome>
                     padding: const EdgeInsets.all(8),
                     children: snapshot.data!.docs.map((document) {
                       return ElevatedButton(
-                          style: const ButtonStyle(
+                          style: ButtonStyle(
                             backgroundColor:
-                                MaterialStatePropertyAll<Color>(Colors.white),
+                                const MaterialStatePropertyAll<Color>(
+                                    Colors.white),
                             foregroundColor:
-                                MaterialStatePropertyAll<Color>(Colors.black),
+                                const MaterialStatePropertyAll<Color>(
+                                    Colors.black),
+                            padding: MaterialStateProperty.all<EdgeInsets>(
+                                const EdgeInsets.all(10)),
                           ),
                           onPressed: () {},
                           child: Row(children: [
@@ -262,9 +316,9 @@ class ExerciseHomeState extends State<ExerciseHome>
     final userAccelerometer = _userAccelerometerValues
         ?.map((double v) => v.toStringAsFixed(1))
         .toList();
-    
+
     StatefulWidget timer = CustomTimer(
-        controller: controller,
+        controller: timerController,
         builder: (state, time) {
           return Text(
               "${time.hours}:${time.minutes}:${time.seconds}.${time.milliseconds}",
@@ -275,13 +329,13 @@ class ExerciseHomeState extends State<ExerciseHome>
       alignment: MainAxisAlignment.center,
       children: [
         ElevatedButton(
-            onPressed: () => controller.start(),
+            onPressed: () => timerController.start(),
             child: const Text('Start Timer')),
         ElevatedButton(
-            onPressed: () => controller.reset(),
+            onPressed: () => timerController.reset(),
             child: const Text('Reset Timer')),
         ElevatedButton(
-            onPressed: () => controller.pause(),
+            onPressed: () => timerController.pause(),
             child: const Text('Pause Timer')),
         ElevatedButton(
             onPressed: () => saveToFirebase(), child: const Text('Save'))
@@ -334,6 +388,7 @@ class ExerciseHomeState extends State<ExerciseHome>
   @override
   void initState() {
     super.initState();
+    // Automatic data collection.
     _streamSubscriptions.add(
       userAccelerometerEvents.listen(
         (UserAccelerometerEvent event) {
@@ -353,11 +408,12 @@ class ExerciseHomeState extends State<ExerciseHome>
                     gotExcersieStart = true;
 
                     // Start the timer.
-                    timer_controller.start();
+                    timerController.start();
                   }
 
                   // Calculate average movement (every few seconds).
-                  if (int.parse(timer_controller.remaining.value.seconds) % 3 == 0) {
+                  if (int.parse(timerController.remaining.value.seconds) % 3 ==
+                      0) {
                     averageX += event.x.abs().round();
                     averageY += event.y.abs().round();
                     averageZ += event.z.abs().round();
@@ -371,25 +427,26 @@ class ExerciseHomeState extends State<ExerciseHome>
                     lockTimer = true;
 
                     // If the user "moved" for longer than 3 minutes, then store to firebase.
-                    if (int.parse(timer_controller.remaining.value.minutes) > 3) {
+                    if (int.parse(timerController.remaining.value.minutes) >
+                        3) {
                       // Store information in firebase.
-                      timer_controller.pause();
+                      timerController.pause();
                       saveToFirebase();
-
-                      // Reset everything.
-                      gotExcersieStart = false;
-                      averageX = 0;
-                      averageY = 0;
-                      averageZ = 0;
-                      totalCounts = 0;
-                      lockTimer = false;
                     }
+                    // Reset everything.
+                    timerController.reset();
+                    gotExcersieStart = false;
+                    averageX = 0;
+                    averageY = 0;
+                    averageZ = 0;
+                    totalCounts = 0;
+                    lockTimer = false;
                   }
                 }
               } catch (e) {/* Just move on. */}
-              // Reset timer if automatic data collection is off.
             } else {
-              timer_controller.reset();
+              // Reset timer if automatic data collection is off.
+              timerController.reset();
             }
           });
         },
@@ -400,21 +457,13 @@ class ExerciseHomeState extends State<ExerciseHome>
   // Destructor of the page.
   @override
   void dispose() {
-
     for (final subscription in _streamSubscriptions) {
       subscription.cancel();
     }
-    print('here');
-    if (gotExcersieStart){
-      timer_controller.dispose();
+    if (gotExcersieStart) {
+      timerController.dispose();
     }
 
     super.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    //_inheritedWidget = context.dependOnInheritedWidgetOfExactType<>()!;
   }
 }
