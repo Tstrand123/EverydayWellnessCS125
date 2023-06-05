@@ -11,7 +11,6 @@ import 'package:everyday_wellness_cs125/Exercise/manual_exercise_log.dart';
 // Referenced https://morioh.com/p/e69fead3f719
 
 // TODO: Remaining tasks:
-// - Show all logs in the log list.
 // - Based on the data, make recommendations (based on what we dicussed).
 //        - Check to see if they reached 30 minutes of activity.
 //        - Update that based on if they went over their calorie count.
@@ -24,6 +23,7 @@ import 'package:everyday_wellness_cs125/Exercise/manual_exercise_log.dart';
 //        - How long exercise lasted,
 //        - Type of exercise (walking, etc.).
 // - Update the manual logs to go to firbase.
+// - Show all logs in the log list.
 
 // Global variable of months.
 List<String> months = [
@@ -42,8 +42,8 @@ List<String> months = [
 ];
 
 // Calculate recommendation for exercise.
-Widget getExerciseRec() {
-  return StreamBuilder(
+List getExerciseRec() {
+  Widget streamText = StreamBuilder(
       stream: FirebaseFirestore.instance
           .collection('ExerciseLogs')
           .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -51,34 +51,56 @@ Widget getExerciseRec() {
               '${DateTime.now().year}-${DateTime.now().day}-${DateTime.now().month}')
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot?> snapshot) {
+        // Base exercise time for all users.
         num neededMinutes = 30;
         if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
           for (var log in snapshot.data!.docs) {
-            if (log['hours'] != 0) {
+            // If the log shows > than neededMinutes, then set the correct widgets.
+            neededMinutes -= log['minutes'];
+            if (log['hours'] != 0 || neededMinutes <= -1) {
               neededMinutes = 0;
               break;
             }
-            // Otherwise remove minutes they exercised from neededMinutes.
-            else {
-              neededMinutes -= log['minutes'];
-              if (neededMinutes <= -1) {
-                neededMinutes = 0;
-              }
-            }
-            // If they finished exercise goal, then stop loop.
-            if (neededMinutes == 0) {
-              break;
-            }
           }
+          // If there is still time needed to exercise, return that time.
           if (neededMinutes > 0) {
-            return Text("Remaining: $neededMinutes min");
+            return Text("Remaining exercise time: $neededMinutes min");
+            // Otherwise, return the completion message.
           } else {
-            return const Text("All finished exercising!");
+            return const Text("All finished exercising for today!");
           }
+          // Return their needed time to exercise.
         } else {
-          return Text("Remaining: $neededMinutes min");
+          return Text("Remaining exercise time: $neededMinutes min");
         }
       });
+
+  // Get the color of the dot for the main page.
+  Widget streamColor = StreamBuilder(
+      stream: FirebaseFirestore.instance
+          .collection('ExerciseLogs')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection(
+              '${DateTime.now().year}-${DateTime.now().day}-${DateTime.now().month}')
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot?> snapshot) {
+        // Base exercise time for all users.
+        num neededMinutes = 30;
+        if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+          for (var log in snapshot.data!.docs) {
+            // If the log shows > than neededMinutes, then set the correct widgets.
+            neededMinutes -= log['minutes'];
+            if (log['hours'] != 0 || neededMinutes <= -1) {
+              neededMinutes = 0;
+              return const Icon(Icons.circle,
+                  color: Color.fromARGB(255, 36, 131, 17));
+            }
+          }
+        }
+        return const Icon(Icons.circle,
+            color: Color.fromARGB(255, 155, 154, 154));
+      });
+  return [streamText, streamColor];
 }
 
 // Create an Exercise home page.
@@ -218,8 +240,7 @@ class ExerciseHomeState extends State<ExerciseHome>
               borderRadius: const BorderRadius.all(Radius.circular(8)),
               border: Border.all(color: Colors.black12, width: 2)),
           child: Center(
-            // TODO: replace with actual information
-            child: getExerciseRec(),
+            child: getExerciseRec()[0],
           )),
     );
 
@@ -254,6 +275,7 @@ class ExerciseHomeState extends State<ExerciseHome>
     // Will display the logs for the current day.
     // Referenced: https://www.youtube.com/watch?v=qlxhqXnyUPw
     Widget logList = StreamBuilder(
+        // Get data from firebase (in the form of snapshots)/
         stream: FirebaseFirestore.instance
             .collection('ExerciseLogs')
             .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -262,11 +284,14 @@ class ExerciseHomeState extends State<ExerciseHome>
             .snapshots(),
         builder:
             (BuildContext context, AsyncSnapshot<QuerySnapshot?> snapshot) {
+          // Check if the snapshot has any data.
           if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+            // Return a box that will contain the ListView widget.
             return SizedBox(
                 height: 300,
                 child: ListView(
                     padding: const EdgeInsets.all(8),
+                    // Return an elevated button for each document in the snapshot.
                     children: snapshot.data!.docs.map((document) {
                       return ElevatedButton(
                           style: ButtonStyle(
@@ -280,6 +305,7 @@ class ExerciseHomeState extends State<ExerciseHome>
                                 const EdgeInsets.all(10)),
                           ),
                           onPressed: () {},
+                          // Write information into the display of the button.
                           child: Row(children: [
                             Expanded(
                                 child: Text(
@@ -299,6 +325,7 @@ class ExerciseHomeState extends State<ExerciseHome>
                             ))
                           ]));
                     }).toList()));
+            // If there is no data, return a simple container telling the user that fact.
           } else {
             return Container(
               height: 300,
@@ -314,7 +341,7 @@ class ExerciseHomeState extends State<ExerciseHome>
     // Widgets used for debugging.
     /*
     final userAccelerometer = _userAccelerometerValues
-        ?.map((double v) => v.toStringAsFixed(1))
+        /?.map((double v) => v.toStringAsFixed(1))
         .toList();
 
     StatefulWidget timer = CustomTimer(

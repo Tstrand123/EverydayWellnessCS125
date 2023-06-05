@@ -232,6 +232,7 @@ class _HomePageState extends State<HomePage> {
     );
 
     // paints link to the Exercise home
+    List exerciseRec = getExerciseRec();
     StatefulWidget exerciseSection = OutlinedButton(
       style: OutlinedButton.styleFrom(
         backgroundColor: Colors.lightGreenAccent.shade100,
@@ -253,23 +254,20 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.fromLTRB(10, 20, 20, 2),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text(
+                children: [
+                  const Text(
                     "Exercise",
                     textAlign: TextAlign.left,
                   ),
                   // below is an indicator to show weather the daily goal has been met
-                  Icon(Icons.circle,
-                      color: Colors
-                          .grey), // TODO: implement the ability to change this color
+                  exerciseRec[
+                      1], // TODO: implement the ability to change this color
                 ],
               ),
             )),
         Container(
           padding: const EdgeInsets.all(40),
-          child:
-              getExerciseRec() // TODO: replace text with recommendation obtained from backend
-          ,
+          child: exerciseRec[0],
         )
       ]),
     );
