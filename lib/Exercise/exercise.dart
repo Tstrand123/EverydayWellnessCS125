@@ -51,8 +51,8 @@ Widget getExerciseRec() {
               '${DateTime.now().year}-${DateTime.now().day}-${DateTime.now().month}')
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot?> snapshot) {
+        num neededMinutes = 30;
         if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-          num neededMinutes = 30;
           for (var log in snapshot.data!.docs) {
             if (log['hours'] != 0) {
               neededMinutes = 0;
@@ -76,7 +76,7 @@ Widget getExerciseRec() {
             return const Text("All finished exercising!");
           }
         } else {
-          return const Text("Error getting information.");
+          return Text("Remaining: $neededMinutes min");
         }
       });
 }
