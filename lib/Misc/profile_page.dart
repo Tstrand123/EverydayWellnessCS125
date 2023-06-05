@@ -121,6 +121,14 @@ class _ProfilePageState extends State<ProfilePage> {
                         fontWeight: FontWeight.bold, fontSize: 17.0),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20, bottom: 10),
+                  child: Text(
+                    'Biological Sex: ${snapshot.data!.biologicalSex}',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 17.0),
+                  ),
+                ),
                 // Padding(
                 //   padding: const EdgeInsets.only(bottom: 10),
                 //   child: ElevatedButton(

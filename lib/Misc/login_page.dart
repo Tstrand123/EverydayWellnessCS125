@@ -144,6 +144,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final birthDateController = TextEditingController();
+  final biologicalSexController = TextEditingController();
   final heightFeetController = TextEditingController();
   final heightInchesController = TextEditingController();
   final weightController = TextEditingController();
@@ -155,6 +156,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
     firstNameController.dispose();
     lastNameController.dispose();
     birthDateController.dispose();
+    biologicalSexController.dispose();
     heightFeetController.dispose();
     heightInchesController.dispose();
     weightController.dispose();
@@ -221,7 +223,19 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                 decoration: const InputDecoration(
                     labelText: 'Date of Birth (YYYY-MM-DD)'),
                 validator: (value) => value != null && value.isEmpty
-                    ? 'Enter a valid name'
+                    ? 'Enter a valid DOB'
+                    : null,
+              ),
+              const SizedBox(
+                height: 25,
+              ),
+              TextFormField(
+                controller: biologicalSexController,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                    labelText: 'Biological Sex ("M" - Male, "F" - Female, "P" - Prefer not to say)'),
+                validator: (value) => value != null && value.isEmpty
+                    ? 'Enter a valid choice'
                     : null,
               ),
               const SizedBox(
@@ -312,11 +326,16 @@ class _SignUpWidgetState extends State<SignUpWidget> {
         firstName: firstNameController.text.trim(),
         lastName: lastNameController.text.trim(),
         birthDate: birthDateController.text.trim(),
+        biologicalSex: biologicalSexController.text.trim(),
         heightFeet: int.parse(heightFeetController.text
             .trim()), //referenced https://dart.dev/guides/language/numbers,
         heightInches: int.parse(heightInchesController.text
-            .trim()), //https://dev.to/wangonya/how-you-turn-a-string-into-a-number-or-vice-versa-with-dart-392h
+            .trim()), //https://dev.to/wangonya/how-you-turn-a-string-into-a-number-or-vice-versa-with-dart-392h,
+        initTotalInches: 12 * int.parse(heightFeetController.text
+            .trim()) + int.parse(heightInchesController.text
+            .trim()),
         weight: int.parse(weightController.text.trim()),
+        initWeight: int.parse(weightController.text.trim()),
         ratings: [],
       );
 

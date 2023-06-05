@@ -5,9 +5,12 @@ class AppUser {
   String firstName;
   String lastName;
   String birthDate;
+  String biologicalSex;
   int heightFeet;
   int heightInches;
+  final int initTotalInches;
   int weight;
+  final int initWeight;
   List<MealRating> ratings;
 
   AppUser({
@@ -16,20 +19,27 @@ class AppUser {
     required this.lastName,
     required this.heightFeet,
     required this.heightInches,
+    required this.initTotalInches,
     required this.weight,
+    required this.initWeight,
     required this.birthDate,
+    required this.biologicalSex,
     required this.ratings,
   });
 
+  
   Map<String, dynamic> toJson() => {
         'userID': userID,
         'firstName': firstName,
         'lastName': lastName,
         'heightFeet': heightFeet,
         'heightInches': heightInches,
+        'initTotalInches': initTotalInches,
         'weight': weight,
-    'birthDate': birthDate,
-    'ratings': [],
+        'initWeight': initWeight,
+        'birthDate': birthDate,
+        'biologicalSex': biologicalSex,
+        'ratings': [],
       };
 
   static AppUser fromJson(Map<String, dynamic> json) {
@@ -45,8 +55,11 @@ class AppUser {
       lastName: json['lastName'],
       heightFeet: json['heightFeet'],
       heightInches: json['heightInches'],
+      initTotalInches: json['initTotalInches'],
       weight: json['weight'],
+      initWeight: json['initWeight'],
       birthDate: json['birthDate'],
+      biologicalSex: json['biologicalSex'],
       ratings: newList, //TODO: This may not work to get all the ratings - do a separate loop
     );
   }

@@ -166,6 +166,9 @@ class _TestPageState extends State<TestPage> {
           heightFeet: int.parse(data2[i][3].toString()),
           heightInches: int.parse(data2[i][4].toString()),
           weight: int.parse(data2[i][5].toString()),
+          initTotalInches: 12 * int.parse(data2[i][3].toString()) + int.parse(data2[i][4].toString()),
+          initWeight: int.parse(data2[i][5].toString()),
+          biologicalSex: 'P',
           birthDate: '2000-01-01',
           ratings: []);
 

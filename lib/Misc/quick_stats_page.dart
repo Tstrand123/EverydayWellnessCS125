@@ -13,8 +13,10 @@ class StatsPage extends StatefulWidget {
 
 class _StatsPageState extends State<StatsPage> {
   int bmr = 0;
-  int metabolicage = 0;
-  int bfp = 0;
+  int origbmr = 0;
+  double bfp = 0.0;
+  double bmi = 0.0;
+  double origbmi = 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +33,17 @@ class _StatsPageState extends State<StatsPage> {
             );
           }
           if (snapshot.hasData) {
-            bmr = 1900 +
-                snapshot.data!
-                    .weight; // use real formula for this, consider making it a global variable
-            metabolicage = 19; // implement real formula
-            bfp = 23; // implement real formula
+            if (snapshot.data!.biologicalSex == 'M'){
+                bmr = (66.47 + (6.24 * snapshot.data!.weight) + (12.7 * (snapshot.data!.heightFeet * 12 + snapshot.data!.heightInches)) - (6.75 * (DateTime.now().year - int.parse(snapshot.data!.birthDate.substring(0, 4))))).toInt();
+                origbmr = (66.47 + (6.24 * snapshot.data!.initWeight) + (12.7 * (snapshot.data!.initTotalInches)) - (6.75 * (DateTime.now().year - int.parse(snapshot.data!.birthDate.substring(0, 4))))).toInt();
+            }
+            if (snapshot.data!.biologicalSex == 'F'){
+                bmr = (65.51 + (4.35 * snapshot.data!.weight) + (4.7 * (snapshot.data!.heightFeet * 12 + snapshot.data!.heightInches)) - (4.7 * (DateTime.now().year - int.parse(snapshot.data!.birthDate.substring(0, 4))))).toInt();
+                origbmr = (65.51 + (4.35 * snapshot.data!.weight) + (4.7 * (snapshot.data!.initTotalInches)) - (4.7 * (DateTime.now().year - int.parse(snapshot.data!.birthDate.substring(0, 4))))).toInt();
+            }
+            bmi = double.parse((703 * snapshot.data!.weight / ((snapshot.data!.heightFeet * 12 + snapshot.data!.heightInches) * (snapshot.data!.heightFeet * 12 + snapshot.data!.heightInches))).toStringAsFixed(1));
+            origbmi = double.parse((703 * snapshot.data!.weight / ((snapshot.data!.initTotalInches) * (snapshot.data!.initTotalInches))).toStringAsFixed(1));
+            bfp = double.parse((1.2 * bmi + 0.23 * (DateTime.now().year - int.parse(snapshot.data!.birthDate.substring(0, 4))) - 5.4).toStringAsFixed(1));
             return Column(
               children: [
                 const Padding(
@@ -49,15 +57,23 @@ class _StatsPageState extends State<StatsPage> {
                 Padding(
                   padding: const EdgeInsets.only(top: 20, bottom: 10),
                   child: Text(
-                    'BMR: $bmr',
+                    'BMR: $bmr kcal',
                     style: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 17.0),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 20, bottom: 10),
+                  padding: const EdgeInsets.only(top: 20, bottom: 5),
                   child: Text(
-                    'Metabolic Age: $metabolicage',
+                    'BMI: $bmi',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 17.0),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 5, bottom: 10),
+                  child: Text(
+                    'Original: $origbmi',
                     style: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 17.0),
                   ),
