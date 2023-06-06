@@ -156,19 +156,22 @@ class _SleepHomeState extends State<SleepHome> {
       // Body starts here
       body: Center(
           child: Column(
-        children: [
-          // Recommendation box: displays the current recommendation to the user
+          children: [
           Expanded(
-              child: Row(children: [
-            Expanded(
-                child: DecoratedBox(
-              decoration: BoxDecoration(
+            child: SizedBox(
+              height: 40,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
                   color: Colors.white60,
                   borderRadius: const BorderRadius.all(Radius.circular(8)),
-                  border: Border.all(color: Colors.black12, width: 2)),
-              child: const Center(child: Text("Recommendation")),
-            ))
-          ])),
+                  border: Border.all(color: Colors.black12, width: 2),
+                ),
+                child: Center(
+                  child: Text("Bedtime at $bedtimeGoalText and wake up at $durationGoalText"),
+                ),
+              ),
+            ),
+          ),
 
           Center(
             child: RatingBar(
@@ -195,7 +198,7 @@ class _SleepHomeState extends State<SleepHome> {
           ),
           
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 8.0), // Adjust the vertical padding as needed
+            padding: const EdgeInsets.symmetric(vertical: 5.0), // Adjust the vertical padding as needed
             child: Row(
               children: [
                 Expanded(
@@ -225,8 +228,9 @@ class _SleepHomeState extends State<SleepHome> {
             ),
           ),
           // NewLog widget: allows the user to manually create a new Sleep Log
+
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 8.0), // Adjust the vertical padding as needed
+            padding: const EdgeInsets.symmetric(vertical: 5.0), // Adjust the vertical padding as needed
             child: Row(
               children: [
                 Expanded(
@@ -239,11 +243,10 @@ class _SleepHomeState extends State<SleepHome> {
                         border: Border.all(color: Colors.black12, width: 2),
                       ),
                       child: Center(
-                        child: TextButton(
+                      child: TextButton(
                           onPressed: uploadNewSleepLog,
-                          child: const Text("New Log"),
-                        ),
-                      ),
+                          child: const Text("New Log (Auto)")),
+                    )
                     ),
                   ),
                 ),
@@ -251,6 +254,35 @@ class _SleepHomeState extends State<SleepHome> {
             ),
           ),
 
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 5.0), // Adjust the vertical padding as needed
+            child: Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.white60,
+                        borderRadius: const BorderRadius.all(Radius.circular(8)),
+                        border: Border.all(color: Colors.black12, width: 2),
+                      ),
+                      child: Center(
+                      child: TextButton(
+                          onPressed: () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return const CreateNewSleepLog();
+                            }));
+                          },
+                          child: const Text("New Log (Manual)")),
+                    )
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
 
           //Grab logs from DB
           SingleChildScrollView(
