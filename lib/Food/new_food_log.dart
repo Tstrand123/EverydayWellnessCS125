@@ -391,14 +391,7 @@ class NewFoodLogState extends State<NewFoodLog> {
             "Data"
 
             };*/
-            final DataEntry = <String, dynamic>{
-                "calories": calControl.text,
-                "fat": fatControl.text,
-                "carbs": carbControl.text,
-                "protein": proteinControl.text,
-                "name": nameCont.text,
-                "time": Timestamp.fromDate(MealTime)
-            };
+
            /* final DataEntry = NutritionData(name: nameCont.text,
                 calories: int.parse(calControl.text),
                 fat: int.parse(fatControl.text),
@@ -407,12 +400,7 @@ class NewFoodLogState extends State<NewFoodLog> {
                 time: MealTime.toString());//Timestamp.fromDate(MealTime));*/
           // TODO: make it so that when the user first creates a log, their userId is uploaded as a field
           // store the data in a subcollection. user_values indexed by user_id, each userId is tied to a subcollection "meals" which is indexed by datetime
-          db.collection("nutritionData") // main collection
-          .doc(userId)  // index of main collection
-              .collection("meals") // subcollection of userId
-              .doc(MealTime.toString()) // index of subcollection
-              .set(DataEntry) // the meal data
-              .onError((e, _)=>print("Error writing document: $e"));
+          writeData();
           /*db.collection("nutritionData")
               .doc(userId)
               .collection("meals")
@@ -449,4 +437,33 @@ class NewFoodLogState extends State<NewFoodLog> {
           ],
         ));
   }
+
+  void writeData() async {
+    DateTime MealTime = DateTime.now();
+    var db = FirebaseFirestore.instance;
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    var temp = await db.collection('nutritionData').doc(userId).get();
+
+    final DataEntry = <String, dynamic>{
+      "calories": calControl.text,
+      "fat": fatControl.text,
+      "carbs": carbControl.text,
+      "protein": proteinControl.text,
+      "name": nameCont.text,
+      "time": Timestamp.fromDate(MealTime)
+    };
+
+    print(temp.data() as Map<String,dynamic>);
+    if (temp.data() == null || temp.data()!.isEmpty){
+      print('empty');
+      db.collection('nutritionData').doc(userId).set({'userId': '${userId}'});
+    }
+
+    db.collection("nutritionData") // main collection
+        .doc(userId)  // index of main collection
+        .collection("meals") // subcollection of userId
+        .doc(MealTime.toString()) // index of subcollection
+        .set(DataEntry) // the meal data
+        .onError((e, _)=>print("Error writing document: $e"));
+    }
 }
