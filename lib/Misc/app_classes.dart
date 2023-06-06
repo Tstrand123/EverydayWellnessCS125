@@ -195,29 +195,41 @@ class MealRating{
 
 // NOTE: ratings and nutrition data *could* be merged into a single collection, indexed by userID, keeping separate for now
 class NutritionData{
-  DateTime mealTime; // this is the index of the meals subcollection
+  //DateTime mealTime; // this is the index of the meals subcollection
   String name;
   int calories;
   int fat;
   int carbs;
   int protein;
+  //Timestamp time;
+  String time;
   // TODO? add (optional) reference to rating?
 
   NutritionData({
-    required this.mealTime,
+    //required this.mealTime,
     required this.name,
     required this.calories,
     required this.fat,
     required this.carbs,
     required this.protein,
+    required this.time
 });
 
   Map<String, dynamic> toJson() =>{
-    'mealTime': mealTime,
+    //'mealTime': mealTime,
     'name': name,
     'calories': calories,
     'fat': fat,
     'carbs': carbs,
-    'protein': protein
+    'protein': protein,
+    'time': time
   };
+
+  static NutritionData fromJson(Map<String, dynamic> json) =>  NutritionData(
+      name: json['name'],
+      carbs: int.parse(json['carbs']),
+      fat: int.parse(json['fat']),
+      protein: int.parse(json['protein']),
+      time: json['time'],
+      calories: int.parse(json['calories']));
 }

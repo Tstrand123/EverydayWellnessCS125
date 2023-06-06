@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:everyday_wellness_cs125/Misc/app_classes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
@@ -360,7 +361,7 @@ class NewFoodLogState extends State<NewFoodLog> {
       onPressed: () {
         if (_formKey.currentState!.validate()) {
           ScaffoldMessenger.of(context).showSnackBar(
-            // TODO: send the data to the server
+
 
             const SnackBar(content: Text('Processing Data')),
           );
@@ -371,22 +372,16 @@ class NewFoodLogState extends State<NewFoodLog> {
           if (meal_id != -1) { // Only allow ratings if the meal was a preset, to prevent user created meals from contaiminating the algo
             //preset = true; // if the meal was a preset,
             final RatingEntry = <String, String>{
-              // TODO: need to collect everything, including rating and also meal values
+
               //"preset": preset.toString(), // not needed, all meals will be presets
               "meal_id": "$meal_id",
               "rating": "$thisRate"
             };
-            /*db
-                .collection(
-                "user_ratings") // TODO: should be the name of the collection with user ratings
-                .doc(userId) // TODO: might change the index
-                .collection("meals").doc("$meal_id")
-                .set(RatingEntry) // TODO: should this just be
-                .onError((e, _) => print("error writing document: $e"));*/
+
             //TODO: upload user ID as a field to user_ratings documents
             db.collection("User_ratings").doc(userId).collection('ratings').doc("$meal_id").set(RatingEntry);
           }
-          // TODO: create database for meal values (records the date, calories, fat, protien, and carbs, indexed by user_id)
+
           //      when determining the recommendations, take all entries from THIS user, on THIS day, and sum the values
           //      subtract from the recommended values to find deficit/surplus
           //      if the user is on track, then that causes a positive score to their health rating, otherwise, a negative one (primarily regarding carbs and fat)
@@ -396,14 +391,21 @@ class NewFoodLogState extends State<NewFoodLog> {
             "Data"
 
             };*/
-            final DataEntry = <String, String>{
+            final DataEntry = <String, dynamic>{
                 "calories": calControl.text,
                 "fat": fatControl.text,
                 "carbs": carbControl.text,
                 "protein": proteinControl.text,
-                "name": nameCont.text
+                "name": nameCont.text,
+                "time": Timestamp.fromDate(MealTime)
             };
-
+           /* final DataEntry = NutritionData(name: nameCont.text,
+                calories: int.parse(calControl.text),
+                fat: int.parse(fatControl.text),
+                carbs: int.parse(carbControl.text),
+                protein: int.parse(proteinControl.text),
+                time: MealTime.toString());//Timestamp.fromDate(MealTime));*/
+          // TODO: make it so that when the user first creates a log, their userId is uploaded as a field
           // store the data in a subcollection. user_values indexed by user_id, each userId is tied to a subcollection "meals" which is indexed by datetime
           db.collection("nutritionData") // main collection
           .doc(userId)  // index of main collection
@@ -411,6 +413,11 @@ class NewFoodLogState extends State<NewFoodLog> {
               .doc(MealTime.toString()) // index of subcollection
               .set(DataEntry) // the meal data
               .onError((e, _)=>print("Error writing document: $e"));
+          /*db.collection("nutritionData")
+              .doc(userId)
+              .collection("meals")
+              .doc(MealTime.toString())
+              .set({'time': Timestamp.fromDate(MealTime)}); // set the time as a timestamp*/
           // When done, reload the food home page
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return const FoodHome(title: 'FoodHome');

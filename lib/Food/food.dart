@@ -6,12 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:everyday_wellness_cs125/Food/new_food_log.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tfl;
 
+
+
 // TODO: implement ability for user to specify their nutritional needs:
 //    Their calorie target for the day (defualts to 2000)
 //    Their specific diets: low carb, high protein, etc
 //    For ease, can just make some macros that have set percentages that get set to their profile then loaded below
 
-Map<String, double> summationOfRecords(String user_id, DateTime today, int NumberOfDays){
+Future<Map<String, double>> summationOfRecords(String user_id, DateTime today, int NumberOfDays) async{
   // takes the user_id, the date today, and the number of days to calculate based on (1 day summary, 5 day summary, etc determines how many days backwards to look)
   Map<String, double> totals = {
     "fatPercent": .5,
@@ -21,7 +23,41 @@ Map<String, double> summationOfRecords(String user_id, DateTime today, int Numbe
   };
 
   // TODO: query database to get all nutritional logs within the last 24 hours of NOW (indexes of items stored as DateTime)
-
+  var db = FirebaseFirestore.instance;
+  await db.collection('nutritionData')
+      .doc(user_id)
+      .collection('meals').orderBy('time', descending: true).limit(10) // for now: assume that they have eaten less then 10 meals in the past day (feel like that 's reasonable)
+      //.where('time', isGreaterThan: Timestamp.fromDate(today.subtract(const Duration(days:1))))
+      //.where('time', isLessThan: Timestamp.fromDate(today)) // NOT working, can try ordering them by timestamp, limiting results to 5-10
+      // and then manually preforming the comparison to see which entries we keep and which we discard
+      //.where('time', isGreaterThan: Timestamp.fromDate(today.subtract(const Duration(days:1))))
+      .get()
+      .then((snap){
+        int TotalFat = 0;
+        int TotalCarb = 0;
+        int TotalPro = 0;
+        int TotalCals= 0;
+        DateTime yesterday = today.subtract(const Duration(days: 1));
+      for (var i in snap.docs) {
+        //if ((i.get('time').compareTo(Timestamp.fromDate(today)) < 1) &&
+          //  (i.get('time').compareTo(
+            //    Timestamp.fromDate(today.subtract(const Duration(days: 1))))) > -1) {
+        DateTime BetterTime = DateTime.parse(i.get('time').toDate().toString());
+        if (BetterTime.isBefore(today) && BetterTime.isAfter(yesterday)){
+          TotalFat += int.parse(i.get('fat'));
+          TotalCarb += int.parse(i.get('carbs'));
+          TotalPro += int.parse(i.get('protein'));
+          TotalCals += int.parse(i.get('calories'));
+        }
+        else{
+          break; // Since the dates are sorted, once you find one that doesn't match the criteria, you know you're done
+        }
+      }
+        totals['fatPercent'] = (TotalFat * 9) / TotalCals;
+        totals['carbsPercent'] = (TotalCarb * 4) / TotalCals;
+        totals['proteinPercent'] = (TotalPro * 4) / TotalCals;
+        totals['totalCalories'] = TotalCals.toDouble();
+  });
   // TODO: sum all values (calories, fat, protein, etc)
 
   // TODO: calculate percentage of different macronutrients
@@ -31,9 +67,29 @@ Map<String, double> summationOfRecords(String user_id, DateTime today, int Numbe
   return totals; // return map
 }
 
-String getNutritionRec(user_id){
+Future<Map<String, dynamic>> getUserNeeds(String userId) async {
+  // queries db to get user's context and adjust parameters as needed
+
+  var db = FirebaseFirestore.instance;
+  Map<String, dynamic> ret = {'calories' : 2000}; // default value is 2000
+  await db.collection("Users").doc(userId).get().then((doc){
+    ret = <String, dynamic>
+    {'calories' : doc.get('weight')*15,
+      // TODO: if we want the user to specify what kind of diet they want,
+      //    can fill this area with fat, carbs, etc
+    };
+  }
+
+  );
+  return ret;
+}
+
+Future<String> getNutritionRec(user_id) async{
   // TODO: get these values from the user's goals/preferences
-  const CalCount = 2000; // using average recommended values (static for now)
+
+  //const CalCount = 2000; // using average recommended values (static for now)
+  var CalCount = 2000;
+  await getUserNeeds(user_id).then((result){CalCount = result['calories'];});
   const fatUpper = .35; // recommended: 20-35% fat, down to 30-40% if weight loss is desired
   const fatLower = .2;
   const carbUpper = .65;// recommended: 45-65% carbs (down to 10-30% if weight loss desired
@@ -42,11 +98,11 @@ String getNutritionRec(user_id){
   const proteinLower = .1;
 
   // get today's date
-  final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  final today = DateTime.now();//DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
   // read user_id's records for the past day
 
   // sum all records for today
-  Map<String, double> totals = summationOfRecords(user_id, today, 1);
+  Map<String, double> totals = await summationOfRecords(user_id, today, 1);
   // TODO: (if there's time):
   // get weekly summation
   //    for the weekly summation, only want to pay attention to the outliers (such as if their carb intake is well over the average for a week)
@@ -78,6 +134,9 @@ String getNutritionRec(user_id){
   else if (protein! < proteinLower){
     recommendations.add("Increase protein intake");
   }
+  else if(calories! > CalCount){
+    recommendations.add("Consider increasing your activity");
+  }
   if (recommendations.isEmpty){
     return "Right on track!";
     // QUESTION: if the user is on track nutrition wise, should we instead provide a food suggestion?
@@ -86,8 +145,8 @@ String getNutritionRec(user_id){
     // if the user is over their caloric goal AND has not exercised, recommend that they do that
     // TODO: how to determine if the exercise goal has been reached?
 
-
-  var index = Random().nextInt(recommendations.length - 1); // generate a random index from 0 to the max index
+  //print(recommendations.length);
+  var index = Random().nextInt(recommendations.length); // generate a random index from 0 to the max index
   return recommendations[index];  // return the string corresponding to that index
   return "Error generating nutrition Recommendation";
 }
@@ -98,28 +157,28 @@ Future<String> getMealRec(String user_id) async {
   // load and process input(s)
   // get all users and ratings
   final List<List<double>> ratings = [];
-  final Set<double> meals_tried = {};
+  final Set<int> meals_tried = {};
   final List<double> meal_ids = [];
-  double encodedUserId = 0;
+  int encodedUserId = 0;
   //print(await FirebaseFirestore.instance.collection("User_ratings").get());
   await FirebaseFirestore.instance.collection("User_ratings").doc(user_id).collection('ratings').get().then(//.asStream().forEach(
       (event) {
         //print("event: ${event.docs}");
         //print("$event");
         for (var e in event.docs) {
-          double i = 0; // reassignes the user_id to a more easily enumerated value (some userIDs are strings and others are ints)
+          int i = 0; // reassignes the user_id to a more easily enumerated value (some userIDs are strings and others are ints)
           //for (var rate in e.data()['ratings']) {
           print ("the document: $e");
           //for (var rate in e.collection('ratings'))//['ratings'].docs()){
             //ratings.add([i, double.tryParse(rate['meal_id'])!, rate['rating']]);
             //print(rate);
           try {
-            ratings.add([
+            /*ratings.add([
               i,
               double.parse(e['meal_id']),
               double.parse(e['rating'])
-            ]);
-            meals_tried.add(double.parse(e['meal_id']));
+            ]);*/
+            meals_tried.add(int.parse(e['meal_id']));
           }
           on FormatException {
             return "Error";
@@ -141,8 +200,8 @@ Future<String> getMealRec(String user_id) async {
   }
 
   // find opposite of that list (all meal_ids not in above list)
-  List<double> not_tried = [];
-  for (double i = 0 ; i < 50; i+=1){ // If you are wondering why all of this is in doubles, its because rating is a double and they all have to be the same type because list
+  List<int> not_tried = [];
+  for (int i = 0 ; i < 50; i+=1){ // If you are wondering why all of this is in doubles, its because rating is a double and they all have to be the same type because list
   //for (var meal in meal_ids){
     if (!meals_tried.contains(i)){
       not_tried.add(i);
@@ -151,12 +210,14 @@ Future<String> getMealRec(String user_id) async {
   final interpreter =  await tfl.Interpreter.fromAsset('lib/assets/model.tflite');
 
   // form horizontal stack (where its [user_id, meal_id_not_tried], [user_id, meal_id_not_tried], etc)
-  List<List<double>> horizontalStack = [];
+  List<List<int>> horizontalStack = [];//[List.filled(not_tried.length, encodedUserId), not_tried];
+
   for (var meal in not_tried){
-    horizontalStack.add([encodedUserId, meal]);
+    horizontalStack.add([1, meal]);
   }
+  print(horizontalStack);
   // use horizontal stack as input; output is just flat output (1-D list)
-  List<double> output = [1]; // just a 1D list
+  List<dynamic> output = List.filled(50,0).reshape([50,1]);
   interpreter.run(horizontalStack, output);
 
   //    would be ratings and meals, as well as the user_id
@@ -167,7 +228,7 @@ Future<String> getMealRec(String user_id) async {
   return "Error getting Meal recommendation";
 }
 
-String getRecommendation(){
+Widget getRecommendation(){
   // TODO: function that calls other functions to generate a recommendation for this user
   //    returns the string to be displayed;
 
@@ -179,23 +240,29 @@ String getRecommendation(){
   final user_id = FirebaseAuth.instance.currentUser!.uid;
 
   // determine randomly what kind of a recommendation we will make (meal or nutrition)
-  var coinFlip = Random().nextBool();
+  var coinFlip = true;//Random().nextBool();
   //  if nutrition
   if (coinFlip) {
     //    obtain a summary of this user's eating habits (daily, or weekly no more then that)
-    return getNutritionRec(user_id); // call function, return result (is also a string)
+    //return getNutritionRec(user_id); // call function, return result (is also a string)
     //    create recommendation accordingly
+    return FutureBuilder(
+        future: getNutritionRec(user_id),
+        builder: (BuildContext context, AsyncSnapshot<String> output) {
+         return Text("${output.data}", textAlign: TextAlign.center,);
+        }
+    );
   }
   //  if meal
-  else {
+  //else {
     //    run ML and generate a recommendation
     String result = "";
     getMealRec(user_id).then((re){result = re;}); // getMealRec returns a Future String so have to extract it somehow, may not work
-    return result;
-  }
+    //return result;
+  //}
   // return the recommendation
 
-  return "Error getting recommendation"; // in the event of an error, return
+  //return "Error getting recommendation"; // in the event of an error, return
 }
 
 // Widget that paints SleepHome page
@@ -231,7 +298,7 @@ class FoodHome extends StatelessWidget {
                   color: Colors.white60,
                   borderRadius: const BorderRadius.all(Radius.circular(8)),
                   border: Border.all(color: Colors.black12, width: 2)),
-              child: Center(child: Text(getRecommendation())),//"Recommendation")),
+              child: Center(child: getRecommendation()),//"Recommendation")),
             ))
           ])),
 

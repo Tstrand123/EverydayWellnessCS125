@@ -222,10 +222,9 @@ class _HomePageState extends State<HomePage> {
             )),
         Container(
           padding: const EdgeInsets.all(40),
-          child: Text(
-            getRecommendation(), //"Recommendation",
-            textAlign: TextAlign.center,
-          ) // TODO: replace text with recommendation obtained from backend
+          child: getRecommendation() //"Recommendation",
+            //textAlign: TextAlign.center,
+          //) // TODO: replace text with recommendation obtained from backend
           ,
         )
       ]),
