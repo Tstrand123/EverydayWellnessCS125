@@ -57,7 +57,7 @@ class MyAppLogin extends StatelessWidget {
             );
           } else if (snapshot.hasError) {
             return const Center(
-              child: Text('Error Occured'),
+              child: Text('Error Occurred'),
             );
           } else if (snapshot.hasData) {
             return const HomePage(title: 'Title');
@@ -94,12 +94,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  var refreshKey = GlobalKey<RefreshIndicatorState>();
   Future<int> calculateScore() async {
     // Convert a future int to just int.
     int exerciseScore = await getExerciseScore();
     //int sleepScore = await ...;
-    // foodScore = await ...;
-    return exerciseScore; //+ sleepScore + foodScore;
+    int foodScore = getFoodScore();
+    return exerciseScore + foodScore; //+ sleepScore + foodScore;
   }
 
   @override
@@ -120,7 +121,7 @@ class _HomePageState extends State<HomePage> {
             );
           } else if (snapshot.hasError) {
             return const Center(
-              child: Text('Error Occured'),
+              child: Text('Error Occurred'),
             );
           } else if (snapshot.hasData) {
             return Text(
@@ -184,25 +185,6 @@ class _HomePageState extends State<HomePage> {
           }
         });
 
-    // Create the food recomendation widget: // replaced code with newer, better code. Left this here just in case we want to roll back
-    /*Widget foodSection = Expanded(
-        child: Container(
-      decoration: BoxDecoration(
-        border: Border.all(width: 10, color: Colors.amber),
-        borderRadius: const BorderRadius.all(Radius.circular(8)),
-        color: Colors.amber,
-      ),
-      padding: const EdgeInsets.all(50),
-      child: TextButton(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return const FoodHome(title: 'Food Home');
-          }));
-        }, // on pressed
-        child: const Text("Food"),
-      ),
-    ));*/
-
     // paints the food button
     StatefulWidget foodSection = OutlinedButton(
       style: OutlinedButton.styleFrom(
@@ -240,7 +222,7 @@ class _HomePageState extends State<HomePage> {
           padding: const EdgeInsets.all(40),
           child: getRecommendation() //"Recommendation",
           //textAlign: TextAlign.center,
-          //) // TODO: replace text with recommendation obtained from backend
+          //)
           ,
         )
       ]),
@@ -363,7 +345,13 @@ class _HomePageState extends State<HomePage> {
       body: SafeArea(
         //child: SingleChildScrollView(
         //child: Column(children: [
-        child: ListView(children: [
+        child: RefreshIndicator(
+          key: refreshKey,
+          onRefresh: () async {
+            build(context);
+            return Future<void>.delayed(const Duration(seconds: 3));
+          },
+          child: ListView(children: [
           // changed to listview so my modifications will work
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Container(padding: const EdgeInsets.all(10), child: welcomeText)
@@ -395,7 +383,7 @@ class _HomePageState extends State<HomePage> {
         ]),
       ),
       // ),
-    );
+    ));
     //);
   }
 }

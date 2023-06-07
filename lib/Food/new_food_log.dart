@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:everyday_wellness_cs125/Misc/app_classes.dart';
+import 'package:everyday_wellness_cs125/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
@@ -132,6 +133,7 @@ class NewFoodLogState extends State<NewFoodLog> {
   TextEditingController fatControl = TextEditingController();
   TextEditingController proteinControl = TextEditingController();
   TextEditingController carbControl = TextEditingController();
+  TextEditingController servControl = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -311,6 +313,24 @@ class NewFoodLogState extends State<NewFoodLog> {
       },
     );
 
+    Widget numServings = TextFormField(
+      controller: servControl,
+      decoration: const InputDecoration(
+        icon: Icon(Icons.numbers),
+        labelText: "Servings Eaten",
+      ),
+      validator: (value){
+        if (value == null || value.isEmpty) {
+          return 'Please enter a number';
+        }
+        var number = int.tryParse(value);
+        if (number == null || number <= 0) {
+          return 'Please enter a number';
+        }
+        return null;
+      },
+    );
+
     Widget carbsField = TextFormField(
       controller: carbControl,
       decoration: const InputDecoration(
@@ -409,7 +429,11 @@ class NewFoodLogState extends State<NewFoodLog> {
           // When done, reload the food home page
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return const FoodHome(title: 'FoodHome');
-          }));
+          //Navigator.pop(context);
+            //return const HomePage(title: 'Home'); // broke something with percents
+          }
+        )
+        );
         }
       },
     ));
@@ -426,6 +450,7 @@ class NewFoodLogState extends State<NewFoodLog> {
             Row(children: [Expanded(child: timePickerField)]),
             Row(children: [Expanded(child: presetButton)],),
             Row(children: [Expanded(child: nameField)]),
+            Row(children: [Expanded(child: numServings)]),
             Row(children: [Expanded(child: caloriesField)]),
             Row(children: [Expanded(child: fatField)]),
             Row(children: [Expanded(child: proteinField)]),
@@ -445,17 +470,17 @@ class NewFoodLogState extends State<NewFoodLog> {
     var temp = await db.collection('nutritionData').doc(userId).get();
 
     final DataEntry = <String, dynamic>{
-      "calories": calControl.text,
-      "fat": fatControl.text,
-      "carbs": carbControl.text,
-      "protein": proteinControl.text,
+      "calories": (int.parse(calControl.text) * int.parse(servControl.text)).toString(),
+      "fat": (int.parse(fatControl.text) * int.parse(servControl.text)).toString(),//fatControl.text,
+      "carbs": (int.parse(carbControl.text) * int.parse(servControl.text)).toString(),//carbControl.text,
+      "protein": (int.parse(proteinControl.text) * int.parse(servControl.text)).toString(), //proteinControl.text,
       "name": nameCont.text,
       "time": Timestamp.fromDate(MealTime)
     };
 
-    print(temp.data() as Map<String,dynamic>);
+    //print(temp.data() as Map<String,dynamic>);
     if (temp.data() == null || temp.data()!.isEmpty){
-      print('empty');
+      //print('empty');
       db.collection('nutritionData').doc(userId).set({'userId': '${userId}'});
     }
 

@@ -58,11 +58,6 @@ Future<Map<String, double>> summationOfRecords(String user_id, DateTime today, i
         totals['proteinPercent'] = (TotalPro * 4) / TotalCals;
         totals['totalCalories'] = TotalCals.toDouble();
   });
-  // TODO: sum all values (calories, fat, protein, etc)
-
-  // TODO: calculate percentage of different macronutrients
-  //    fatPercent = (totalFat * 9)/totalCals (calories from fat / total calories) // for example on how calculations are done (I guess?)
-  // TODO: add/modify the map
 
   return totals; // return map
 }
@@ -82,6 +77,12 @@ Future<Map<String, dynamic>> getUserNeeds(String userId) async {
 
   );
   return ret;
+}
+
+// it works
+var score = 50;
+int getFoodScore() {
+  return score;
 }
 
 Future<String> getNutritionRec(user_id) async{
@@ -111,30 +112,37 @@ Future<String> getNutritionRec(user_id) async{
   var carbs = totals['carbsPercent'];
   var protein = totals['proteinPercent'];
   var calories = totals['totalCalories'];
-
+ // var score = 50;
   List recommendations = []; // list of strings that can potentially be recommended
   // find deficiency/surplus
   //  if fat > 40%
   if (fat! > fatUpper){
+    score -= 10;          // Note: while there are many -10s many are mutually exclusive. Max subtractions is -40 in total
     recommendations.add("Reduce fat intake");}
   //    add "reduce fat intake" to list of recommendations
   //  if fat < 20%
   else if (fat! < fatLower){
+    score -= 10;
     recommendations.add("Increase fat intake");
   }
   if (carbs! > carbUpper){
+    score -= 10;
     recommendations.add("Reduce carb intake");
   }
   else if (carbs! < carbLower){
+    score -= 10;
     recommendations.add("Increase carb intake");
   }
   if (protein! > proteinUpper){
+    score -= 10;
     recommendations.add("Reduce protein intake");
   }
   else if (protein! < proteinLower){
+    score -= 10;
     recommendations.add("Increase protein intake");
   }
   else if(calories! > CalCount){
+    score -= 10;
     recommendations.add("Consider increasing your activity");
   }
   if (recommendations.isEmpty){
