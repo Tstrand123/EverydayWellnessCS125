@@ -94,7 +94,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int score = 135; // TODO: FIX THIS TO THE ACTUAL CALCULATED VALUE
+  Future<int> calculateScore() async {
+    // Convert a future int to just int.
+    int exerciseScore = await getExerciseScore();
+    //int sleepScore = await ...;
+    // foodScore = await ...;
+    return exerciseScore; //+ sleepScore + foodScore;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,45 +134,55 @@ class _HomePageState extends State<HomePage> {
         });
 
     // Create the lifestyle score circular display:
-    Widget lifestyleScore = CircularPercentIndicator(
-      radius: 120.0,
-      lineWidth: 13.0,
-      animation: true,
-      // TODO: Calculate correct percentage.
-      percent: (score / 150.0),
-      reverse: true,
-      center: Text(
-        // TODO: Display the current average of the scores.
-        score.toString(),
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
-      ),
-      footer: Padding(
-        padding: const EdgeInsets.only(top: 20, bottom: 10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Padding(
-              padding: EdgeInsets.only(bottom: 10),
-              child: Text(
-                "Lifestyle Score",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
+    Widget lifestyleScore = FutureBuilder<int>(
+        future: calculateScore(),
+        builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+          if (snapshot.hasError) {
+            return const Text("Error");
+          } else if (snapshot.hasData) {
+            int score = snapshot.data!;
+            return CircularPercentIndicator(
+              radius: 120.0,
+              lineWidth: 13.0,
+              animation: true,
+              percent: (score / 150.0),
+              reverse: true,
+              center: Text(
+                score.toString(),
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 20.0),
               ),
-            ),
-          ],
-        ),
-      ),
-      circularStrokeCap: CircularStrokeCap.round,
-
-      progressColor: (score > 125)
-          ? const Color.fromARGB(255, 36, 131, 17)
-          : (score > 100 && score <= 125)
-              ? const Color.fromARGB(255, 122, 207, 127)
-              : (score > 75 && score <= 100)
-                  ? const Color.fromARGB(255, 226, 241, 9)
-                  : (score > 50 && score <= 75)
-                      ? const Color.fromARGB(255, 255, 145, 0)
-                      : const Color.fromARGB(255, 131, 17, 17),
-    );
+              footer: Padding(
+                padding: const EdgeInsets.only(top: 20, bottom: 10),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 10),
+                      child: Text(
+                        "Lifestyle Score",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 17.0),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              circularStrokeCap: CircularStrokeCap.round,
+              progressColor: (score > 125)
+                  ? const Color.fromARGB(255, 36, 131, 17)
+                  : (score > 100 && score <= 125)
+                      ? const Color.fromARGB(255, 122, 207, 127)
+                      : (score > 75 && score <= 100)
+                          ? const Color.fromARGB(255, 226, 241, 9)
+                          : (score > 50 && score <= 75)
+                              ? const Color.fromARGB(255, 255, 145, 0)
+                              : const Color.fromARGB(255, 131, 17, 17),
+            );
+          } else {
+            return Center(child: CircularPercentIndicator(radius: 5));
+          }
+        });
 
     // Create the food recomendation widget: // replaced code with newer, better code. Left this here just in case we want to roll back
     /*Widget foodSection = Expanded(
@@ -223,7 +239,7 @@ class _HomePageState extends State<HomePage> {
         Container(
           padding: const EdgeInsets.all(40),
           child: getRecommendation() //"Recommendation",
-            //textAlign: TextAlign.center,
+          //textAlign: TextAlign.center,
           //) // TODO: replace text with recommendation obtained from backend
           ,
         )

@@ -41,6 +41,40 @@ List<String> months = [
   'December'
 ];
 
+// Get lifestyle score for exercise.
+Future<int> getExerciseScore() async {
+  num neededMinutes = 30;
+
+  int result = await FirebaseFirestore.instance
+      .collection('ExerciseLogs')
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .collection(
+          '${DateTime.now().year}-${DateTime.now().day}-${DateTime.now().month}')
+      .get()
+      .then((document) {
+    for (var log in document.docs) {
+      // If the log shows > than neededMinutes, then return .
+      neededMinutes -= log['minutes'];
+      if (log['hours'] != 0 || neededMinutes <= -1) {
+        neededMinutes = 0;
+        return Future.value(50);
+      }
+    }
+    if (neededMinutes < 10) {
+      return Future.value(45);
+    } else if (neededMinutes < 15) {
+      return Future.value(25);
+    } else if (neededMinutes < 20) {
+      return Future.value(15);
+    } else if (neededMinutes < 25) {
+      return Future.value(5);
+    } else {
+      return Future.value(0);
+    }
+  });
+  return result;
+}
+
 // Calculate recommendation for exercise.
 List getExerciseRec() {
   Widget streamText = StreamBuilder(
