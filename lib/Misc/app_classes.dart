@@ -71,7 +71,7 @@ class SleepLog {
   String userID;
   DateTime bedTime; //when they go to bed
   DateTime awakeTime; //when they wake up
-  double rating;
+  int rating;
 
   SleepLog({
     required this.userID,
