@@ -6,6 +6,7 @@ import '../Misc/app_functions.dart';
 import '../Misc/app_classes.dart';
 import 'package:health/health.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 // Widget that paints SleepHome page
 class SleepHome extends StatefulWidget {
@@ -18,7 +19,7 @@ class SleepHome extends StatefulWidget {
 }
 
 class _SleepHomeState extends State<SleepHome> {
-  double sleepRating = 0;
+  int sleepRating = 0;
   String bedtimeGoalText = '';
   String durationGoalText = '';
 
@@ -83,13 +84,11 @@ class _SleepHomeState extends State<SleepHome> {
       
       for (int i = 0; i < asleepMinutesList.length; i++) {
         loopData = asleepMinutesList[i];
-        //Check if date matches - if so, process, else, exit and notify
         if (loopData.dateTo.month == now.month &&
             loopData.dateTo.day == now.day) {
-          //found match
-          found = true;
-          index = i;
-          break;
+            found = true;
+            index = i;
+            break;
         }
       }
 
@@ -136,13 +135,37 @@ class _SleepHomeState extends State<SleepHome> {
 
   //builds log for list - this is what we want to display on the tile
   Widget buildLog(SleepLog log) => ListTile(
-        leading: Text('${log.rating}'),
+        leading: Text('${log.rating}, ${log.awakeTime}'),
       );
 
   @override
   Widget build(BuildContext context) {
+    User? user = FirebaseAuth.instance.currentUser;
+                  if (user == null) {
+                  }
+                  else{
+                  DocumentReference sleepGoalsDocRef =
+                      FirebaseFirestore.instance.collection('sleep_goals').doc(user.uid);
+
+                  sleepGoalsDocRef.get().then((DocumentSnapshot snapshot) {
+                    if (snapshot.exists) {
+                      String bedtime = snapshot.get('bedtime') ?? 'Not Set';
+                      String duration = snapshot.get('duration') ?? 'Not Set';
+
+                      setState(() {
+                        bedtimeGoalText = bedtime;
+                        durationGoalText = duration;
+                      });
+                    } else {
+                      setState(() {
+                        bedtimeGoalText = 'Not Set';
+                        durationGoalText = 'Not Set';
+                      });
+                    }
+                  }).catchError((error) {
+                    Text('Error: $error');
+                  });}
     return Scaffold(
-      // AppBar: basic bar at top of every page
       appBar: AppBar(
         title: Text(widget.title),
         actions: <Widget>[
@@ -191,7 +214,7 @@ class _SleepHomeState extends State<SleepHome> {
               onRatingUpdate: (rating) {
                 print(rating);
                 setState(() {
-                  sleepRating = rating;
+                  sleepRating = rating.toInt();
                 });
               },
             ),
@@ -284,78 +307,15 @@ class _SleepHomeState extends State<SleepHome> {
             ),
           ),
 
-          //Grab logs from DB
-          SingleChildScrollView(
-            child: StreamBuilder<List<SleepLog>>(
-              stream: readSleepLogs(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  print(snapshot.error);
-                  return const Text('Error');
-                } else if (snapshot.hasData) {
-                  var allSleepLogs = snapshot.data!;
-
-                  return ListView(
-                    shrinkWrap:
-                        true, //Referenced https://stackoverflow.com/questions/50252569/vertical-viewport-was-given-unbounded-height
-                    children: allSleepLogs.map(buildLog).toList(),
-                  );
-                } else {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-              },
-            ),
-          ),
-          
-
-          // Log List: displays summary information on the last 5 logs
-          Expanded(
-            child: ListView(
-            padding: const EdgeInsets.all(4),
-            children: <Widget>[
-              ElevatedButton(
+          ElevatedButton(
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
                   foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
                 ),
+                
                 onPressed: () {
-                  // Get the current user's UID
-                  User? user = FirebaseAuth.instance.currentUser;
-                  if (user == null) {
-                    // User is not signed in
-                    return;
-                  }
-                  String uid = user.uid;
-
-                  // Create a reference to the user's document in the 'sleep_goals' collection
-                  DocumentReference sleepGoalsDocRef =
-                      FirebaseFirestore.instance.collection('sleep_goals').doc(uid);
-
-                  // Retrieve the document snapshot from Firestore
-                  sleepGoalsDocRef.get().then((DocumentSnapshot snapshot) {
-                    if (snapshot.exists) {
-                      // Document exists, retrieve the values of 'bedtime' and 'duration'
-                      String bedtime = snapshot.get('bedtime') ?? 'Not Set';
-                      String duration = snapshot.get('duration') ?? 'Not Set';
-
-                      // Update the child Text widgets with the retrieved values
-                      setState(() {
-                        bedtimeGoalText = bedtime;
-                        durationGoalText = duration;
-                      });
-                    } else {
-                      // Document does not exist, set default values
-                      setState(() {
-                        bedtimeGoalText = 'Not Set';
-                        durationGoalText = 'Not Set';
-                      });
-                    }
-                  }).catchError((error) {
-                    Text('Error: $error');
-                  });
                 },
+
                 child: Row(
                   children: [
                     Expanded(
@@ -372,50 +332,72 @@ class _SleepHomeState extends State<SleepHome> {
                     ),
                   ],
                 ),
-              ),
+          ),
+          //Grab logs from DB
+          StreamBuilder<List<SleepLog>>(
+              stream: readSleepLogs(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return const Text('Error');
+                } else if (snapshot.hasData) {
+                  var allSleepLogs = snapshot.data!;
 
-              for (int index = 1; index < 6; index++)
-                ElevatedButton(
-                    style: const ButtonStyle(
-                      backgroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.white),
-                      foregroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.black),
+                  return Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.all(4),
+                      children: <Widget>[
+                        for (int index = 0; index < (allSleepLogs.length < 5 ? allSleepLogs.length : 5); index++)
+                          ElevatedButton(
+                            style: const ButtonStyle(
+                              backgroundColor: MaterialStatePropertyAll<Color>(Colors.white),
+                              foregroundColor: MaterialStatePropertyAll<Color>(Colors.black),
+                            ),
+                            onPressed: () {
+                              // TODO: fill in
+                              // leads to a more verbose log that lists all elements of the log as well as the options to edit/delete the entry
+                            },
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    "Date/Time: ${DateFormat('M/d - h:mm a').format(allSleepLogs[index].bedTime.add(const Duration(hours: -7)))}",
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    "Duration: ${allSleepLogs[index].awakeTime.difference(allSleepLogs[index].bedTime).toString().split(':').take(2).join(':')}",
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ListTile(
+                          title: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const MoreLogs(),
+                                ),
+                              );
+                            },
+                            child: const Text('More Logs...'),
+                          ),
+                        ),
+                      ],
                     ),
-                    onPressed: () {
-                      // TODO: fill in
-                      //  leads to a more verbose log that lists all elements of the log as well as the options to edit/delete the entry
-                    },
-                    child: Row(children: [
-// NOTE: these cannot be const, because they will have hold values obtained from the DB
-                      Expanded(
-                          child: Text(
-                        "Date/Time: $index",
-                        textAlign: TextAlign.center,
-                      )), // TODO: replace constant text with text retrieved from DB
-                      Expanded(
-                          child: Text(
-                        "Duration: $index",
-                        textAlign: TextAlign.center,
-                      )) // TODO: replace $index with reference to data entry from DB
-                    ])),
-              // MoreLogs button: links to widget listing all previous logs
-              // TODO: create link to MoreLogs Widget
-              ListTile(
-                  title: TextButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const MoreLogs()));
-                },
-                child: const Text('More Logs...'),
-              ))
-            ],
-          ))
-          //Expanded(child: )
+                  );
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              },
+            ),
         ],
-      ) //Text('hi'),
+      )
           ),
     );
   }
@@ -502,7 +484,7 @@ class UpdateSleepGoals extends StatelessWidget {
             TextFormField(
               controller: _durationController,
               decoration: const InputDecoration(
-                labelText: 'Enter your desired sleep duration',
+                labelText: 'Enter your desired sleep duration (in hours)',
               ),
             ),
             const SizedBox(height: 16.0),
