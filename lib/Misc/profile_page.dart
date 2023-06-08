@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../main.dart';
 import 'app_classes.dart';
 
+const List<String> profileOptions = ['Normal', 'Low Fat', 'Lower Carbs', 'High Protein'];
+
 // Creates a profile page to display information about the user.
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key, required this.title}) : super(key: key);
@@ -25,6 +27,8 @@ class _ProfilePageState extends State<ProfilePage> {
   final profileController = TextEditingController();
 
   final formKey = GlobalKey<FormState>();
+
+  String dropdownValue = profileOptions.first;
 
   @override
   void dispose() {
@@ -240,11 +244,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: const Text('Update'),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10, bottom: 10),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 10, bottom: 10),
                       child: Text(
-                        'Fat Profile: ${snapshot.data!.fatProfile}',
-                        style: const TextStyle(
+                        'Food Profile',
+                        style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 17.0),
                       ),
                     ),
@@ -255,18 +259,25 @@ class _ProfilePageState extends State<ProfilePage> {
                           context: context,
                           barrierDismissible: false,
                           builder: (BuildContext context) => AlertDialog(
-                            title: const Text('Update Fat Profile'),
+                            title: const Text('Update Profile'),
                             content: Form(
                               key: formKey,
                               child: Column(
                                 children: [
-                                  const Text('Enter a New Fat Profile (normal or loss)'),
-                                  TextFormField(
-                                    controller: profileController,
-                                    decoration: const InputDecoration(labelText: 'Profile'),
-                                    validator: (value) => value != null && value.isEmpty
-                                        ? 'Enter a valid profile'
-                                        : null,
+                                  const Text('Select an option'),
+                                  DropdownButtonFormField(
+                                    value: dropdownValue,
+                                    icon: const Icon(Icons.arrow_downward),
+                                    elevation: 16,
+                                    onChanged: (String? value) {
+                                      setState(() {
+                                        dropdownValue = value!;
+                                      });
+                                    },
+                                    items: profileOptions.map<DropdownMenuItem<String>>((String value) {
+                                      return DropdownMenuItem<String>(value: value,
+                                      child: Text(value),);
+                                    }).toList(),
                                   ),
                                 ],
                               ),
@@ -274,7 +285,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             actions: <Widget>[
                               TextButton(onPressed: () => Navigator.pop(context),
                                   child: const Text('Cancel')),
-                              TextButton(onPressed: () => updateFat(), //immediately quits
+                              TextButton(onPressed: () => updateAllProfile(), //immediately quits
                                 child: const Text('Update'),),
                             ],
                           ),
@@ -282,90 +293,90 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: const Text('Update'),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10, bottom: 10),
-                      child: Text(
-                        'Carb Profile: ${snapshot.data!.carbProfile}',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 17.0),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 70),
-                      child: ElevatedButton(
-                        onPressed: () => showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (BuildContext context) => AlertDialog(
-                            title: const Text('Update Carb Profile'),
-                            content: Form(
-                              key: formKey,
-                              child: Column(
-                                children: [
-                                  const Text('Enter a New Carb Profile (normal or loss)'),
-                                  TextFormField(
-                                    controller: profileController,
-                                    decoration: const InputDecoration(labelText: 'Profile'),
-                                    validator: (value) => value != null && value.isEmpty
-                                        ? 'Enter a valid profile'
-                                        : null,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            actions: <Widget>[
-                              TextButton(onPressed: () => Navigator.pop(context),
-                                  child: const Text('Cancel')),
-                              TextButton(onPressed: () => updateFat(), //immediately quits
-                                child: const Text('Update'),),
-                            ],
-                          ),
-                        ),
-                        child: const Text('Update'),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10, bottom: 10),
-                      child: Text(
-                        'Protein Profile: ${snapshot.data!.proteinProfile}',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 17.0),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 70),
-                      child: ElevatedButton(
-                        onPressed: () => showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (BuildContext context) => AlertDialog(
-                            title: const Text('Update Protein Profile'),
-                            content: Form(
-                              key: formKey,
-                              child: Column(
-                                children: [
-                                  const Text('Enter a New Protein Profile (normal or loss)'),
-                                  TextFormField(
-                                    controller: profileController,
-                                    decoration: const InputDecoration(labelText: 'Profile'),
-                                    validator: (value) => value != null && value.isEmpty
-                                        ? 'Enter a valid profile'
-                                        : null,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            actions: <Widget>[
-                              TextButton(onPressed: () => Navigator.pop(context),
-                                  child: const Text('Cancel')),
-                              TextButton(onPressed: () => updateFat(), //immediately quits
-                                child: const Text('Update'),),
-                            ],
-                          ),
-                        ),
-                        child: const Text('Update'),
-                      ),
-                    ),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(top: 10, bottom: 10),
+                    //   child: Text(
+                    //     'Carb Profile: ${snapshot.data!.carbProfile}',
+                    //     style: const TextStyle(
+                    //         fontWeight: FontWeight.bold, fontSize: 17.0),
+                    //   ),
+                    // ),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(bottom: 70),
+                    //   child: ElevatedButton(
+                    //     onPressed: () => showDialog(
+                    //       context: context,
+                    //       barrierDismissible: false,
+                    //       builder: (BuildContext context) => AlertDialog(
+                    //         title: const Text('Update Carb Profile'),
+                    //         content: Form(
+                    //           key: formKey,
+                    //           child: Column(
+                    //             children: [
+                    //               const Text('Enter a New Carb Profile (normal or loss)'),
+                    //               TextFormField(
+                    //                 controller: profileController,
+                    //                 decoration: const InputDecoration(labelText: 'Profile'),
+                    //                 validator: (value) => value != null && value.isEmpty
+                    //                     ? 'Enter a valid profile'
+                    //                     : null,
+                    //               ),
+                    //             ],
+                    //           ),
+                    //         ),
+                    //         actions: <Widget>[
+                    //           TextButton(onPressed: () => Navigator.pop(context),
+                    //               child: const Text('Cancel')),
+                    //           TextButton(onPressed: () => updateFat(), //immediately quits
+                    //             child: const Text('Update'),),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //     child: const Text('Update'),
+                    //   ),
+                    // ),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(top: 10, bottom: 10),
+                    //   child: Text(
+                    //     'Protein Profile: ${snapshot.data!.proteinProfile}',
+                    //     style: const TextStyle(
+                    //         fontWeight: FontWeight.bold, fontSize: 17.0),
+                    //   ),
+                    // ),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(bottom: 70),
+                    //   child: ElevatedButton(
+                    //     onPressed: () => showDialog(
+                    //       context: context,
+                    //       barrierDismissible: false,
+                    //       builder: (BuildContext context) => AlertDialog(
+                    //         title: const Text('Update Protein Profile'),
+                    //         content: Form(
+                    //           key: formKey,
+                    //           child: Column(
+                    //             children: [
+                    //               const Text('Enter a New Protein Profile (normal or loss)'),
+                    //               TextFormField(
+                    //                 controller: profileController,
+                    //                 decoration: const InputDecoration(labelText: 'Profile'),
+                    //                 validator: (value) => value != null && value.isEmpty
+                    //                     ? 'Enter a valid profile'
+                    //                     : null,
+                    //               ),
+                    //             ],
+                    //           ),
+                    //         ),
+                    //         actions: <Widget>[
+                    //           TextButton(onPressed: () => Navigator.pop(context),
+                    //               child: const Text('Cancel')),
+                    //           TextButton(onPressed: () => updateFat(), //immediately quits
+                    //             child: const Text('Update'),),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //     child: const Text('Update'),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -402,6 +413,61 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
     );
+  }
+
+
+  void updateAllProfile() {
+    final docUser = FirebaseFirestore.instance.collection('Users')
+        .doc(FirebaseAuth.instance.currentUser!.uid);
+
+    if (dropdownValue == 'Normal') {
+      print('normal');
+      setState(() {
+        docUser.update({
+          'fatProfile': 'normal',
+          'carbProfile': 'normal',
+          'proteinProfile': 'normal',
+        });
+      });
+    }else if (dropdownValue == 'Low Fat'){
+      print('low fat');
+      setState(() {
+        docUser.update({
+          'fatProfile': 'loss',
+          'carbProfile': 'normal',
+          'proteinProfile': 'normal',
+        });
+      });
+    }else if (dropdownValue == 'Lower Carbs'){
+      print('lower carbs');
+      setState(() {
+        docUser.update({
+          'fatProfile': 'normal',
+          'carbProfile': 'loss',
+          'proteinProfile': 'normal',
+        });
+      });
+    }else if (dropdownValue == 'High Protein'){
+      print('high protein');
+      setState(() {
+        docUser.update({
+          'fatProfile': 'normal',
+          'carbProfile': 'normal',
+          'proteinProfile': 'loss',
+        });
+      });
+    }else {
+      print('normal');
+      setState(() {
+        docUser.update({
+          'fatProfile': 'normal',
+          'carbProfile': 'normal',
+          'proteinProfile': 'normal',
+        });
+      });
+    }
+
+    Navigator.pop(context);
   }
 
   void updateFat() {
