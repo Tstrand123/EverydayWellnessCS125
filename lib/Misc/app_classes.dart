@@ -6,6 +6,9 @@ class AppUser {
   String lastName;
   String birthDate;
   String biologicalSex;
+  String fatProfile;
+  String carbProfile;
+  String proteinProfile;
   int heightFeet;
   int heightInches;
   final int initTotalInches;
@@ -25,6 +28,9 @@ class AppUser {
     required this.birthDate,
     required this.biologicalSex,
     required this.ratings,
+    required this.fatProfile,
+    required this.carbProfile,
+    required this.proteinProfile,
   });
 
   
@@ -40,6 +46,9 @@ class AppUser {
         'birthDate': birthDate,
         'biologicalSex': biologicalSex,
         'ratings': [],
+        'fatProfile': fatProfile,
+        'carbProfile': carbProfile,
+        'proteinProfile': proteinProfile,
       };
 
   static AppUser fromJson(Map<String, dynamic> json) {
@@ -61,6 +70,9 @@ class AppUser {
       birthDate: json['birthDate'],
       biologicalSex: json['biologicalSex'],
       ratings: newList, //TODO: This may not work to get all the ratings - do a separate loop
+      proteinProfile: json['proteinProfile'],
+      fatProfile: json['fatProfile'],
+      carbProfile: json['carbProfile'],
     );
   }
 }

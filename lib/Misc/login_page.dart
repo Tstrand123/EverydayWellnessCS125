@@ -337,6 +337,9 @@ class _SignUpWidgetState extends State<SignUpWidget> {
         weight: int.parse(weightController.text.trim()),
         initWeight: int.parse(weightController.text.trim()),
         ratings: [],
+        fatProfile: 'normal',
+        carbProfile: 'normal',
+        proteinProfile: 'normal',
       );
 
       final docLocation =

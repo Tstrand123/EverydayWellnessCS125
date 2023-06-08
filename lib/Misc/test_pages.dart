@@ -154,29 +154,29 @@ class _TestPageState extends State<TestPage> {
 
   }
 
-  void uploadUsers() async {
-    final userData = await rootBundle.loadString('lib/ML/MLData/userCSV.csv');
-    List<List<dynamic>> data2 = CsvToListConverter().convert(userData);
-
-    for (int i = 1; i < data2.length; i++){
-      final tempUser = AppUser(
-          userID: data2[i][0].toString(),
-          firstName: data2[i][1].toString(),
-          lastName: data2[i][2].toString(),
-          heightFeet: int.parse(data2[i][3].toString()),
-          heightInches: int.parse(data2[i][4].toString()),
-          weight: int.parse(data2[i][5].toString()),
-          initTotalInches: 12 * int.parse(data2[i][3].toString()) + int.parse(data2[i][4].toString()),
-          initWeight: int.parse(data2[i][5].toString()),
-          biologicalSex: 'P',
-          birthDate: '2000-01-01',
-          ratings: []);
-
-      final userUpload = FirebaseFirestore.instance.collection('Users').doc('${data2[i][0]}');
-      userUpload.set(tempUser.toJson());
-
-    }
-  }
+  // void uploadUsers() async {
+  //   final userData = await rootBundle.loadString('lib/ML/MLData/userCSV.csv');
+  //   List<List<dynamic>> data2 = CsvToListConverter().convert(userData);
+  //
+  //   for (int i = 1; i < data2.length; i++){
+  //     final tempUser = AppUser(
+  //         userID: data2[i][0].toString(),
+  //         firstName: data2[i][1].toString(),
+  //         lastName: data2[i][2].toString(),
+  //         heightFeet: int.parse(data2[i][3].toString()),
+  //         heightInches: int.parse(data2[i][4].toString()),
+  //         weight: int.parse(data2[i][5].toString()),
+  //         initTotalInches: 12 * int.parse(data2[i][3].toString()) + int.parse(data2[i][4].toString()),
+  //         initWeight: int.parse(data2[i][5].toString()),
+  //         biologicalSex: 'P',
+  //         birthDate: '2000-01-01',
+  //         ratings: []);
+  //
+  //     final userUpload = FirebaseFirestore.instance.collection('Users').doc('${data2[i][0]}');
+  //     userUpload.set(tempUser.toJson());
+  //
+  //   }
+  // }
 
   void uploadMealRatings() async {
     showDialog(

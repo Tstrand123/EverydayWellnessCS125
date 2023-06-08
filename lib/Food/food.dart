@@ -5,7 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:everyday_wellness_cs125/Food/new_food_log.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tfl;
+import 'package:everyday_wellness_cs125/main.dart';
 
+import 'package:everyday_wellness_cs125/Misc/app_classes.dart';
 
 
 // TODO: implement ability for user to specify their nutritional needs:
@@ -87,16 +89,36 @@ int getFoodScore() {
 
 Future<String> getNutritionRec(user_id) async{
   // TODO: get these values from the user's goals/preferences
+  AppUser? userInfo = await readUser();
+  print(userInfo!.proteinProfile); //succesfully reads everything
 
   //const CalCount = 2000; // using average recommended values (static for now)
   var CalCount = 2000;
   await getUserNeeds(user_id).then((result){CalCount = result['calories'];});
-  const fatUpper = .35; // recommended: 20-35% fat, down to 30-40% if weight loss is desired
-  const fatLower = .2;
-  const carbUpper = .65;// recommended: 45-65% carbs (down to 10-30% if weight loss desired
-  const carbLower = .45;
-  const proteinUpper = .35;// recomemended: 10-35% protein (up to 40-50% if weight loss)
-  const proteinLower = .1;
+
+  var fatUpper = .35; // recommended: 20-35% fat, down to 30-40% if weight loss is desired
+  var fatLower = .2;
+  var carbUpper = .65;// recommended: 45-65% carbs (down to 10-30% if weight loss desired
+  var carbLower = .45;
+  var proteinUpper = .35;// recomemended: 10-35% protein (up to 40-50% if weight loss)
+  var proteinLower = .1;
+
+  if(userInfo!.proteinProfile == 'loss') {
+    proteinUpper = .5;// recomemended: 10-35% protein (up to 40-50% if weight loss)
+    proteinLower = .4;
+  }
+  if(userInfo!.carbProfile == 'loss') {
+    carbUpper = .3;// recommended: 45-65% carbs (down to 10-30% if weight loss desired
+    carbLower = .1;
+  }
+  if(userInfo!.fatProfile == 'loss') {
+    fatUpper = .4; // recommended: 20-35% fat, down to 30-40% if weight loss is desired
+    fatLower = .3;
+  }
+
+  print(proteinUpper);
+  print(carbUpper);
+  print(fatUpper);
 
   // get today's date
   final today = DateTime.now();//DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
