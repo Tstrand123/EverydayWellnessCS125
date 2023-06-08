@@ -265,7 +265,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               child: Column(
                                 children: [
                                   const Text('Select an option'),
-                                  DropdownButtonFormField(
+                                  DropdownButtonFormField( //https://stackoverflow.com/questions/51735906/drop-down-button-in-flutter-not-switching-values-to-the-selected-value
                                     value: dropdownValue,
                                     icon: const Icon(Icons.arrow_downward),
                                     elevation: 16,
