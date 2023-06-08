@@ -121,7 +121,7 @@ class _SleepHomeState extends State<SleepHome> {
             userID: FirebaseAuth.instance.currentUser!.uid,
             bedTime: sleepData.dateFrom,
             awakeTime: sleepData.dateTo,
-            rating: sleepRating); //TODO: Get Rating, place here
+            rating: sleepRating.toInt()); //TODO: Get Rating, place here
         docSleepLogs.doc(docName).set(newSleepLog.toJson());
       }
 
@@ -180,19 +180,26 @@ class _SleepHomeState extends State<SleepHome> {
       body: Center(
           child: Column(
           children: [
-          Expanded(
-            child: SizedBox(
-              height: 40,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: Colors.white60,
-                  borderRadius: const BorderRadius.all(Radius.circular(8)),
-                  border: Border.all(color: Colors.black12, width: 2),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 5.0), // Adjust the vertical padding as needed
+            child: Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 150,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.white60,
+                        borderRadius: const BorderRadius.all(Radius.circular(8)),
+                        border: Border.all(color: Colors.black12, width: 2),
+                      ),
+                      child: Center(
+                        child: Text("Bedtime at $bedtimeGoalText and sleep for $durationGoalText hours."),
+                      ),
+                    ),
+                  ),
                 ),
-                child: Center(
-                  child: Text("Bedtime at $bedtimeGoalText and wake up at $durationGoalText"),
-                ),
-              ),
+              ],
             ),
           ),
 
@@ -326,7 +333,7 @@ class _SleepHomeState extends State<SleepHome> {
                     ),
                     Expanded(
                       child: Text(
-                        'Duration Goal: $durationGoalText',
+                        'Duration Goal: $durationGoalText hrs',
                         textAlign: TextAlign.center,
                       ),
                     ),
