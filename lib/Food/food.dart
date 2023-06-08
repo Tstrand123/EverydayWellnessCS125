@@ -39,6 +39,7 @@ Future<Map<String, double>> summationOfRecords(String user_id, DateTime today, i
         int TotalCarb = 0;
         int TotalPro = 0;
         int TotalCals= 0;
+        int count = 0;
         DateTime yesterday = today.subtract(const Duration(days: 1));
       for (var i in snap.docs) {
         //if ((i.get('time').compareTo(Timestamp.fromDate(today)) < 1) &&
@@ -50,6 +51,7 @@ Future<Map<String, double>> summationOfRecords(String user_id, DateTime today, i
           TotalCarb += int.parse(i.get('carbs'));
           TotalPro += int.parse(i.get('protein'));
           TotalCals += int.parse(i.get('calories'));
+          count ++;
         }
         else{
           break; // Since the dates are sorted, once you find one that doesn't match the criteria, you know you're done
@@ -59,10 +61,22 @@ Future<Map<String, double>> summationOfRecords(String user_id, DateTime today, i
         totals['carbsPercent'] = (TotalCarb * 4) / TotalCals;
         totals['proteinPercent'] = (TotalPro * 4) / TotalCals;
         totals['totalCalories'] = TotalCals.toDouble();
+
+        if (count >= 2) { // require that count must be >= 2 because this makes no sense otherwise
+          totals['averageFat'] = TotalFat / count;
+          totals['averageCarbs'] = TotalCarb/ count;
+          totals['averageProtein'] = TotalPro/count;
+          totals['averageCals'] = TotalCals/count;
+
+        }
+    // test if these averages continue if they'll be over or under anything
+    // Note: snacks will squew this, would there be any way to factor them out of the count? (not out of the totals, still contribute to average)
   });
 
   return totals; // return map
 }
+
+
 
 Future<Map<String, dynamic>> getUserNeeds(String userId) async {
   // queries db to get user's context and adjust parameters as needed
@@ -79,6 +93,36 @@ Future<Map<String, dynamic>> getUserNeeds(String userId) async {
 
   );
   return ret;
+}
+
+String? findMeal(int type, double target){
+  // type = 0, 1, 2, 3; 0 = low protein, 1 = low carb 2 = low fat 3 = cals
+  // target = how many to look for
+  // defCals = how many calories are left to hit target (+- 5%?)
+  // query db and sort by the column specified
+  Map<int, String> operations = {
+    0: 'protein',
+    1: 'carbs',
+    2: 'fat',
+    3: 'calories'
+  };
+  // if you calculate a 'target' this will be easier. Calc the target then find any meals that have around that many grams
+  // how do determine how many servings? use cals? Determine cal deficite and then just try to get close to that?
+  String mealName = '';
+  var db = FirebaseFirestore.instance;
+  List<String> mealList = [];
+  // add all the names to a list
+  db.collection('MealData').where("${operations[type]}", isGreaterThanOrEqualTo: target).get().then((document){
+    for (var doc in document.docs) {
+      mealList.add(doc['name']);
+    }
+  });
+  if (mealList.isEmpty){
+    return null; // return a null string if there was nothing there
+  }
+  int index = Random().nextInt(mealList.length);
+
+  return mealList[index]; // find a random meal that fits the criteria to return
 }
 
 // it works
@@ -163,7 +207,7 @@ Future<String> getNutritionRec(user_id) async{
     score -= 10;
     recommendations.add("Increase protein intake");
   }
-  else if(calories! > CalCount){
+  if(calories! > CalCount + (CalCount! * 0.05)){ // multiply by 0.05 to give a 5% leeway
     score -= 10;
     recommendations.add("Consider increasing your activity");
   }
@@ -171,14 +215,72 @@ Future<String> getNutritionRec(user_id) async{
     return "Right on track!";
     // QUESTION: if the user is on track nutrition wise, should we instead provide a food suggestion?
   }
-  // TODO:
-    // if the user is over their caloric goal AND has not exercised, recommend that they do that
-    // TODO: how to determine if the exercise goal has been reached?
+
+  if (totals.containsKey('averageFat')){
+    // check if the averages are there, if one is then they all are
+    if (protein + (totals['averageProtein']!.toInt() * 4 / calories) > proteinUpper){
+      // The upper limits are harder to calculate, maybe leave?
+
+      // select meal with more fat/carbs?
+      // sort meals based on protein in ascending order (under the idea that if there's a low amount
+      //    of protein then the percentage will be lower as well
+      //int maxProtein =
+      //recommendations.add(findMeal(0, maxProtein));
+    }
+    else if (protein + (totals['averageProtein']!.toInt() * 4 / calories) < proteinLower){
+      // select meal with more fat/carbs?
+      // sort meals based on protein in ascending order (under the idea that if there's a low amount
+      //    of protein then the percentage will be lower as well
+      double minProtein = (CalCount * proteinLower) / 4; // the number of grams of protein the user needs in their day
+      minProtein -= totals['averageProtein']! * 2; // calculate how many they need to fit that goal
+      String? meal = findMeal(0, minProtein);
+      if (meal != null) { // if there was a meal that was found, add it; otherwise, do nothing
+        recommendations.add(
+            "For a balanced diet, increase your protein consumption. Here's a suggestion: $meal");
+      }
+    }
+    if ((carbs + (totals['averageCarbs']!.toInt() * 4) / calories) > carbUpper){
+      // select meal with more fat/protein?
+
+    }
+    else if((carbs + (totals['averageCarbs']!.toInt() * 4) / calories) < carbLower){
+      double minCarb = (CalCount * carbLower) / 4; // the number of grams the user needs in their day
+      minCarb -= totals['averageCarbs']! * 2; // calculate how many they need to fit that goal
+      String? meal = findMeal(0, minCarb);
+      if (meal != null) {
+        recommendations.add(
+            "For a balanced diet, increase your carbohydrate consumption. Here's a suggestion: $meal");
+      }
+    }
+    if ((fat + (totals['averageFat']!.toInt() * 9) / calories) > fatUpper){
+      // select meal with more protein/carbs?
+    }
+    else if((fat + (totals['averageFat']!.toInt() * 9) / calories) < fatLower){
+      double minFat = (CalCount * fatLower) / 9; // the number of grams the user needs in their day
+      minFat -= totals['averageCarbs']! * 2; // calculate how many they need to fit that goal
+      String? meal = findMeal(0, minFat);
+      if (meal != null) {
+        recommendations.add(
+            "For a balanced diet, increase your fat consumption. Here's a suggestion: $meal");
+      }
+    }
+    if (calories < CalCount) {
+      if ((calories + totals['calories']!.toInt()) <
+          (CalCount + (CalCount * 0.05).toInt())) {
+        // predict what their end-of-day calorie consumption will look like
+        String? meal = findMeal(3, CalCount - calories);
+        if (meal != null) {
+          recommendations.add(
+              "To help you meet your calorie target, consider trying this meal: $meal");
+        }
+      }
+    }
+  }
 
   //print(recommendations.length);
   var index = Random().nextInt(recommendations.length); // generate a random index from 0 to the max index
   return recommendations[index];  // return the string corresponding to that index
-  return "Error generating nutrition Recommendation";
+  //return "Error generating nutrition Recommendation";
 }
 
 Future<String> getMealRec(String user_id) async {
