@@ -22,7 +22,7 @@ class _SleepHomeState extends State<SleepHome> {
   int sleepRating = 0;
   String bedtimeGoalText = '';
   String durationGoalText = '';
-
+  String EntireBedTimeGoalText = '';
   //Grabs logs
   //Referenced https://firebase.flutter.dev/docs/firestore/usage/#querying
   //Referenced https://www.youtube.com/watch?v=ErP_xomHKTw&t=276s
@@ -149,17 +149,22 @@ class _SleepHomeState extends State<SleepHome> {
 
                   sleepGoalsDocRef.get().then((DocumentSnapshot snapshot) {
                     if (snapshot.exists) {
-                      String bedtime = snapshot.get('bedtime').toString() ?? 'Not Set';
+                      //String bedtime = snapshot.get('bedtime').toString() ?? 'Not Set';
                       String duration = snapshot.get('duration').toString() ?? 'Not Set';
+                      DateTime bt = DateTime.parse((snapshot.get('bedtime')).toDate().toString());
+                      String bedtime = "${(bt.hour)%12}:${bt.minute.toString().padLeft(2, '0')} ${bt.hour >= 12 ? 'PM' : 'AM'}";
+
 
                       setState(() {
                         bedtimeGoalText = bedtime;
                         durationGoalText = duration;
+                        EntireBedTimeGoalText = "Bedtime at $bedtimeGoalText and sleep for $durationGoalText hours.";
                       });
                     } else {
                       setState(() {
                         bedtimeGoalText = 'Not Set';
                         durationGoalText = 'Not Set';
+                        EntireBedTimeGoalText = "Goals not yet set.";
                       });
                     }
                   }).catchError((error) {
@@ -194,7 +199,8 @@ class _SleepHomeState extends State<SleepHome> {
                         border: Border.all(color: Colors.black12, width: 2),
                       ),
                       child: Center(
-                        child: Text("Bedtime at $bedtimeGoalText and sleep for $durationGoalText hours."),
+                        child: Text(EntireBedTimeGoalText),//"Bedtime at $bedtimeGoalText and sleep for $durationGoalText hours."),
+
                       ),
                     ),
                   ),
@@ -245,7 +251,7 @@ class _SleepHomeState extends State<SleepHome> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => UpdateSleepGoals()),
+                              MaterialPageRoute(builder: (context) => UpdateSleepGoalsState()),//UpdateSleepGoals()),
                             );
                           },
                           child: const Text("New Sleep Goal"),
@@ -654,12 +660,160 @@ class _MoreLogsState extends State<MoreLogs> {
   }
 }
 
-class UpdateSleepGoals extends StatelessWidget {
+int getSleepScore(){
+  // compare time slept yesterday night to the goal
+  var db = FirebaseFirestore.instance;
+  var userId = FirebaseAuth.instance.currentUser!.uid;
+  int duration = 8; // default, gets changed if needed below
+  db.collection('sleep_goals').doc(userId).get().then(
+          (event){
+        var temp = event.data() as Map<String, dynamic>;
+        duration = int.tryParse(temp['duration'])!;
+      }
+  );
+  int sleepDuration = 0;
+  DateTime yesterday = DateTime.now().subtract(const Duration(days: 1)); // get yesterday
+  // might need to restructure how sleep logs are saved to make the query easier to do
+  db.collection('SleepLogs').orderBy('bedTime', descending: true).get().then((event){//.where('userID', isEqualTo: userId).get().then((event){//where('bedTime' , isLessThanOrEqualTo: Timestamp.fromDate(DateTime.now())).get().then((event){
+    for (var e in event.docs) {
+      if (e['userID'] == userId){
+        sleepDuration =
+            (DateTime.parse(e['awakeTime'].toDate().toString()).difference( DateTime.parse(e['bedTime'].toDate().toString()))).inHours;
+        break; // only get the one, hacky but whatever
+      }
+    }
+  });
+  // normalize the difference to 50 and return that
+  int TimeDifference = duration - sleepDuration;
+  // if TimeDifference is (+) then they slept longer then their goal
+  // if TimeDifference is (-) then they needed to sleep longer
+  if (TimeDifference < 0){
+
+    if ((TimeDifference *-1) <= 1){ // if the difference is less then or = to one hour, give most points
+      return 40;
+    }
+    else if((TimeDifference * -1) <= 2){
+      return 30; // scale down the points as they get farther from their goal
+    }
+    else if ((TimeDifference * -1) <= 4){
+      return 20;
+    }
+    else if (duration >= 2){
+      return 10; // so long as they slept 2 hours, give them 10 points
+    }
+    else{ // anything less then that gets 0
+      return 0;
+    }
+  }
+  else
+  {return 50;} // return the full score
+}
+
+Widget getSleepRec() {
+  // TODO: fill in
+  var db = FirebaseFirestore.instance;
+  var userId = FirebaseAuth.instance.currentUser!.uid;
+  //String bedTime = ''; // TODO: parse bedtime
+
+  Future<DocumentSnapshot<Map<String, dynamic>>> snapshot =  db.collection('sleep_goals').doc(userId).get();//.then(
+  // (event){
+  /*var temp = event.data() as Map<String, dynamic>;
+
+        DateTime bedtime = DateTime.parse(temp['bedtime'].toDate().toString()); // get the bedtime
+            if (DateTime.now().isAfter(bedtime.subtract(const Duration(minutes:31)))){
+              return "Bedtime in 30 minutes! Put away all electronic devices.";
+            }
+            else if (DateTime.now().isAfter(bedtime.subtract(const Duration(hours: 2)))){
+              return "Bedtime in 2 hours, make sure to get your daily exercise in!"; // TODO: is there a way to check if exercise has been done without querying the db?
+            }
+            else{
+              Duration timeTil = DateTime.now().difference(bedtime);
+              return "Time until bedtime: ${timeTil.inHours.toString()} : ${(timeTil.inMinutes%60).toString()}"; // won't update continuously, but its something
+            }*/
+  //}
+  //);
+  return  FutureBuilder(future: snapshot,
+    builder: (BuildContext context, AsyncSnapshot result){
+      String str = 'Make a log to receive recommendations';
+      if (result.hasData){
+        //var temp = result.data != null ? (result.data as Map<String, dynamic>) : null;
+        QuerySnapshot<Map<String, dynamic>> temp = result.data!;
+        //if (temp != null) {
+        for (var d in temp.docs){
+          DateTime bedtime = DateTime.parse(
+              d['bedtime'].toDate().toString()); // get the bedtime
+          if (DateTime.now().isAfter(
+              bedtime.subtract(const Duration(minutes: 31)))) {
+            str = "Bedtime in 30 minutes! Put away all electronic devices.";
+          }
+          else if (DateTime.now().isAfter(
+              bedtime.subtract(const Duration(hours: 2)))) {
+            str =
+            "Bedtime in 2 hours, make sure to get your daily exercise in!"; // TODO: is there a way to check if exercise has been done without querying the db?
+          }
+          else {
+            Duration timeTil = DateTime.now().difference(bedtime);
+            str = "Time until bedtime: ${timeTil.inHours.toString()} : ${(timeTil
+                .inMinutes % 60)
+                .toString()}"; // won't update continuously, but its something
+          }
+        }}
+      return Text(str, textAlign: TextAlign.center,);
+    },);
+  //if (DateTime.now() >= bedTime - duration(minutes:30)) {}// compare current time to the scheduled bed time, if within 30 minutes, tell them to put away devices
+
+  // If they haven't gotten in some exercise by 2 hours before bedtime, advise them to do so?
+
+  // anything else?
+
+  //return "Keep it up!"; // default response if there is nothing else to recommend
+}
+
+class UpdateSleepGoalsState extends StatefulWidget{
+  const UpdateSleepGoalsState({super.key});
+
+  @override
+  UpdateSleepGoals createState(){
+    return UpdateSleepGoals();
+  }
+}
+
+class UpdateSleepGoals extends State<UpdateSleepGoalsState> {
   final TextEditingController _bedtimeController = TextEditingController();
   final TextEditingController _durationController = TextEditingController();
 
+  var bedTime = DateTime.now();
+
   @override
   Widget build(BuildContext context) {
+    Widget BedtimeInput = Container(
+        padding: const EdgeInsets.all(8),
+        child: Center(
+          child: TextField(
+            controller: _bedtimeController,
+            decoration: const InputDecoration(
+              icon: Icon(Icons.schedule),
+              hintText: '',
+              labelText: 'BedTime',
+            ),
+            readOnly: true,
+            onTap: () async {
+              TimeOfDay? pickedTime = await showTimePicker(
+                  context: context, initialTime: TimeOfDay.now());
+              if (pickedTime != null) {
+                String formattedTime =
+                    '${pickedTime.hour.toString()} : ${pickedTime.minute.toString()}';
+                setState(() {
+                  _bedtimeController.text = formattedTime;
+                  // only care about the hour and minute, everything else can be discarded, seconds aren't meaningful so ignore
+                  bedTime = DateTime(0, 0, 0, pickedTime.hour, pickedTime.minute);
+
+                });
+              } else {}
+            },
+          ),
+        ));
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sleep Goals'),
@@ -668,12 +822,13 @@ class UpdateSleepGoals extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextFormField(
+            /*TextFormField(
               controller: _bedtimeController,
               decoration: const InputDecoration(
                 labelText: 'Enter your desired bedtime',
               ),
-            ),
+            ),*/
+            BedtimeInput, // time picker
             TextFormField(
               controller: _durationController,
               decoration: const InputDecoration(
@@ -683,7 +838,8 @@ class UpdateSleepGoals extends StatelessWidget {
             const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
-                String bedtimeText = _bedtimeController.text;
+               // String bedtimeText = _bedtimeController.text;
+                String bedtimeText = bedTime.toString();
                 String durationText = _durationController.text;
 
                 User? user = FirebaseAuth.instance.currentUser;
