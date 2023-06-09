@@ -149,8 +149,8 @@ class _SleepHomeState extends State<SleepHome> {
 
                   sleepGoalsDocRef.get().then((DocumentSnapshot snapshot) {
                     if (snapshot.exists) {
-                      String bedtime = snapshot.get('bedtime') ?? 'Not Set';
-                      String duration = snapshot.get('duration') ?? 'Not Set';
+                      String bedtime = snapshot.get('bedtime').toString() ?? 'Not Set';
+                      String duration = snapshot.get('duration').toString() ?? 'Not Set';
 
                       setState(() {
                         bedtimeGoalText = bedtime;
@@ -208,7 +208,7 @@ class _SleepHomeState extends State<SleepHome> {
               initialRating: 0,
               minRating: 0,
               maxRating: 0,
-              allowHalfRating: true,
+              allowHalfRating: false,
               itemSize: 30.0,
               ratingWidget: RatingWidget(
                 full: const Icon(Icons.star, color: Colors.amber),
@@ -341,72 +341,64 @@ class _SleepHomeState extends State<SleepHome> {
                 ),
           ),
           //Grab logs from DB
-          StreamBuilder<List<SleepLog>>(
-              stream: readSleepLogs(),
+            StreamBuilder<List<SleepLog>>(
+              stream: readLogs(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return const Text('Error');
+                  return Text('Error: ${snapshot.error}');
                 } else if (snapshot.hasData) {
-                  var allSleepLogs = snapshot.data!;
+                  final logs = snapshot.data!;
+                  //print('here');
 
-                  return Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.all(4),
-                      children: <Widget>[
-                        for (int index = 0; index < (allSleepLogs.length < 5 ? allSleepLogs.length : 5); index++)
-                          ElevatedButton(
-                            style: const ButtonStyle(
-                              backgroundColor: MaterialStatePropertyAll<Color>(Colors.white),
-                              foregroundColor: MaterialStatePropertyAll<Color>(Colors.black),
-                            ),
-                            onPressed: () {
-                              // TODO: fill in
-                              // leads to a more verbose log that lists all elements of the log as well as the options to edit/delete the entry
-                            },
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    "Date/Time: ${DateFormat('M/d - h:mm a').format(allSleepLogs[index].bedTime.add(const Duration(hours: -7)))}",
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    "Duration: ${allSleepLogs[index].awakeTime.difference(allSleepLogs[index].bedTime).toString().split(':').take(2).join(':')}",
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ListTile(
-                          title: TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const MoreLogs(),
-                                ),
-                              );
-                            },
-                            child: const Text('More Logs...'),
-                          ),
-                        ),
-                      ],
-                    ),
+                  return ListView(
+                    shrinkWrap: true,
+                    children: logs.map(buildLogMap).toList(),
                   );
-                } else {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
+                }else {
+                  return const Center(child: CircularProgressIndicator(),);
                 }
               },
             ),
+            ElevatedButton(onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const MoreLogs(),
+              ));
+            },
+                child: const Text('More Logs')),
         ],
       )
           ),
     );
+  }
+
+  Widget buildLogMap(SleepLog log) {
+    Duration diff = DateTime.fromMillisecondsSinceEpoch(log.awakeTime.millisecondsSinceEpoch).difference(DateTime.fromMillisecondsSinceEpoch(log.bedTime.millisecondsSinceEpoch));
+    final hours = diff.inHours;
+    final minutes = diff.inMinutes % 60;
+
+    final awakeYear = log.awakeTime.year;
+    final awakeMonth = log.awakeTime.month;
+    final awakeDay = log.awakeTime.day;
+    //('here');
+    return ListTile(
+        leading: Text('${awakeMonth}-${awakeDay}-${awakeYear} - ${hours} hours and ${minutes} minutes'),
+    );
+
+  }
+
+  Stream<List<SleepLog>> readLogs() {
+    final temp = FirebaseFirestore.instance
+        .collection('SleepLogs')
+        .where('userID', isEqualTo: FirebaseAuth.instance.currentUser!.uid.toString())
+        .limit(5)
+        .snapshots();
+
+    //print(temp.first.toString());
+    return FirebaseFirestore.instance
+        .collection('SleepLogs')
+        .where('userID', isEqualTo: FirebaseAuth.instance.currentUser!.uid.toString())
+        .limit(5)
+        .snapshots().map((snapshot) => snapshot.docs.map((doc) => SleepLog.fromJson(doc.data())).toList());
   }
 }
 
@@ -425,9 +417,19 @@ class _MoreLogsState extends State<MoreLogs> {
       .map((snapshot) =>
           snapshot.docs.map((doc) => SleepLog.fromJson(doc.data())).toList());
 
-  Widget buildLog(SleepLog log) => ListTile(
-        leading: Text('${log.rating}'),
-      );
+  Widget buildLog(SleepLog log) {
+    Duration diff = DateTime.fromMillisecondsSinceEpoch(log.awakeTime.millisecondsSinceEpoch).difference(DateTime.fromMillisecondsSinceEpoch(log.bedTime.millisecondsSinceEpoch));
+    final hours = diff.inHours;
+    final minutes = diff.inMinutes % 60;
+
+    final awakeYear = log.awakeTime.year;
+    final awakeMonth = log.awakeTime.month;
+    final awakeDay = log.awakeTime.day;
+    //('here');
+    return ListTile(
+      leading: Text('${awakeMonth}-${awakeDay}-${awakeYear} - ${hours} hours and ${minutes} minutes'),
+    );`
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -444,7 +446,7 @@ class _MoreLogsState extends State<MoreLogs> {
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     print(snapshot.error);
-                    return const Text('Error');
+                    return Text('Error ${snapshot.error}');
                   } else if (snapshot.hasData) {
                     var allSleepLogs = snapshot.data!;
 
@@ -504,7 +506,7 @@ class UpdateSleepGoals extends StatelessWidget {
                 if (user == null) {
                   return;
                 }
-                String uid = user.uid;
+                String uid = user.uid.toString();
 
                 DocumentReference sleepGoalsCollection = FirebaseFirestore.instance.collection('sleep_goals').doc(uid);
                 Map<String, dynamic> sleepData = {

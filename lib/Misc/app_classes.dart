@@ -100,10 +100,10 @@ class SleepLog {
       };
 
   static SleepLog fromJson(Map<String, dynamic> json) => SleepLog(
-        userID: json['userID'],
-        bedTime: json['bedTime'].toDate(),
-        awakeTime: json['awakeTime'].toDate(),
-        rating: json['rating'],
+        userID: json['userID'].toString(),
+        bedTime: DateTime.parse(json['bedTime'].toDate().toString()),
+        awakeTime: DateTime.parse(json['awakeTime'].toDate().toString()),
+        rating: double.parse(json['rating'].toString()).toInt(),
       );
 }
 
