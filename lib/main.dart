@@ -99,8 +99,9 @@ class _HomePageState extends State<HomePage> {
     // Convert a future int to just int.
     int exerciseScore = await getExerciseScore();
     //int sleepScore = await ...;
+    int sleepScore = getSleepScore();
     int foodScore = getFoodScore();
-    return exerciseScore + foodScore; //+ sleepScore + foodScore;
+    return exerciseScore + foodScore + sleepScore; //+ sleepScore + foodScore;
   }
 
   @override
@@ -304,11 +305,11 @@ class _HomePageState extends State<HomePage> {
             )),
         Container(
           padding: const EdgeInsets.all(40),
-          child: const Text(
-            "Recommendation",
-            textAlign: TextAlign.center,
-          ) // TODO: replace text with recommendation obtained from backend
-          ,
+          child: getSleepRec(),//const Text(
+            //"Recommendation",
+            //textAlign: TextAlign.center,
+          //) // TODO: replace text with recommendation obtained from backend
+          //,
         )
       ]),
     );

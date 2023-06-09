@@ -733,15 +733,16 @@ Widget getSleepRec() {
   //}
   //);
   return  FutureBuilder(future: snapshot,
-    builder: (BuildContext context, AsyncSnapshot result){
+    builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> result){
       String str = 'Make a log to receive recommendations';
       if (result.hasData){
         //var temp = result.data != null ? (result.data as Map<String, dynamic>) : null;
-        QuerySnapshot<Map<String, dynamic>> temp = result.data!;
+        //QuerySnapshot<Map<String, dynamic>> temp = result.data!;
+        DocumentSnapshot<Map<String, dynamic>> doc = result.data!;
         //if (temp != null) {
-        for (var d in temp.docs){
+        //for (var d in result.data){
           DateTime bedtime = DateTime.parse(
-              d['bedtime'].toDate().toString()); // get the bedtime
+              doc['bedtime'].toDate().toString()); // get the bedtime
           if (DateTime.now().isAfter(
               bedtime.subtract(const Duration(minutes: 31)))) {
             str = "Bedtime in 30 minutes! Put away all electronic devices.";
@@ -757,7 +758,7 @@ Widget getSleepRec() {
                 .inMinutes % 60)
                 .toString()}"; // won't update continuously, but its something
           }
-        }}
+        }
       return Text(str, textAlign: TextAlign.center,);
     },);
   //if (DateTime.now() >= bedTime - duration(minutes:30)) {}// compare current time to the scheduled bed time, if within 30 minutes, tell them to put away devices
