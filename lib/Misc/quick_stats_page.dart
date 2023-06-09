@@ -70,14 +70,7 @@ class _StatsPageState extends State<StatsPage> {
                         fontWeight: FontWeight.bold, fontSize: 17.0),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 5, bottom: 10),
-                  child: Text(
-                    'Original: $origbmi',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 17.0),
-                  ),
-                ),
+
                 Padding(
                   padding: const EdgeInsets.only(top: 20, bottom: 10),
                   child: Text(
