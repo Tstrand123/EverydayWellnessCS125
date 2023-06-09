@@ -52,6 +52,15 @@ class NewSleepLogState extends State<NewSleepLog> {
   int sleepRatingValue = 0;
 
   @override
+  void dispose() {
+    dateInput.dispose();
+    dateInput2.dispose();
+    sleepTimeInput.dispose();
+    wakeTimeInput.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Widget datePickerField = Container(
       padding: const EdgeInsets.all(8),

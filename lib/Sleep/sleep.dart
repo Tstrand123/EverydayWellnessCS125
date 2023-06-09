@@ -410,6 +410,23 @@ class MoreLogs extends StatefulWidget {
 }
 
 class _MoreLogsState extends State<MoreLogs> {
+  TextEditingController dateInput = TextEditingController();
+  TextEditingController dateInput2 = TextEditingController();
+  TextEditingController sleepTimeInput = TextEditingController();
+  TextEditingController wakeTimeInput = TextEditingController();
+
+  int sleepRatingValue = 0;
+
+
+  @override
+  void dispose() {
+    dateInput.dispose();
+    dateInput2.dispose();
+    sleepTimeInput.dispose();
+    wakeTimeInput.dispose();
+    super.dispose();
+  }
+
   Stream<List<SleepLog>> readSleepLogs() => FirebaseFirestore.instance
       .collection('SleepLogs')
       .where('userID', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
@@ -428,7 +445,174 @@ class _MoreLogsState extends State<MoreLogs> {
     //('here');
     return ListTile(
       leading: Text('${awakeMonth}-${awakeDay}-${awakeYear} - ${hours} hours and ${minutes} minutes'),
+      onTap: () => showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text('Update Profile'),
+          content: Column(
+            children: [
+              const Text('Change Date and Time'),
+              TextField(
+                controller: dateInput,
+                decoration: const InputDecoration(
+                  icon: Icon(Icons.calendar_month),
+                  labelText: "Enter Date",
+                ),
+                readOnly: true,
+                onTap: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2100),
+                  );
+                  if (pickedDate != null) {
+                    String formattedDate = DateFormat('M/d/y').format(pickedDate);
+                    setState(() {
+                      dateInput.text = formattedDate;
+                    });
+                  }
+                },
+              ),
+              TextField(
+                controller: sleepTimeInput,
+                decoration: const InputDecoration(
+                  icon: Icon(Icons.schedule),
+                  hintText: '',
+                  labelText: 'Bed Time',
+                ),
+                readOnly: true,
+                onTap: () async {
+                  TimeOfDay? pickedTime = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.now(),
+                  );
+                  if (pickedTime != null) {
+                    String formattedTime =
+                        '${pickedTime.hour.toString()}:${pickedTime.minute.toString().padLeft(2, '0')}';
+                    setState(() {
+                      sleepTimeInput.text = formattedTime;
+                    });
+                  }
+                },
+              ),
+              TextField(
+                controller: dateInput2,
+                decoration: const InputDecoration(
+                  icon: Icon(Icons.calendar_month),
+                  labelText: "Enter Date",
+                ),
+                readOnly: true,
+                onTap: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2100),
+                  );
+                  if (pickedDate != null) {
+                    String formattedDate = DateFormat('M/d/y').format(pickedDate);
+                    setState(() {
+                      dateInput2.text = formattedDate;
+                    });
+                  }
+                },
+              ),
+              TextField(
+                controller: wakeTimeInput,
+                decoration: const InputDecoration(
+                  icon: Icon(Icons.schedule),
+                  hintText: '',
+                  labelText: 'Wake up time',
+                ),
+                readOnly: true,
+                onTap: () async {
+                  TimeOfDay? pickedTime = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.now(),
+                  );
+                  if (pickedTime != null) {
+                    String formattedTime =
+                        '${pickedTime.hour.toString()}:${pickedTime.minute.toString().padLeft(2, '0')}';
+                    setState(() {
+                      wakeTimeInput.text = formattedTime;
+                    });
+                  }
+                },
+              ),
+              const SizedBox(height: 15,),
+              RatingBar(
+                initialRating: 0,
+                minRating: 0,
+                maxRating: 5,
+                allowHalfRating: true,
+                itemSize: 30.0,
+                ratingWidget: RatingWidget(
+                  full: const Icon(Icons.star, color: Colors.amber),
+                  half: const Icon(Icons.star, color: Colors.amber),
+                  empty: const Icon(
+                    Icons.star,
+                    color: Colors.grey,
+                  ),
+                ),
+                onRatingUpdate: (rating) {
+                  setState(() {
+                    sleepRatingValue = rating.toInt();
+                  });
+                },
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel')),
+            TextButton(onPressed: () => updateSleepLog(log.awakeTime.toString()), //immediately quits
+              child: const Text('Update'),),
+          ],
+        ),
+      ),
     );
+  }
+
+  void updateSleepLog(String awakeTime) async {
+    print('called');
+    print(dateInput.text);
+    print(DateTime.parse(awakeTime));
+
+    final oldNameID = '${FirebaseAuth.instance.currentUser!.uid}-${DateTime.parse(awakeTime)}';
+    print(oldNameID);
+
+    final User? user = FirebaseAuth.instance.currentUser;
+    final String userId = user!.uid;
+
+    final CollectionReference logsCollection =
+    FirebaseFirestore.instance.collection('SleepLogs');
+
+    final temp = await logsCollection.get();
+    print(temp.docs);
+
+    final String dI = dateInput.text;
+    final String bTI = sleepTimeInput.text;
+    final String dI2 = dateInput2.text;
+    final String wTI = wakeTimeInput.text;
+
+    final Map<String, dynamic> logData = {
+      'awakeTime': Timestamp.fromDate(DateFormat('M/d/y HH:mm').parse('$dI2 $wTI')),
+      'bedTime': Timestamp.fromDate(DateFormat('M/d/y HH:mm').parse('$dI $bTI')),
+      'rating': sleepRatingValue,
+      'userID': userId,
+    };
+
+    await logsCollection.doc(oldNameID).update(logData);
+
+
+
+    sleepTimeInput.clear();
+    dateInput2.clear();
+    wakeTimeInput.clear();
+    dateInput.clear();
+    Navigator.pop(context);
   }
 
   @override
