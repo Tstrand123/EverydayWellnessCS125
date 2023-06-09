@@ -743,17 +743,19 @@ Widget getSleepRec() {
         //for (var d in result.data){
           DateTime bedtime = DateTime.parse(
               doc['bedtime'].toDate().toString()); // get the bedtime
+        DateTime today = DateTime.now();
+        DateTime todayBedTime = DateTime(today.year, today.month, today.day, bedtime.hour, bedtime.minute);
           if (DateTime.now().isAfter(
-              bedtime.subtract(const Duration(minutes: 31)))) {
+              todayBedTime.subtract(const Duration(minutes: 31)))) {
             str = "Bedtime in 30 minutes! Put away all electronic devices.";
           }
           else if (DateTime.now().isAfter(
-              bedtime.subtract(const Duration(hours: 2)))) {
+              todayBedTime.subtract(const Duration(hours: 2)))) {
             str =
             "Bedtime in 2 hours, make sure to get your daily exercise in!"; // TODO: is there a way to check if exercise has been done without querying the db?
           }
           else {
-            Duration timeTil = DateTime.now().difference(bedtime);
+            Duration timeTil = todayBedTime.difference(DateTime.now());//DateTime.now().difference(todayBedTime);
             str = "Time until bedtime: ${timeTil.inHours.toString()} : ${(timeTil
                 .inMinutes % 60)
                 .toString()}"; // won't update continuously, but its something
