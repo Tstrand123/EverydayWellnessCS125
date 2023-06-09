@@ -282,9 +282,7 @@ class _HomePageState extends State<HomePage> {
           return const SleepHome(title: 'Sleep Home');
         }));
       }, // on pressed
-      child: Wrap(
-          direction: Axis.horizontal,
-          children: <Widget>[
+      child: Wrap(direction: Axis.horizontal, children: <Widget>[
         DecoratedBox(
             decoration: const BoxDecoration(
               border: Border(bottom: BorderSide(width: 2, color: Colors.grey)),
@@ -307,9 +305,9 @@ class _HomePageState extends State<HomePage> {
             )),
         Container(
           padding: const EdgeInsets.all(40),
-          child: getSleepRec(),//const Text(
-            //"Recommendation",
-            //textAlign: TextAlign.center,
+          child: getSleepRec(), //const Text(
+          //"Recommendation",
+          //textAlign: TextAlign.center,
           //) // TODO: replace text with recommendation obtained from backend
           //,
         )
@@ -317,78 +315,80 @@ class _HomePageState extends State<HomePage> {
     );
 
     return Scaffold(
-      //MaterialApp(
-      // title: 'Everyday Wellness',
-      // home: Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-        actions: <Widget>[
-          IconButton(
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return const StatsPage(title: 'Quick Stats');
-              }));
-            },
-            icon: const Icon(Icons.align_vertical_bottom),
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return const ProfilePage(title: 'Profile Page');
-              }));
-            },
-            icon: const Icon(Icons.account_circle_rounded),
-          )
-        ],
-      ),
+        //MaterialApp(
+        // title: 'Everyday Wellness',
+        // home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Home'),
+          actions: <Widget>[
+            IconButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return const StatsPage(title: 'Quick Stats');
+                }));
+              },
+              icon: const Icon(Icons.align_vertical_bottom),
+            ),
+            IconButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return const ProfilePage(title: 'Profile Page');
+                }));
+              },
+              icon: const Icon(Icons.account_circle_rounded),
+            )
+          ],
+        ),
 
-      //body: const Center(
-      //  child: Text('Hello World'),
-      //),
-      body: SafeArea(
-        //child: SingleChildScrollView(
-        //child: Column(children: [
-        child: RefreshIndicator(
-          key: refreshKey,
-          onRefresh: () async {
-            build(context);
-            return Future<void>.delayed(const Duration(seconds: 3));
-          },
-          child: SafeArea(
-            child: ListView(children: [
-              // changed to listview so my modifications will work
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Container(padding: const EdgeInsets.all(10), child: welcomeText)
-              ]),
+        //body: const Center(
+        //  child: Text('Hello World'),
+        //),
+        body: SafeArea(
+          //child: SingleChildScrollView(
+          //child: Column(children: [
+          child: RefreshIndicator(
+            key: refreshKey,
+            onRefresh: () async {
+              build(context);
+              return Future<void>.delayed(const Duration(seconds: 3));
+            },
+            child: SafeArea(
+              child: ListView(children: [
+                // changed to listview so my modifications will work
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Container(
+                      padding: const EdgeInsets.all(10), child: welcomeText)
+                ]),
 
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Container(padding: const EdgeInsets.all(20), child: lifestyleScore)
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Container(
+                      padding: const EdgeInsets.all(20), child: lifestyleScore)
+                ]),
+                foodSection, // changed from row -> expanded types. Buttons are too complicated, had to reduce that complexity to make them work (too many nested columns and rows)
+                exerciseSection,
+                sleepSection,
+                ElevatedButton(
+                    onPressed: () => FirebaseAuth.instance.signOut(),
+                    child: const Text('Sign out')),
+                //Expanded (child: ButtonBar(children: [foodSection]))
+                // ElevatedButton(
+                //     onPressed: () => Navigator.push(
+                //       context,
+                //       MaterialPageRoute(builder: (context) => const TestPage()),
+                //     ),
+                //     child: const Text('Go to test pages')),
+                // // Button to go the sensor test page.
+                // ElevatedButton(
+                //     onPressed: () => Navigator.push(
+                //       context,
+                //       MaterialPageRoute(builder: (context) => const SensorPage()),
+                //     ),
+                //     child: const Text('Go to sensor test')),
               ]),
-              foodSection, // changed from row -> expanded types. Buttons are too complicated, had to reduce that complexity to make them work (too many nested columns and rows)
-              exerciseSection,
-              sleepSection,
-              ElevatedButton(
-                  onPressed: () => FirebaseAuth.instance.signOut(),
-                  child: const Text('Sign out')),
-              //Expanded (child: ButtonBar(children: [foodSection]))
-              ElevatedButton(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const TestPage()),
-                  ),
-                  child: const Text('Go to test pages')),
-              // Button to go the sensor test page.
-              ElevatedButton(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SensorPage()),
-                  ),
-                  child: const Text('Go to sensor test')),
-            ]),
+            ),
           ),
-      ),
-      // ),
-    ));
+          // ),
+        ));
     //);
   }
 }
