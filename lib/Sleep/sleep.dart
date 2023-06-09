@@ -183,196 +183,198 @@ class _SleepHomeState extends State<SleepHome> {
 
       // Body starts here
       body: Center(
-          child: Column(
-          children: [
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 5.0), // Adjust the vertical padding as needed
-            child: Row(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 150,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Colors.white60,
-                        borderRadius: const BorderRadius.all(Radius.circular(8)),
-                        border: Border.all(color: Colors.black12, width: 2),
-                      ),
-                      child: Center(
-                        child: Text(EntireBedTimeGoalText),//"Bedtime at $bedtimeGoalText and sleep for $durationGoalText hours."),
+          child: SingleChildScrollView(
+            child: Column(
+            children: [
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 5.0), // Adjust the vertical padding as needed
+              child: Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 150,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Colors.white60,
+                          borderRadius: const BorderRadius.all(Radius.circular(8)),
+                          border: Border.all(color: Colors.black12, width: 2),
+                        ),
+                        child: Center(
+                          child: Text(EntireBedTimeGoalText),//"Bedtime at $bedtimeGoalText and sleep for $durationGoalText hours."),
 
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          Center(
-            child: RatingBar(
-              initialRating: 0,
-              minRating: 0,
-              maxRating: 0,
-              allowHalfRating: false,
-              itemSize: 30.0,
-              ratingWidget: RatingWidget(
-                full: const Icon(Icons.star, color: Colors.amber),
-                half: const Icon(Icons.star_half, color: Colors.amber),
-                empty: const Icon(
-                  Icons.star,
-                  color: Colors.grey,
-                ),
-              ),
-              onRatingUpdate: (rating) {
-                print(rating);
-                setState(() {
-                  sleepRating = rating.toInt();
-                });
-              },
-            ),
-          ),
-          
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 5.0), // Adjust the vertical padding as needed
-            child: Row(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 50,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Colors.white60,
-                        borderRadius: const BorderRadius.all(Radius.circular(8)),
-                        border: Border.all(color: Colors.black12, width: 2),
-                      ),
-                      child: Center(
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => UpdateSleepGoalsState()),//UpdateSleepGoals()),
-                            );
-                          },
-                          child: const Text("New Sleep Goal"),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          // NewLog widget: allows the user to manually create a new Sleep Log
 
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 5.0), // Adjust the vertical padding as needed
-            child: Row(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 50,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Colors.white60,
-                        borderRadius: const BorderRadius.all(Radius.circular(8)),
-                        border: Border.all(color: Colors.black12, width: 2),
-                      ),
-                      child: Center(
-                      child: TextButton(
-                          onPressed: uploadNewSleepLog,
-                          child: const Text("New Log (Auto)")),
-                    )
-                    ),
+            Center(
+              child: RatingBar(
+                initialRating: 0,
+                minRating: 0,
+                maxRating: 0,
+                allowHalfRating: false,
+                itemSize: 30.0,
+                ratingWidget: RatingWidget(
+                  full: const Icon(Icons.star, color: Colors.amber),
+                  half: const Icon(Icons.star_half, color: Colors.amber),
+                  empty: const Icon(
+                    Icons.star,
+                    color: Colors.grey,
                   ),
                 ),
-              ],
-            ),
-          ),
-
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 5.0), // Adjust the vertical padding as needed
-            child: Row(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 50,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Colors.white60,
-                        borderRadius: const BorderRadius.all(Radius.circular(8)),
-                        border: Border.all(color: Colors.black12, width: 2),
-                      ),
-                      child: Center(
-                      child: TextButton(
-                          onPressed: () {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                              return const CreateNewSleepLog();
-                            }));
-                          },
-                          child: const Text("New Log (Manual)")),
-                    )
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                  foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
-                ),
-                
-                onPressed: () {
+                onRatingUpdate: (rating) {
+                  print(rating);
+                  setState(() {
+                    sleepRating = rating.toInt();
+                  });
                 },
-
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Bedtime Goal: $bedtimeGoalText',
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        'Duration Goal: $durationGoalText hrs',
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                ),
-          ),
-          //Grab logs from DB
-            StreamBuilder<List<SleepLog>>(
-              stream: readLogs(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else if (snapshot.hasData) {
-                  final logs = snapshot.data!;
-                  //print('here');
-
-                  return ListView(
-                    shrinkWrap: true,
-                    children: logs.map(buildLogMap).toList(),
-                  );
-                }else {
-                  return const Center(child: CircularProgressIndicator(),);
-                }
-              },
+              ),
             ),
-            ElevatedButton(onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => const MoreLogs(),
-              ));
-            },
-                child: const Text('More Logs')),
+            
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 5.0), // Adjust the vertical padding as needed
+              child: Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 50,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Colors.white60,
+                          borderRadius: const BorderRadius.all(Radius.circular(8)),
+                          border: Border.all(color: Colors.black12, width: 2),
+                        ),
+                        child: Center(
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => UpdateSleepGoalsState()),//UpdateSleepGoals()),
+                              );
+                            },
+                            child: const Text("New Sleep Goal"),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // NewLog widget: allows the user to manually create a new Sleep Log
+
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 5.0), // Adjust the vertical padding as needed
+              child: Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 50,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Colors.white60,
+                          borderRadius: const BorderRadius.all(Radius.circular(8)),
+                          border: Border.all(color: Colors.black12, width: 2),
+                        ),
+                        child: Center(
+                        child: TextButton(
+                            onPressed: uploadNewSleepLog,
+                            child: const Text("New Log (Auto)")),
+                      )
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 5.0), // Adjust the vertical padding as needed
+              child: Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 50,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Colors.white60,
+                          borderRadius: const BorderRadius.all(Radius.circular(8)),
+                          border: Border.all(color: Colors.black12, width: 2),
+                        ),
+                        child: Center(
+                        child: TextButton(
+                            onPressed: () {
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
+                                return const CreateNewSleepLog();
+                              }));
+                            },
+                            child: const Text("New Log (Manual)")),
+                      )
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                    foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                  ),
+                  
+                  onPressed: () {
+                  },
+
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Bedtime Goal: $bedtimeGoalText',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          'Duration Goal: $durationGoalText hrs',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+            ),
+            //Grab logs from DB
+              StreamBuilder<List<SleepLog>>(
+                stream: readLogs(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else if (snapshot.hasData) {
+                    final logs = snapshot.data!;
+                    //print('here');
+
+                    return ListView(
+                      shrinkWrap: true,
+                      children: logs.map(buildLogMap).toList(),
+                    );
+                  }else {
+                    return const Center(child: CircularProgressIndicator(),);
+                  }
+                },
+              ),
+              ElevatedButton(onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const MoreLogs(),
+                ));
+              },
+                  child: const Text('More Logs')),
         ],
-      )
+      ),
+          )
           ),
     );
   }
@@ -456,119 +458,123 @@ class _MoreLogsState extends State<MoreLogs> {
         barrierDismissible: false,
         builder: (BuildContext context) => AlertDialog(
           title: const Text('Update Profile'),
-          content: Column(
-            children: [
-              const Text('Change Date and Time'),
-              TextField(
-                controller: dateInput,
-                decoration: const InputDecoration(
-                  icon: Icon(Icons.calendar_month),
-                  labelText: "Enter Date",
-                ),
-                readOnly: true,
-                onTap: () async {
-                  DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2100),
-                  );
-                  if (pickedDate != null) {
-                    String formattedDate = DateFormat('M/d/y').format(pickedDate);
-                    setState(() {
-                      dateInput.text = formattedDate;
-                    });
-                  }
-                },
-              ),
-              TextField(
-                controller: sleepTimeInput,
-                decoration: const InputDecoration(
-                  icon: Icon(Icons.schedule),
-                  hintText: '',
-                  labelText: 'Bed Time',
-                ),
-                readOnly: true,
-                onTap: () async {
-                  TimeOfDay? pickedTime = await showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay.now(),
-                  );
-                  if (pickedTime != null) {
-                    String formattedTime =
-                        '${pickedTime.hour.toString()}:${pickedTime.minute.toString().padLeft(2, '0')}';
-                    setState(() {
-                      sleepTimeInput.text = formattedTime;
-                    });
-                  }
-                },
-              ),
-              TextField(
-                controller: dateInput2,
-                decoration: const InputDecoration(
-                  icon: Icon(Icons.calendar_month),
-                  labelText: "Enter Date",
-                ),
-                readOnly: true,
-                onTap: () async {
-                  DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2100),
-                  );
-                  if (pickedDate != null) {
-                    String formattedDate = DateFormat('M/d/y').format(pickedDate);
-                    setState(() {
-                      dateInput2.text = formattedDate;
-                    });
-                  }
-                },
-              ),
-              TextField(
-                controller: wakeTimeInput,
-                decoration: const InputDecoration(
-                  icon: Icon(Icons.schedule),
-                  hintText: '',
-                  labelText: 'Wake up time',
-                ),
-                readOnly: true,
-                onTap: () async {
-                  TimeOfDay? pickedTime = await showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay.now(),
-                  );
-                  if (pickedTime != null) {
-                    String formattedTime =
-                        '${pickedTime.hour.toString()}:${pickedTime.minute.toString().padLeft(2, '0')}';
-                    setState(() {
-                      wakeTimeInput.text = formattedTime;
-                    });
-                  }
-                },
-              ),
-              const SizedBox(height: 15,),
-              RatingBar(
-                initialRating: 0,
-                minRating: 0,
-                maxRating: 5,
-                allowHalfRating: true,
-                itemSize: 30.0,
-                ratingWidget: RatingWidget(
-                  full: const Icon(Icons.star, color: Colors.amber),
-                  half: const Icon(Icons.star, color: Colors.amber),
-                  empty: const Icon(
-                    Icons.star,
-                    color: Colors.grey,
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                const Text('Change Date and Time'),
+                TextField(
+                  controller: dateInput,
+                  decoration: const InputDecoration(
+                    icon: Icon(Icons.calendar_month),
+                    labelText: "Enter Date",
                   ),
+                  readOnly: true,
+                  onTap: () async {
+                    DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    if (pickedDate != null) {
+                      String formattedDate = DateFormat('M/d/y').format(pickedDate);
+                      setState(() {
+                        dateInput.text = formattedDate;
+                      });
+                    }
+                  },
                 ),
-                onRatingUpdate: (rating) {
-                  setState(() {
-                    sleepRatingValue = rating.toInt();
-                  });
-                },
-              ),
-            ],
+                TextField(
+                  controller: sleepTimeInput,
+                  decoration: const InputDecoration(
+                    icon: Icon(Icons.schedule),
+                    hintText: '',
+                    labelText: 'Bed Time',
+                  ),
+                  readOnly: true,
+                  onTap: () async {
+                    TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+                    if (pickedTime != null) {
+                      String formattedTime =
+                          '${pickedTime.hour.toString()}:${pickedTime.minute.toString().padLeft(2, '0')}';
+                      setState(() {
+                        sleepTimeInput.text = formattedTime;
+                      });
+                    }
+                  },
+                ),
+                TextField(
+                  controller: dateInput2,
+                  decoration: const InputDecoration(
+                    icon: Icon(Icons.calendar_month),
+                    labelText: "Enter Date",
+                  ),
+                  readOnly: true,
+                  onTap: () async {
+                    DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    if (pickedDate != null) {
+                      String formattedDate = DateFormat('M/d/y').format(pickedDate);
+                      setState(() {
+                        dateInput2.text = formattedDate;
+                      });
+                    }
+                  },
+                ),
+                TextField(
+                  controller: wakeTimeInput,
+                  decoration: const InputDecoration(
+                    icon: Icon(Icons.schedule),
+                    hintText: '',
+                    labelText: 'Wake up time',
+                  ),
+                  readOnly: true,
+                  onTap: () async {
+                    TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+
+                    if (pickedTime != null) {
+                      String formattedTime =
+                          '${pickedTime.hour.toString()}:${pickedTime.minute.toString().padLeft(2, '0')}';
+                      setState(() {
+                        print(formattedTime);
+                        wakeTimeInput.text = formattedTime;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 15,),
+                RatingBar(
+                  initialRating: 0,
+                  minRating: 0,
+                  maxRating: 5,
+                  allowHalfRating: true,
+                  itemSize: 30.0,
+                  ratingWidget: RatingWidget(
+                    full: const Icon(Icons.star, color: Colors.amber),
+                    half: const Icon(Icons.star, color: Colors.amber),
+                    empty: const Icon(
+                      Icons.star,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  onRatingUpdate: (rating) {
+                    setState(() {
+                      sleepRatingValue = rating.toInt();
+                    });
+                  },
+                ),
+              ],
+            ),
           ),
           actions: <Widget>[
             TextButton(onPressed: () => Navigator.pop(context),
@@ -628,32 +634,34 @@ class _MoreLogsState extends State<MoreLogs> {
         title: const Text('More Logs'),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            SingleChildScrollView(
-              child: StreamBuilder<List<SleepLog>>(
-                stream: readSleepLogs(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    print(snapshot.error);
-                    return Text('Error ${snapshot.error}');
-                  } else if (snapshot.hasData) {
-                    var allSleepLogs = snapshot.data!;
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              SingleChildScrollView(
+                child: StreamBuilder<List<SleepLog>>(
+                  stream: readSleepLogs(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      print(snapshot.error);
+                      return Text('Error ${snapshot.error}');
+                    } else if (snapshot.hasData) {
+                      var allSleepLogs = snapshot.data!;
 
-                    return ListView(
-                      shrinkWrap:
-                          true, //Referenced https://stackoverflow.com/questions/50252569/vertical-viewport-was-given-unbounded-height
-                      children: allSleepLogs.map(buildLog).toList(),
-                    );
-                  } else {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                },
+                      return ListView(
+                        shrinkWrap:
+                            true, //Referenced https://stackoverflow.com/questions/50252569/vertical-viewport-was-given-unbounded-height
+                        children: allSleepLogs.map(buildLog).toList(),
+                      );
+                    } else {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -716,6 +724,7 @@ Widget getSleepRec() {
   //String bedTime = ''; // TODO: parse bedtime
 
   Future<DocumentSnapshot<Map<String, dynamic>>> snapshot =  db.collection('sleep_goals').doc(userId).get();//.then(
+  print(snapshot);
   // (event){
   /*var temp = event.data() as Map<String, dynamic>;
 
@@ -732,6 +741,8 @@ Widget getSleepRec() {
             }*/
   //}
   //);
+
+
   return  FutureBuilder(future: snapshot,
     builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> result){
       String str = 'Make a log to receive recommendations';
@@ -761,7 +772,8 @@ Widget getSleepRec() {
                 .toString()}"; // won't update continuously, but its something
           }
         }
-      return Text(str, textAlign: TextAlign.center,);
+      return Text(str, textAlign: TextAlign.center,
+        overflow: TextOverflow.ellipsis,);
     },);
   //if (DateTime.now() >= bedTime - duration(minutes:30)) {}// compare current time to the scheduled bed time, if within 30 minutes, tell them to put away devices
 
@@ -785,6 +797,13 @@ class UpdateSleepGoals extends State<UpdateSleepGoalsState> {
   final TextEditingController _bedtimeController = TextEditingController();
   final TextEditingController _durationController = TextEditingController();
 
+  @override
+  void dispose() {
+    _bedtimeController.dispose();
+    _durationController.dispose();
+    super.dispose();
+  }
+
   var bedTime = DateTime.now();
 
   @override
@@ -803,16 +822,12 @@ class UpdateSleepGoals extends State<UpdateSleepGoalsState> {
             onTap: () async {
               TimeOfDay? pickedTime = await showTimePicker(
                   context: context, initialTime: TimeOfDay.now());
-              if (pickedTime != null) {
-                String formattedTime =
-                    '${pickedTime.hour.toString()} : ${pickedTime.minute.toString()}';
-                setState(() {
-                  _bedtimeController.text = formattedTime;
-                  // only care about the hour and minute, everything else can be discarded, seconds aren't meaningful so ignore
-                  bedTime = DateTime(0, 0, 0, pickedTime.hour, pickedTime.minute);
-
-                });
-              } else {}
+              if (pickedTime != null){
+                print(pickedTime);
+                DateTime temp = DateTime.now();
+                final dateTimeProper = DateTime(temp.year,temp.month,temp.day,pickedTime.hour,pickedTime.minute);
+                _bedtimeController.text = DateTime(temp.year,temp.month,temp.day,pickedTime.hour,pickedTime.minute).toString();
+              }
             },
           ),
         ));
@@ -823,50 +838,52 @@ class UpdateSleepGoals extends State<UpdateSleepGoalsState> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            /*TextFormField(
-              controller: _bedtimeController,
-              decoration: const InputDecoration(
-                labelText: 'Enter your desired bedtime',
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              /*TextFormField(
+                controller: _bedtimeController,
+                decoration: const InputDecoration(
+                  labelText: 'Enter your desired bedtime',
+                ),
+              ),*/
+              BedtimeInput, // time picker
+              TextFormField(
+                controller: _durationController,
+                decoration: const InputDecoration(
+                  labelText: 'Enter your desired sleep duration (in hours)',
+                ),
               ),
-            ),*/
-            BedtimeInput, // time picker
-            TextFormField(
-              controller: _durationController,
-              decoration: const InputDecoration(
-                labelText: 'Enter your desired sleep duration (in hours)',
+              const SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: () {
+                 // String bedtimeText = _bedtimeController.text;
+                  String bedtimeText = bedTime.toString();
+                  String durationText = _durationController.text;
+
+                  User? user = FirebaseAuth.instance.currentUser;
+                  if (user == null) {
+                    return;
+                  }
+                  String uid = user.uid.toString();
+
+                  DocumentReference sleepGoalsCollection = FirebaseFirestore.instance.collection('sleep_goals').doc(uid);
+                  Map<String, dynamic> sleepData = {
+                    'bedtime': DateTime.parse(_bedtimeController.text),
+                    'duration': durationText,
+                  };
+                  
+                  sleepGoalsCollection.set(sleepData).then((value) {
+                    const Text('Data saved successfully');
+                    Navigator.pop(context);
+                  }).catchError((error) {
+                    Text('Error: $error');
+                  });
+                },
+                child: const Text('Submit'),
               ),
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-               // String bedtimeText = _bedtimeController.text;
-                String bedtimeText = bedTime.toString();
-                String durationText = _durationController.text;
-
-                User? user = FirebaseAuth.instance.currentUser;
-                if (user == null) {
-                  return;
-                }
-                String uid = user.uid.toString();
-
-                DocumentReference sleepGoalsCollection = FirebaseFirestore.instance.collection('sleep_goals').doc(uid);
-                Map<String, dynamic> sleepData = {
-                  'bedtime': bedtimeText,
-                  'duration': durationText,
-                };
-                
-                sleepGoalsCollection.set(sleepData).then((value) {
-                  const Text('Data saved successfully');
-                  Navigator.pop(context);
-                }).catchError((error) {
-                  Text('Error: $error');
-                });
-              },
-              child: const Text('Submit'),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
