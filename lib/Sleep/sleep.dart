@@ -428,7 +428,7 @@ class _MoreLogsState extends State<MoreLogs> {
     //('here');
     return ListTile(
       leading: Text('${awakeMonth}-${awakeDay}-${awakeYear} - ${hours} hours and ${minutes} minutes'),
-    );`
+    );
   }
 
   @override
