@@ -724,7 +724,7 @@ Widget getSleepRec() {
   //String bedTime = ''; // TODO: parse bedtime
 
   Future<DocumentSnapshot<Map<String, dynamic>>> snapshot =  db.collection('sleep_goals').doc(userId).get();//.then(
-  print(snapshot);
+  //print(snapshot);
   // (event){
   /*var temp = event.data() as Map<String, dynamic>;
 
@@ -746,16 +746,18 @@ Widget getSleepRec() {
   return  FutureBuilder(future: snapshot,
     builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> result){
       String str = 'Make a log to receive recommendations';
-      if (result.hasData){
-        //var temp = result.data != null ? (result.data as Map<String, dynamic>) : null;
-        //QuerySnapshot<Map<String, dynamic>> temp = result.data!;
-        DocumentSnapshot<Map<String, dynamic>> doc = result.data!;
-        //if (temp != null) {
-        //for (var d in result.data){
+      try {
+        if (result.hasData) {
+          //var temp = result.data != null ? (result.data as Map<String, dynamic>) : null;
+          //QuerySnapshot<Map<String, dynamic>> temp = result.data!;
+          DocumentSnapshot<Map<String, dynamic>> doc = result.data!;
+          //if (temp != null) {
+          //for (var d in result.data){
           DateTime bedtime = DateTime.parse(
               doc['bedtime'].toDate().toString()); // get the bedtime
-        DateTime today = DateTime.now();
-        DateTime todayBedTime = DateTime(today.year, today.month, today.day, bedtime.hour, bedtime.minute);
+          DateTime today = DateTime.now();
+          DateTime todayBedTime = DateTime(
+              today.year, today.month, today.day, bedtime.hour, bedtime.minute);
           if (DateTime.now().isAfter(
               todayBedTime.subtract(const Duration(minutes: 31)))) {
             str = "Bedtime in 30 minutes! Put away all electronic devices.";
@@ -766,12 +768,17 @@ Widget getSleepRec() {
             "Bedtime in 2 hours, make sure to get your daily exercise in!"; // TODO: is there a way to check if exercise has been done without querying the db?
           }
           else {
-            Duration timeTil = todayBedTime.difference(DateTime.now());//DateTime.now().difference(todayBedTime);
-            str = "Time until bedtime: ${timeTil.inHours.toString()} : ${(timeTil
+            Duration timeTil = todayBedTime.difference(
+                DateTime.now()); //DateTime.now().difference(todayBedTime);
+            str =
+            "Time until bedtime: ${timeTil.inHours.toString()} : ${(timeTil
                 .inMinutes % 60)
                 .toString()}"; // won't update continuously, but its something
           }
         }
+      } on StateError {
+        str = 'Please set a sleep goal';
+      }
       return Text(str, textAlign: TextAlign.center,
         overflow: TextOverflow.ellipsis,);
     },);
