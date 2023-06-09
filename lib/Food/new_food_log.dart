@@ -19,14 +19,16 @@ class CreateNewFoodLog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const formTitle = 'Create New Log';
-    return MaterialApp(
-        title: formTitle,
-        home: Scaffold(
+    return //Scaffold(
+        //title: formTitle,
+        //home:
+      Scaffold(
           appBar: AppBar(
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: () {
-                Navigator.pop(context);
+                //Navigator.pop(context);
+                Navigator.of(context).popUntil((route) => route.isFirst);
               },
             ),
             // paints the bar that appears at the top of every page
@@ -39,8 +41,9 @@ class CreateNewFoodLog extends StatelessWidget {
               )
             ],
           ),
-          body: const NewFoodLog(),
-        ));
+          body: const NewFoodLog()
+        );
+    //);
   }
 }
 Map<int, dynamic> testMap = {0: {'name': "test1", 'calories': 300, 'fat': 20, 'carbs': 45, 'protein': 12},
@@ -427,13 +430,15 @@ class NewFoodLogState extends State<NewFoodLog> {
               .doc(MealTime.toString())
               .set({'time': Timestamp.fromDate(MealTime)}); // set the time as a timestamp*/
           // When done, reload the food home page
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return const FoodHome(title: 'FoodHome');
-          //Navigator.pop(context);
+         // Navigator.push(context, MaterialPageRoute(builder: (context) {
+           // return const FoodHome(title: 'FoodHome');
+
             //return const HomePage(title: 'Home'); // broke something with percents
-          }
-        )
-        );
+          //}
+
+        //)
+        //);
+          Navigator.pop(context);
         }
       },
     ));

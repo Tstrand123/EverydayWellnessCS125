@@ -265,7 +265,7 @@ Future<String> getNutritionRec(user_id) async{
       }
     }
     if (calories < CalCount) {
-      if ((calories + totals['calories']!.toInt()) <
+      if ((calories + totals['averageCals']!.toInt()) <
           (CalCount + (CalCount * 0.05).toInt())) {
         // predict what their end-of-day calorie consumption will look like
         String? meal = findMeal(3, CalCount - calories);
@@ -457,7 +457,7 @@ class FoodHome extends StatelessWidget {
           ])),
 
           // Log List: displays summary information on the last 5 logs
-          Expanded(
+          /*Expanded(
               child: ListView(
             padding: const EdgeInsets.all(8),
             children: <Widget>[
@@ -497,7 +497,7 @@ class FoodHome extends StatelessWidget {
                 child: const Text('More Logs...'),
               ))
             ],
-          ))
+          ))*/
           //Expanded(child: )
         ],
       )),
